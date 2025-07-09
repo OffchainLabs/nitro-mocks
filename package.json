@@ -1,0 +1,21 @@
+{
+  "name": "main",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat run test/compare-networks.ts",
+    "compare": "hardhat run test/compare-networks.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@types/node": "^24.0.12",
+    "ethers": "^5.8.0",
+    "hardhat": "^2.25.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
