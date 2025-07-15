@@ -13,6 +13,7 @@ dist/
 
 # Hardhat
 cache/
+cache_hardhat/
 artifacts/
 typechain/
 typechain-types/
@@ -20,6 +21,7 @@ typechain-types/
 # Foundry
 out/
 cache_forge/
+broadcast/
 
 # Environment variables
 .env
@@ -42,7 +44,13 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+hardhat-node.log
 
 # Misc
 .cache/
 *.tsbuildinfo
+
+# Hardhat/Foundry temporary files
+deployments/
+tenderly.yaml
+.tenderly/
