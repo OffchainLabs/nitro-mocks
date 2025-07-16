@@ -9,8 +9,12 @@ import {ArbosStorage} from "./ArbosStorage.sol";
 contract ArbOwnerPublic is IArbOwnerPublic {
     address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
 
-    function isChainOwner(address) external view override returns (bool) {
-        revert("Not implemented");
+    function isChainOwner(address addr) external view override returns (bool) {
+        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.CHAIN_OWNER_SUBSTORAGE
+        );
+        return AddressSet.isMember(ARBOS_STORAGE_ADDRESS, chainOwnerKey, addr);
     }
 
     function rectifyChainOwner(address) external override {
