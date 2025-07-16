@@ -2,15 +2,48 @@
 
 This guide explains how to implement new precompile functions in the Nitro Mocks project.
 
+## Background: Why Nitro Mocks?
+
+Arbitrum implements special system functionality through "precompiles" - contracts deployed at specific addresses (like `0x64`, `0x65`, etc.) that provide core chain functionality. These precompiles are implemented natively in Go within the Arbitrum Nitro node software, not as EVM bytecode.
+
+This creates a challenge for developers:
+- When testing on Arbitrum chains, precompiles work natively
+- When testing on Hardhat forks or other EVM environments, calls to precompile addresses fail
+- This makes it difficult to test Arbitrum-specific functionality in development
+
+**Nitro Mocks solves this by providing Solidity implementations of these precompiles that can be deployed to any EVM chain.**
+
+### How It Works
+
+1. **Storage Architecture**: All Arbitrum system state is stored under a single account (`0xA4B05FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF`). Our mocks deploy an `ArbosStorage` contract at this address.
+
+2. **Precompile Mocks**: We deploy mock contracts at each precompile address (0x64, 0x65, etc.) that replicate the behavior of the native implementations.
+
+3. **Behavioral Parity**: Each mock function reads from/writes to the same storage locations as the Go implementation, ensuring consistent behavior.
+
+4. **Testing Strategy**: We use differential testing (via `expectEquivalent`) to verify our mocks behave identically to real precompiles on an Arbitrum testnode.
+
+### Project Goals
+
+- Enable testing of Arbitrum-specific features on any EVM chain
+- Maintain exact behavioral compatibility with native precompiles
+- Provide a reference implementation for understanding precompile behavior
+- Support development workflows that use Hardhat forks
+
 ## Overview
 
-The Nitro Mocks project provides Solidity implementations of Arbitrum's precompiles for use in testing environments that don't have native precompile support (like Hardhat forks). Each precompile function needs to accurately replicate the behavior of its Go implementation in Nitro.
+Each precompile function implementation follows the same pattern:
+1. Study the Go implementation to understand behavior
+2. Trace storage access patterns
+3. Implement equivalent Solidity code
+4. Test against real precompiles
+
+This guide walks through the process with concrete examples.
 
 ## Prerequisites
 
-1. **Clean working branch**: Ensure your branch is clean with no uncommitted changes before starting
-2. **Understanding of the architecture**: Precompile contracts delegate storage operations to the ArbosStorage contract at `0xA4B05FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF`
-3. **Access to the Nitro submodule**: You'll need to read Go implementations in `submodules/nitro/`
+1. **Understanding of the architecture**: Precompile contracts delegate storage operations to the ArbosStorage contract at `0xA4B05FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF`
+2. **Access to the Nitro submodule**: You'll need to read Go implementations in `submodules/nitro/`
 
 ## Storage System Overview
 
@@ -65,7 +98,36 @@ Create a new test file in `test/[contract-name]/[function-name]/[function-name].
 
 ## Detailed Examples
 
-### Example 1: getAllChainOwners (AddressSet Pattern)
+### Example 1: arbChainID (Direct Offset Pattern)
+
+**Go Implementation** (`submodules/nitro/precompiles/ArbSys.go`):
+```go
+func (con *ArbSys) ArbChainID(c ctx, evm mech) (huge, error) {
+    return evm.ChainConfig().ChainID, nil
+}
+```
+
+**Storage Trace**:
+1. Chain ID is stored at a fixed offset in root storage
+2. Defined in `arbosState.go`: `chainIdOffset = 4`
+3. Direct read from slot at offset 4
+
+**Solidity Implementation** (`contracts/ArbSys.sol`):
+```solidity
+function arbChainID() external view override returns (uint256) {
+    return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint256(
+        ArbosState.ROOT_STORAGE_KEY,
+        ArbosState.CHAIN_ID_OFFSET
+    );
+}
+```
+
+**Key Points**:
+- Simple direct storage read
+- Uses predefined offset constant
+- No subspace calculation needed
+
+### Example 2: getAllChainOwners (AddressSet Pattern)
 
 **Go Implementation** (`submodules/nitro/precompiles/ArbOwnerPublic.go`):
 ```go
@@ -96,35 +158,6 @@ function getAllChainOwners() external view override returns (address[] memory) {
 - Uses the AddressSet library to handle the storage pattern
 - Calculates the subspace key using `openSubStorage`
 - Passes the same max members limit (65536) as the Go code
-
-### Example 2: arbChainID (Direct Offset Pattern)
-
-**Go Implementation** (`submodules/nitro/precompiles/ArbSys.go`):
-```go
-func (con *ArbSys) ArbChainID(c ctx, evm mech) (huge, error) {
-    return evm.ChainConfig().ChainID, nil
-}
-```
-
-**Storage Trace**:
-1. Chain ID is stored at a fixed offset in root storage
-2. Defined in `arbosState.go`: `chainIdOffset = 4`
-3. Direct read from slot at offset 4
-
-**Solidity Implementation** (`contracts/ArbSys.sol`):
-```solidity
-function arbChainID() external view override returns (uint256) {
-    return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint256(
-        ArbosState.ROOT_STORAGE_KEY,
-        ArbosState.CHAIN_ID_OFFSET
-    );
-}
-```
-
-**Key Points**:
-- Simple direct storage read
-- Uses predefined offset constant
-- No subspace calculation needed
 
 ## Common Patterns
 
@@ -162,18 +195,30 @@ bytes memory level2Key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
 
 ## Testing Guidelines
 
-1. **Create a dedicated test file** for each function
-2. **Use expectEquivalent** to compare behavior:
+1. **Create a dedicated test file** for each function in `test/[contract-name]/[function-name]/[function-name].test.ts`
+
+2. **Set up the test environment** in `beforeEach`:
    ```typescript
-   await expectEquivalent(
-     arbSysHardhat.arbChainID(),
-     arbSysTestnode.arbChainID(),
-     "arbChainID should return the same value"
+   beforeEach(async function() {
+     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
+     await deployAndSetCode("contracts/ArbSys.sol:ArbSys", PRECOMPILE_ADDRESSES.ArbSys);
+   });
+   ```
+
+3. **Use expectEquivalentCallFromMultipleAddresses** to test behavior:
+   ```typescript
+   await expectEquivalentCallFromMultipleAddresses(
+     ArbSys__factory,
+     PRECOMPILE_ADDRESSES.ArbSys,
+     "arbChainID",
+     [],  // function arguments
+     {
+       storage: storageComparerExcludingVersion
+     }
    );
    ```
 
-3. **Test from multiple addresses** to verify access control
-4. **Include edge cases** specific to the function
+4. **Include edge cases** specific to the function in additional test cases
 
 ## Type Conversions
 
@@ -184,19 +229,6 @@ Common Go to Solidity type mappings:
 - `[]byte` → `bytes`
 - `[32]byte` → `bytes32`
 
-## Commit Guidelines
-
-When your implementation is complete and tests pass:
-1. Stage your changes
-2. Commit using conventional commits format:
-   ```
-   feat: implement [function-name] in [contract-name]
-   
-   - Add function implementation following Go behavior
-   - Include comprehensive test coverage
-   - Reference: nitro/precompiles/[source-file].go
-   ```
-
 ## Checklist
 
 Before submitting:
@@ -206,4 +238,3 @@ Before submitting:
 - [ ] Edge cases are tested
 - [ ] No unnecessary comments (code should be self-documenting)
 - [ ] Any necessary comments explain "why" not "what"
-- [ ] Clean git history with conventional commits
