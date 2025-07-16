@@ -38,7 +38,10 @@ contract ArbOwnerPublic is IArbOwnerPublic {
     }
 
     function getNetworkFeeAccount() external view override returns (address) {
-        revert("Not implemented");
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.NETWORK_FEE_ACCOUNT_OFFSET
+        );
     }
 
     function getInfraFeeAccount() external view override returns (address) {
