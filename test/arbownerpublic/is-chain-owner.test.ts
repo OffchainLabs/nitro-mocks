@@ -1,6 +1,6 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../../utils/utils";
-import { expectEquivalentCallFromMultipleAddresses, storageComparerExcludingVersion } from "../../utils/expect-equivalent";
-import { ArbOwnerPublic__factory } from "../../../typechain-types/factories/contracts/ArbOwnerPublic__factory";
+import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
+import { expectEquivalentCallFromMultipleAddresses, storageComparerExcludingVersion } from "../utils/expect-equivalent";
+import { ArbOwnerPublic__factory } from "../../typechain-types/factories/contracts/ArbOwnerPublic__factory";
 import { ethers } from "hardhat";
 
 describe("ArbOwnerPublic.isChainOwner", function () {

@@ -1,6 +1,6 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../../utils/utils";
-import { expectEquivalentCallFromMultipleAddresses, storageComparerExcludingVersion } from "../../utils/expect-equivalent";
-import { ArbSys__factory } from "../../../typechain-types/factories/@arbitrum/nitro-precompiles/ArbSys__factory";
+import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
+import { expectEquivalentCallFromMultipleAddresses, storageComparerExcludingVersion } from "../utils/expect-equivalent";
+import { ArbSys__factory } from "../../typechain-types/factories/@arbitrum/nitro-precompiles/ArbSys__factory";
 
 describe("ArbSys.arbChainID", function () {
   beforeEach(async function() {

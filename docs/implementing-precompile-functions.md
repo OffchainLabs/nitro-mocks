@@ -91,7 +91,7 @@ Create or update the appropriate contract in `contracts/`:
 
 ### 4. Write Tests
 
-Create a new test file in `test/[contract-name]/[function-name]/[function-name].test.ts`:
+Create a new test file in `test/[contract-name]/[function-name].test.ts`:
 1. Use the `expectEquivalent` utility for differential testing
 2. Test against a real Arbitrum testnode
 3. Include edge cases and access control tests
@@ -195,7 +195,7 @@ bytes memory level2Key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
 
 ## Testing Guidelines
 
-1. **Create a dedicated test file** for each function in `test/[contract-name]/[function-name]/[function-name].test.ts`
+1. **Create a dedicated test file** for each function in `test/[contract-name]/[function-name].test.ts`
 
 2. **Set up the test environment** in `beforeEach`:
    ```typescript
