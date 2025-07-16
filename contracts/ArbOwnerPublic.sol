@@ -1,0 +1,55 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import {ArbOwnerPublic as IArbOwnerPublic} from "@arbitrum/nitro-precompiles/ArbOwnerPublic.sol";
+import {AddressSet} from "./libraries/AddressSet.sol";
+import {ArbosState} from "./libraries/ArbosState.sol";
+import {ArbosStorage} from "./ArbosStorage.sol";
+
+contract ArbOwnerPublic is IArbOwnerPublic {
+    address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
+
+    function isChainOwner(address) external view override returns (bool) {
+        revert("Not implemented");
+    }
+
+    function rectifyChainOwner(address) external override {
+        revert("Not implemented");
+    }
+
+    function getAllChainOwners() external view override returns (address[] memory) {
+        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.CHAIN_OWNER_SUBSTORAGE
+        );
+        return AddressSet.allMembers(ARBOS_STORAGE_ADDRESS, chainOwnerKey, 65536);
+    }
+
+    function isNativeTokenOwner(address) external view override returns (bool) {
+        revert("Not implemented");
+    }
+
+    function getAllNativeTokenOwners() external view override returns (address[] memory) {
+        revert("Not implemented");
+    }
+
+    function getNetworkFeeAccount() external view override returns (address) {
+        revert("Not implemented");
+    }
+
+    function getInfraFeeAccount() external view override returns (address) {
+        revert("Not implemented");
+    }
+
+    function getBrotliCompressionLevel() external view override returns (uint64) {
+        revert("Not implemented");
+    }
+
+    function getScheduledUpgrade() external view override returns (uint64, uint64) {
+        revert("Not implemented");
+    }
+
+    function isCalldataPriceIncreaseEnabled() external view override returns (bool) {
+        revert("Not implemented");
+    }
+}

@@ -1,9 +1,6 @@
-[submodule "lib/forge-std"]
-	path = lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
 [submodule "lib/nitro-precompile-interfaces"]
-	path = lib/nitro-precompile-interfaces
+	path = submodules/nitro-precompile-interfaces
 	url = https://github.com/OffchainLabs/nitro-precompile-interfaces.git
 [submodule "nitro"]
-	path = nitro
+	path = submodules/nitro
 	url = https://github.com/OffchainLabs/nitro

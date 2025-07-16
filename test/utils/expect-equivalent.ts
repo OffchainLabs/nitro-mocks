@@ -3,11 +3,11 @@ import { BaseContract } from "ethers";
 import { getAllStorageAccessesFromCall, StorageAccess } from "./storage";
 import { getUnderlyingProvider, PRECOMPILE_ADDRESSES } from "./utils";
 import { ethers } from "hardhat";
-import { ArbOwner__factory } from "../../typechain-types";
+import { ArbOwnerPublic__factory } from "../../typechain-types";
 
 const VERSION_SLOT = "0x15fed0451499512d95f3ec5a41c878b9de55f21878b5b4e190d4667ec709b400";
 
-let cachedChainOwner: string | null = null;
+let cachedChainOwners: string[] = [];
 
 interface EquivalenceError {
   parameters: {
@@ -92,21 +92,19 @@ export function createStorageComparerExcludingVersion(errorContext?: Partial<Equ
 export const storageComparerExact = createStorageComparer();
 export const storageComparerExcludingVersion = createStorageComparerExcludingVersion();
 
-async function getAndVerifyChainOwner(): Promise<string> {
-  if (cachedChainOwner) {
-    return cachedChainOwner;
+async function getAndVerifyChainOwners(): Promise<string[]> {
+  if (cachedChainOwners) {
+    return cachedChainOwners;
   }
   
   const forkProvider = ethers.provider;
   const underlyingProvider = getUnderlyingProvider();
   
-  const forkArbOwner = ArbOwner__factory.connect(PRECOMPILE_ADDRESSES.ArbOwner, forkProvider);
-  const underlyingArbOwner = ArbOwner__factory.connect(PRECOMPILE_ADDRESSES.ArbOwner, underlyingProvider);
+  const forkArbOwnerPublic = ArbOwnerPublic__factory.connect(PRECOMPILE_ADDRESSES.ArbOwnerPublic, forkProvider);
+  const underlyingArbOwnerPublic = ArbOwnerPublic__factory.connect(PRECOMPILE_ADDRESSES.ArbOwnerPublic, underlyingProvider);
   
-  const [forkOwner, underlyingOwner] = await Promise.all([
-    forkArbOwner.getChainOwners(),
-    underlyingArbOwner.getChainOwners()
-  ]);
+  const forkOwner = await forkArbOwnerPublic.getAllChainOwners();
+  const underlyingOwner = await underlyingArbOwnerPublic.getAllChainOwners();
   
   if (forkOwner.length === 0 || underlyingOwner.length === 0) {
     throw new Error("No chain owners found");
@@ -116,8 +114,8 @@ async function getAndVerifyChainOwner(): Promise<string> {
     throw new Error(`Chain owner mismatch: fork has ${forkOwner[0]}, underlying has ${underlyingOwner[0]}`);
   }
   
-  cachedChainOwner = forkOwner[0];
-  return cachedChainOwner;
+  cachedChainOwners = forkOwner;
+  return cachedChainOwners;
 }
 
 
@@ -176,6 +174,7 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
   try {
     underlyingResult = await (underlyingContract as any)[method as string](...args);
   } catch (error: any) {
+    console.log(`Underlying call to ${method as string} failed:`, error.message);
     underlyingReverted = true;
     underlyingResult = error;
   }
@@ -285,12 +284,12 @@ export async function expectEquivalentCallFromMultipleAddresses<TContract extend
   args: any[] = [],
   options?: EquivalenceOptions
 ): Promise<void> {
-  const chainOwner = await getAndVerifyChainOwner();
+  const chainOwners = await getAndVerifyChainOwners();
   const randomAddress = ethers.Wallet.createRandom().address;
   
   const testAddresses = [
-    chainOwner,
-    ethers.constants.AddressZero,
+    ...chainOwners,
+    ethers.ZeroAddress,
     PRECOMPILE_ADDRESSES.ArbSys,
     PRECOMPILE_ADDRESSES.ArbRetryableTx,
     PRECOMPILE_ADDRESSES.ArbGasInfo,

@@ -1,2 +1,1 @@
-@arbitrum/nitro-precompiles/=lib/nitro-precompile-interfaces/
-forge-std/=lib/forge-std/src/
+@arbitrum/nitro-precompiles/=submodules/nitro-precompile-interfaces/

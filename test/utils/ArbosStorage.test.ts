@@ -18,7 +18,6 @@ describe("ArbosStorage", function () {
       
       const version = parseInt(storedValue, 16);
       
-      // Version 32 (0x20) is expected on mainnet
       expect(version).to.equal(32);
     });
   });
@@ -29,7 +28,7 @@ describe("ArbosStorage", function () {
     await deployed.waitForDeployment();
     
     const bytecode = await network.provider.send("eth_getCode", [
-      await deployed.getAddress()
+      deployed.target
     ]);
     
     await network.provider.send("hardhat_setCode", [
@@ -42,21 +41,20 @@ describe("ArbosStorage", function () {
 
   describe("Storage Mapping", function () {
     it("Should map key 0 to the expected version slot", async function () {
-      const key0 = ZeroHash; // 32 bytes of zeros
-      const mappedSlot = await arbosStorage.mapAddress(key0);
+      const key0 = ZeroHash;
+      const mappedSlot = await arbosStorage.mapAddress("0x", key0);
       
       expect(mappedSlot).to.equal(EXPECTED_VERSION_SLOT);
     });
 
     it("Should preserve last byte in mapped slots", async function () {
-      // The algorithm preserves the last byte of the key
       const key0 = ZeroHash;
       const key42 = zeroPadValue("0x2a", 32);
       const key255 = zeroPadValue("0xff", 32);
       
-      const slot0 = await arbosStorage.mapAddress(key0);
-      const slot42 = await arbosStorage.mapAddress(key42);
-      const slot255 = await arbosStorage.mapAddress(key255);
+      const slot0 = await arbosStorage.mapAddress(ZeroHash, key0);
+      const slot42 = await arbosStorage.mapAddress(ZeroHash, key42);
+      const slot255 = await arbosStorage.mapAddress(ZeroHash, key255);
       
       expect(slot0.slice(-2)).to.equal("00");
       expect(slot42.slice(-2)).to.equal("2a");
@@ -64,12 +62,11 @@ describe("ArbosStorage", function () {
     });
 
     it("Should produce different pages for different key prefixes", async function () {
-      // Keys with different first 31 bytes map to different pages
       const key1 = zeroPadValue("0x01", 32);
       const key2 = zeroPadValue("0x0100", 32);
       
-      const slot1 = await arbosStorage.mapAddress(key1);
-      const slot2 = await arbosStorage.mapAddress(key2);
+      const slot1 = await arbosStorage.mapAddress(ZeroHash, key1);
+      const slot2 = await arbosStorage.mapAddress(ZeroHash, key2);
       
       expect(slot1.slice(0, -2)).to.not.equal(slot2.slice(0, -2));
     });
@@ -81,12 +78,11 @@ describe("ArbosStorage", function () {
       const key2 = base + "cd02";
       const keyFF = base + "cdff";
       
-      const slot0 = await arbosStorage.mapAddress(key0);
-      const slot1 = await arbosStorage.mapAddress(key1);
-      const slot2 = await arbosStorage.mapAddress(key2);
-      const slotFF = await arbosStorage.mapAddress(keyFF);
+      const slot0 = await arbosStorage.mapAddress(ZeroHash, key0);
+      const slot1 = await arbosStorage.mapAddress(ZeroHash, key1);
+      const slot2 = await arbosStorage.mapAddress(ZeroHash, key2);
+      const slotFF = await arbosStorage.mapAddress(ZeroHash, keyFF);
       
-      // All share the same page (first 31 bytes)
       const page = slot0.slice(0, -2);
       expect(slot1.slice(0, -2)).to.equal(page);
       expect(slot2.slice(0, -2)).to.equal(page);
@@ -99,29 +95,60 @@ describe("ArbosStorage", function () {
     });
   });
 
-  describe("Version Storage", function () {
-    it("Should store version at the expected slot", async function () {
-      const testVersion = 42;
+  describe("Storage Access Methods", function () {
+    let arbosStorage: any;
+    
+    beforeEach(async function() {
+      const ArbosStorage = await ethers.getContractFactory("ArbosStorage");
+      arbosStorage = await ArbosStorage.deploy();
+      await arbosStorage.waitForDeployment();
+    });
+    
+    it("Should store and retrieve uint64 values", async function () {
+      const testValue = 42;
+      const offset = 1;
       
-      await arbosStorage.setVersion(testVersion);
+      await arbosStorage.setUint64("0x", offset, testValue);
       
-      const retrievedVersion = await arbosStorage.getVersion();
-      expect(Number(retrievedVersion)).to.equal(testVersion);
+      const retrievedValue = await arbosStorage.getUint64("0x", offset);
+      expect(Number(retrievedValue)).to.equal(testValue);
+    });
+
+    it("Should store and retrieve address values", async function () {
+      const [signer] = await ethers.getSigners();
+      const testAddress = await signer.getAddress();
+      const offset = 2;
       
-      const storedValue = await arbosStorage.getStorageAt(EXPECTED_VERSION_SLOT);
-      const directVersion = toNumber(storedValue);
-      expect(directVersion).to.equal(testVersion);
+      const tx = await arbosStorage.setAddr("0x", offset, testAddress);
+      await tx.wait();
+      
+      const retrievedAddress = await arbosStorage.getAddr("0x", offset);
+      expect(retrievedAddress).to.equal(testAddress);
     });
 
     it("Should handle direct slot access", async function () {
-      const testVersion = 999;
-      const versionBytes = zeroPadValue(toBeHex(testVersion), 32);
+      const testValue = 999;
+      const testBytes = zeroPadValue(toBeHex(testValue), 32);
+      const testSlot = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
       
-      await arbosStorage.setStorageAt(EXPECTED_VERSION_SLOT, versionBytes);
+      await arbosStorage.setStorageAt(testSlot, testBytes);
       
-      const retrievedVersion = await arbosStorage.getVersion();
+      const retrievedValue = await arbosStorage.getStorageAt(testSlot);
+      expect(retrievedValue).to.equal(testBytes);
+    });
+
+    it("Should correctly map offsets to storage slots", async function () {
+      const offset = 0;
+      const testValue = 12345;
       
-      expect(Number(retrievedVersion)).to.equal(testVersion);
+      await arbosStorage.setUint64("0x", offset, testValue);
+      
+      const mappedSlot = await arbosStorage.mapAddress("0x", zeroPadValue(toBeHex(offset), 32));
+      
+      const storedValue = await arbosStorage.getStorageAt(mappedSlot);
+      const directValue = toNumber(storedValue);
+      
+      expect(directValue).to.equal(testValue);
     });
   });
 });
