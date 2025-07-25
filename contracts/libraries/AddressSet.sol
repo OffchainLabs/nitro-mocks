@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {ArbosStorage} from "../ArbosStorage.sol";
 
 /**
- * @notice Mirrors the Go implementation of arbos/addressSet/addressSet.go
+ * @notice Mirror of arbos/addressSet/addressSet.go
  * @dev Size is stored at position 0, members are stored sequentially from position 1 onward
  */
 library AddressSet {
@@ -56,13 +56,11 @@ library AddressSet {
         uint64 size = arbosStorage.getUint64(subStorageKey, 0);
         uint64 newSize = size + 1;
         
-        // Update byAddress mapping
         bytes memory byAddressKey = arbosStorage.openSubStorage(subStorageKey, abi.encodePacked(bytes1(0x00)));
         bytes32 addrAsHash = bytes32(uint256(uint160(addr)));
         bytes32 slotValue = bytes32(uint256(newSize));
         arbosStorage.setStorageAt(arbosStorage.mapAddress(byAddressKey, addrAsHash), slotValue);
         
-        // Store address at position newSize
         arbosStorage.setAddr(subStorageKey, newSize, addr);
         
         // go code does an increment - which always reads before writing

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {ArbSys as IArbSys} from "@arbitrum/nitro-precompiles/ArbSys.sol";
+import {ArbSys as IArbSys} from "../submodules/nitro-precompile-interfaces/ArbSys.sol";
 import {ArbosStorage} from "./ArbosStorage.sol";
 
 contract ArbSys is IArbSys {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {ArbOwnerPublic as IArbOwnerPublic} from "@arbitrum/nitro-precompiles/ArbOwnerPublic.sol";
+import {ArbOwnerPublic as IArbOwnerPublic} from "../submodules/nitro-precompile-interfaces/ArbOwnerPublic.sol";
 import {AddressSet} from "./libraries/AddressSet.sol";
 import {ArbosState} from "./libraries/ArbosState.sol";
 import {ArbosStorage} from "./ArbosStorage.sol";

@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
-import { expectEquivalentCallFromMultipleAddresses, expectEquivalentTxFromMultipleAddresses, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
+import { expectEquivalentTxFromMultipleAddresses, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbOwner__factory } from "../../typechain-types";
 
 describe("ArbOwner.addChainOwner", function () {
