@@ -67,8 +67,16 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(bytes4(keccak256("addChainOwner(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("addChainOwner(address)")), newOwner));
     }
 
-    function removeChainOwner(address) external override {
-        revert("Not implemented");
+    function removeChainOwner(address ownerToRemove) external override onlyChainOwner {
+        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.CHAIN_OWNER_SUBSTORAGE
+        );
+        
+        require(AddressSet.isMember(ARBOS_STORAGE_ADDRESS, chainOwnerKey, ownerToRemove), "tried to remove non-owner");
+        
+        AddressSet.remove(ARBOS_STORAGE_ADDRESS, chainOwnerKey, ownerToRemove);
+        emit OwnerActs(bytes4(keccak256("removeChainOwner(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("removeChainOwner(address)")), ownerToRemove));
     }
 
     function setAmortizedCostCapBips(uint64 cap) external override {

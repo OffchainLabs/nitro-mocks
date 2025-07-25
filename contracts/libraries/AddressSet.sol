@@ -67,4 +67,44 @@ library AddressSet {
         arbosStorage.getUint64(subStorageKey, 0);
         arbosStorage.setUint64(subStorageKey, 0, newSize);
     }
+
+    function remove(
+        address storageAddress,
+        bytes memory subStorageKey,
+        address addr
+    ) internal {
+        ArbosStorage arbosStorage = ArbosStorage(storageAddress);
+        
+        bytes memory byAddressKey = arbosStorage.openSubStorage(subStorageKey, abi.encodePacked(bytes1(0x00)));
+        bytes32 addrAsHash = bytes32(uint256(uint160(addr)));
+        
+        // Get the slot where this address is stored
+        bytes32 slotValue = arbosStorage.getStorageAt(arbosStorage.mapAddress(byAddressKey, addrAsHash));
+        uint64 slot = uint64(uint256(slotValue));
+        
+        require(slot != 0, "AddressSet: address does not exist");
+        
+        // Clear the byAddress mapping
+        arbosStorage.setStorageAt(arbosStorage.mapAddress(byAddressKey, addrAsHash), bytes32(0));
+        
+        uint64 size = arbosStorage.getUint64(subStorageKey, 0);
+        
+        // If the removed address is not at the end, move the last address to its position
+        if (slot < size) {
+            address lastAddr = arbosStorage.getAddr(subStorageKey, size);
+            arbosStorage.setAddr(subStorageKey, slot, lastAddr);
+            
+            // Update the byAddress mapping for the moved address
+            bytes32 lastAddrAsHash = bytes32(uint256(uint160(lastAddr)));
+            arbosStorage.setStorageAt(arbosStorage.mapAddress(byAddressKey, lastAddrAsHash), bytes32(uint256(slot)));
+        }
+        
+        // Clear the last position
+        arbosStorage.setAddr(subStorageKey, size, address(0));
+        
+        // Decrement size
+        uint64 newSize = size - 1;
+        arbosStorage.getUint64(subStorageKey, 0); // Read before write to match Go implementation
+        arbosStorage.setUint64(subStorageKey, 0, newSize);
+    }
 }
