@@ -1,11 +1,13 @@
 import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
 import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersion } from "../utils/expect-equivalent";
+import { ArbOwner__factory } from "../../typechain-types/factories/contracts/ArbOwner__factory";
 import { ArbOwnerPublic__factory } from "../../typechain-types/factories/contracts/ArbOwnerPublic__factory";
 import { ethers } from "hardhat";
 
-describe("ArbOwnerPublic.isChainOwner", function () {
+describe("ArbOwner.isChainOwner", function () {
   beforeEach(async function() {
     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
+    await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
     await deployAndSetCode("contracts/ArbOwnerPublic.sol:ArbOwnerPublic", PRECOMPILE_ADDRESSES.ArbOwnerPublic);
   });
 
@@ -15,8 +17,8 @@ describe("ArbOwnerPublic.isChainOwner", function () {
     
     if (chainOwners.length > 0) {
       await expectEquivalentCallFromMultipleAddresses(
-        ArbOwnerPublic__factory,
-        PRECOMPILE_ADDRESSES.ArbOwnerPublic,
+        ArbOwner__factory,
+        PRECOMPILE_ADDRESSES.ArbOwner,
         "isChainOwner",
         [chainOwners[0]],
         {
@@ -30,8 +32,8 @@ describe("ArbOwnerPublic.isChainOwner", function () {
     const testAddress = "0x0000000000000000000000000000000000000001";
     
     await expectEquivalentCallFromMultipleAddresses(
-      ArbOwnerPublic__factory,
-      PRECOMPILE_ADDRESSES.ArbOwnerPublic,
+      ArbOwner__factory,
+      PRECOMPILE_ADDRESSES.ArbOwner,
       "isChainOwner",
       [testAddress],
       {
@@ -42,10 +44,10 @@ describe("ArbOwnerPublic.isChainOwner", function () {
 
   it("should behave equivalently for zero address", async function () {
     await expectEquivalentCallFromMultipleAddresses(
-      ArbOwnerPublic__factory,
-      PRECOMPILE_ADDRESSES.ArbOwnerPublic,
+      ArbOwner__factory,
+      PRECOMPILE_ADDRESSES.ArbOwner,
       "isChainOwner",
-      ["0x0000000000000000000000000000000000000000"],
+      [ethers.ZeroAddress],
       {
         storageAccess: storageAccessComparerExcludingVersion
       }

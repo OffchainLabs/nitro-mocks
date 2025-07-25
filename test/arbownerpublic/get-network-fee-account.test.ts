@@ -1,5 +1,5 @@
 import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
-import { expectEquivalentCallFromMultipleAddresses, storageComparerExcludingVersion } from "../utils/expect-equivalent";
+import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbOwnerPublic__factory } from "../../typechain-types/factories/contracts/ArbOwnerPublic__factory";
 
 describe("ArbOwnerPublic.getNetworkFeeAccount", function () {
@@ -15,7 +15,7 @@ describe("ArbOwnerPublic.getNetworkFeeAccount", function () {
       "getNetworkFeeAccount",
       [],
       {
-        storage: storageComparerExcludingVersion
+        storageAccess: storageAccessComparerExcludingVersion
       }
     );
   });

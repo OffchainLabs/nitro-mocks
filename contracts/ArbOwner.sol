@@ -2,16 +2,36 @@
 pragma solidity ^0.8.19;
 
 import {ArbOwner as IArbOwner} from "@arbitrum/nitro-precompiles/ArbOwner.sol";
+import {AddressSet} from "./libraries/AddressSet.sol";
+import {ArbosState} from "./libraries/ArbosState.sol";
+import {ArbosStorage} from "./ArbosStorage.sol";
 
 contract ArbOwner is IArbOwner {
     address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
     
-    function getAllChainOwners() external view override returns (address[] memory) {
-        revert("Not implemented");
+    modifier onlyChainOwner() {
+        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.CHAIN_OWNER_SUBSTORAGE
+        );
+        require(AddressSet.isMember(ARBOS_STORAGE_ADDRESS, chainOwnerKey, msg.sender), "unauthorized caller to access-controlled method");
+        _;
+    }
+    
+    function getAllChainOwners() external view override onlyChainOwner returns (address[] memory) {
+        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.CHAIN_OWNER_SUBSTORAGE
+        );
+        return AddressSet.allMembers(ARBOS_STORAGE_ADDRESS, chainOwnerKey, 65536);
     }
 
-    function isChainOwner(address) external view override returns (bool) {
-        revert("Not implemented");
+    function isChainOwner(address addr) external view override onlyChainOwner returns (bool) {
+        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.CHAIN_OWNER_SUBSTORAGE
+        );
+        return AddressSet.isMember(ARBOS_STORAGE_ADDRESS, chainOwnerKey, addr);
     }
 
     function setL2BaseFee(uint256) external override {
@@ -38,8 +58,13 @@ contract ArbOwner is IArbOwner {
         revert("Not implemented");
     }
 
-    function addChainOwner(address) external override {
-        revert("Not implemented");
+    function addChainOwner(address newOwner) external override onlyChainOwner {
+        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.CHAIN_OWNER_SUBSTORAGE
+        );
+        AddressSet.add(ARBOS_STORAGE_ADDRESS, chainOwnerKey, newOwner);
+        emit OwnerActs(bytes4(keccak256("addChainOwner(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("addChainOwner(address)")), newOwner));
     }
 
     function removeChainOwner(address) external override {

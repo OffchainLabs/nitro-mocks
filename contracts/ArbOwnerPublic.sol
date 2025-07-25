@@ -45,15 +45,29 @@ contract ArbOwnerPublic is IArbOwnerPublic {
     }
 
     function getInfraFeeAccount() external view override returns (address) {
-        revert("Not implemented");
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.INFRA_FEE_ACCOUNT_OFFSET
+        );
     }
 
     function getBrotliCompressionLevel() external view override returns (uint64) {
-        revert("Not implemented");
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.BROTLI_COMPRESSION_LEVEL_OFFSET
+        );
     }
 
     function getScheduledUpgrade() external view override returns (uint64, uint64) {
-        revert("Not implemented");
+        uint64 version = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.UPGRADE_VERSION_OFFSET
+        );
+        uint64 timestamp = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.UPGRADE_TIMESTAMP_OFFSET
+        );
+        return (version, timestamp);
     }
 
     function isCalldataPriceIncreaseEnabled() external view override returns (bool) {

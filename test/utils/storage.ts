@@ -9,7 +9,6 @@ export interface StorageAccess {
   address: string;
   slot: string;
   type: StorageAccessType;
-  value?: string;
   pc: number;
   op: string;
 }
@@ -45,30 +44,27 @@ function parseStorageAccessesFromTrace(trace: any, initialAddress: string): Stor
 
     if (log.op === "SLOAD" && log.stack && log.stack.length >= 1) {
       const slotRaw = log.stack[log.stack.length - 1];
-      const slot = slotRaw.startsWith("0x") ? slotRaw.padEnd(66, '0') : "0x" + slotRaw.padStart(64, '0');
-      const nextLog = trace.structLogs[i + 1];
-      const valueRaw = nextLog?.stack?.[nextLog.stack.length - 1];
-      const value = valueRaw ? (valueRaw.startsWith("0x") ? valueRaw.padEnd(66, '0') : "0x" + valueRaw.padStart(64, '0')) : undefined;
+      const slot = slotRaw.startsWith("0x") 
+        ? "0x" + slotRaw.slice(2).padStart(64, '0') 
+        : "0x" + slotRaw.padStart(64, '0');
       
       accesses.push({
         address: currentAddress,
         slot,
         type: StorageAccessType.Read,
-        value,
         pc: log.pc,
         op: log.op
       });
     } else if (log.op === "SSTORE" && log.stack && log.stack.length >= 2) {
       const slotRaw = log.stack[log.stack.length - 1];
-      const slot = slotRaw.startsWith("0x") ? slotRaw.padEnd(66, '0') : "0x" + slotRaw.padStart(64, '0');
-      const valueRaw = log.stack[log.stack.length - 2];
-      const value = valueRaw.startsWith("0x") ? valueRaw.padEnd(66, '0') : "0x" + valueRaw.padStart(64, '0');
-      
+      const slot = slotRaw.startsWith("0x") 
+        ? "0x" + slotRaw.slice(2).padStart(64, '0') 
+        : "0x" + slotRaw.padStart(64, '0');
+        
       accesses.push({
         address: currentAddress,
         slot,
         type: StorageAccessType.Write,
-        value,
         pc: log.pc,
         op: log.op
       });

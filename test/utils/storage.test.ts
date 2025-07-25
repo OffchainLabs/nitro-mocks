@@ -26,7 +26,6 @@ describe("getAllStorageAccessesFromTx", function () {
     expect(accesses.length).to.equal(1);
     expect(accesses[0].type).to.equal(StorageAccessType.Write);
     expect(accesses[0].slot).to.equal('0x0000000000000000000000000000000000000000000000000000000000000000');
-    expect(accesses[0].value).to.equal('0x000000000000000000000000000000000000000000000000000000000000002a');
     expect(accesses[0].address.toLowerCase()).to.equal((await testStorage.getAddress()).toLowerCase());
   });
 
@@ -45,7 +44,6 @@ describe("getAllStorageAccessesFromTx", function () {
     
     expect(accesses[1].type).to.equal(StorageAccessType.Write);
     expect(accesses[1].slot).to.equal('0x0000000000000000000000000000000000000000000000000000000000000000');
-    expect(accesses[1].value).to.equal('0x000000000000000000000000000000000000000000000000000000000000000b');
   });
 
   it("should track mapping storage access", async function () {
@@ -57,7 +55,6 @@ describe("getAllStorageAccessesFromTx", function () {
     
     expect(accesses.length).to.equal(1);
     expect(accesses[0].type).to.equal(StorageAccessType.Write);
-    expect(accesses[0].value).to.equal('0x00000000000000000000000000000000000000000000000000000000000003e8');
     
     const slot1 = solidityPackedKeccak256(
       ["uint256", "uint256"],
@@ -81,7 +78,6 @@ describe("getAllStorageAccessesFromTx", function () {
     
     expect(accesses[1].type).to.equal(StorageAccessType.Write);
     expect(accesses[1].slot).to.equal('0x0000000000000000000000000000000000000000000000000000000000000000');
-    expect(accesses[1].value).to.equal('0x000000000000000000000000000000000000000000000000000000000000000f');
     
     expect(accesses[2].type).to.equal(StorageAccessType.Write);
     const slot1 = solidityPackedKeccak256(
@@ -89,7 +85,6 @@ describe("getAllStorageAccessesFromTx", function () {
       [signer.address, 1]
     );
     expect(accesses[2].slot.toLowerCase()).to.equal(slot1.toLowerCase());
-    expect(accesses[2].value).to.equal('0x0000000000000000000000000000000000000000000000000000000000000005');
   });
 
   it("should track storage accesses with correct program counter order", async function () {
@@ -136,7 +131,6 @@ describe("getAllStorageAccessesFromCall (view functions)", function () {
     
     expect(accesses[0].type).to.equal(StorageAccessType.Read);
     expect(accesses[0].slot).to.equal('0x0000000000000000000000000000000000000000000000000000000000000000');
-    expect(accesses[0].value).to.equal('0x000000000000000000000000000000000000000000000000000000000000002a');
     
     expect(accesses[1].type).to.equal(StorageAccessType.Read);
     const slot1 = solidityPackedKeccak256(
@@ -144,7 +138,6 @@ describe("getAllStorageAccessesFromCall (view functions)", function () {
       [signer.address, 1]
     );
     expect(accesses[1].slot.toLowerCase()).to.equal(slot1.toLowerCase());
-    expect(accesses[1].value).to.equal('0x0000000000000000000000000000000000000000000000000000000000000064');
   });
 
   it("should track storage reads for public state variables", async function () {

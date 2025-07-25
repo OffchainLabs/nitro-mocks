@@ -2,7 +2,11 @@
 pragma solidity ^0.8.0;
 
 contract ArbosStorage {
-    
+    function openSubStorage(bytes memory parentKey, bytes memory subStorageId) 
+        public pure returns (bytes memory) {
+        return abi.encodePacked(keccak256(abi.encodePacked(parentKey, subStorageId)));
+    }
+
     /**
      * @dev Maps a key to a storage slot using ArbOS's special storage mapping algorithm.
      * 
@@ -27,11 +31,6 @@ contract ArbosStorage {
      * Note: For root storage (this contract), the storageKey prefix is empty.
      * Subspaces would prepend their own prefix before hashing.
      */
-    function openSubStorage(bytes memory parentKey, bytes memory subStorageId) 
-        public pure returns (bytes memory) {
-        return abi.encodePacked(keccak256(abi.encodePacked(parentKey, subStorageId)));
-    }
-
     function mapAddress(bytes memory storageKey, bytes32 key) public pure returns (bytes32 result) {
         bytes memory keyFirst31 = new bytes(31);
         for (uint i = 0; i < 31; i++) {
@@ -50,11 +49,11 @@ contract ArbosStorage {
     
     function getUint64(bytes memory storageKey, uint256 offset) external view returns (uint64) {
         bytes32 slot = mapAddress(storageKey, bytes32(offset));
-        bytes32 value;
+        uint256 value;
         assembly {
             value := sload(slot)
         }
-        return uint64(uint256(value));
+        return uint64(value);
     }
     
     function setUint64(bytes memory storageKey, uint256 offset, uint64 value) external {
@@ -80,7 +79,7 @@ contract ArbosStorage {
         }
     }
     
-    function getUint256(bytes memory storageKey, uint256 offset) internal view returns (uint256) {
+    function getUint256(bytes memory storageKey, uint256 offset) external view returns (uint256) {
         bytes32 slot = mapAddress(storageKey, bytes32(offset));
         bytes32 value;
         assembly {
@@ -89,7 +88,7 @@ contract ArbosStorage {
         return uint256(value);
     }
     
-    function setUint256(bytes memory storageKey, uint256 offset, uint256 value) internal {
+    function setUint256(bytes memory storageKey, uint256 offset, uint256 value) external {
         bytes32 slot = mapAddress(storageKey, bytes32(offset));
         assembly {
             sstore(slot, value)

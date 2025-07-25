@@ -1,18 +1,18 @@
 import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
 import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersion } from "../utils/expect-equivalent";
-import { ArbSys__factory } from "../../typechain-types/factories/@arbitrum/nitro-precompiles/ArbSys__factory";
+import { ArbOwner__factory } from "../../typechain-types/factories/contracts/ArbOwner__factory";
 
-describe("ArbSys.arbChainID", function () {
+describe("ArbOwner.getAllChainOwners", function () {
   beforeEach(async function() {
     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
-    await deployAndSetCode("contracts/ArbSys.sol:ArbSys", PRECOMPILE_ADDRESSES.ArbSys);
+    await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
   });
 
   it("should behave equivalently from all standard addresses", async function () {
     await expectEquivalentCallFromMultipleAddresses(
-      ArbSys__factory,
-      PRECOMPILE_ADDRESSES.ArbSys,
-      "arbChainID",
+      ArbOwner__factory,
+      PRECOMPILE_ADDRESSES.ArbOwner,
+      "getAllChainOwners",
       [],
       {
         storageAccess: storageAccessComparerExcludingVersion

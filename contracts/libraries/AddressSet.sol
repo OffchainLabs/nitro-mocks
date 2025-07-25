@@ -43,4 +43,30 @@ library AddressSet {
         
         return members;
     }
+
+    function add(
+        address storageAddress,
+        bytes memory subStorageKey,
+        address addr
+    ) internal {
+        ArbosStorage arbosStorage = ArbosStorage(storageAddress);
+        
+        require(!isMember(storageAddress, subStorageKey, addr), "AddressSet: address already exists");
+        
+        uint64 size = arbosStorage.getUint64(subStorageKey, 0);
+        uint64 newSize = size + 1;
+        
+        // Update byAddress mapping
+        bytes memory byAddressKey = arbosStorage.openSubStorage(subStorageKey, abi.encodePacked(bytes1(0x00)));
+        bytes32 addrAsHash = bytes32(uint256(uint160(addr)));
+        bytes32 slotValue = bytes32(uint256(newSize));
+        arbosStorage.setStorageAt(arbosStorage.mapAddress(byAddressKey, addrAsHash), slotValue);
+        
+        // Store address at position newSize
+        arbosStorage.setAddr(subStorageKey, newSize, addr);
+        
+        // go code does an increment - which always reads before writing
+        arbosStorage.getUint64(subStorageKey, 0);
+        arbosStorage.setUint64(subStorageKey, 0, newSize);
+    }
 }
