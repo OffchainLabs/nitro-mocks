@@ -45,12 +45,28 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(bytes4(keccak256("setL2BaseFee(uint256)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL2BaseFee(uint256)")), priceInWei));
     }
 
-    function setMinimumL2BaseFee(uint256) external override {
-        revert("Not implemented");
+    function setMinimumL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
+        bytes memory l2PricingStorageKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.L2_PRICING_SUBSTORAGE
+        );
+        
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint256(l2PricingStorageKey, ArbosState.L2_PRICING_MIN_BASE_FEE_WEI_OFFSET, priceInWei);
+        
+        emit OwnerActs(bytes4(keccak256("setMinimumL2BaseFee(uint256)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setMinimumL2BaseFee(uint256)")), priceInWei));
     }
 
-    function setSpeedLimit(uint64 limit) external override {
-        revert("Not implemented");
+    function setSpeedLimit(uint64 limit) external override onlyChainOwner {
+        require(limit != 0, "speed limit must be nonzero");
+        
+        bytes memory l2PricingStorageKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.L2_PRICING_SUBSTORAGE
+        );
+        
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(l2PricingStorageKey, ArbosState.L2_PRICING_SPEED_LIMIT_PER_SECOND_OFFSET, limit);
+        
+        emit OwnerActs(bytes4(keccak256("setSpeedLimit(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setSpeedLimit(uint64)")), limit));
     }
 
     function setL1BaseFeeEstimateInertia(uint64) external override {
