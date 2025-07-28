@@ -34,8 +34,15 @@ contract ArbOwner is IArbOwner {
         return AddressSet.isMember(ARBOS_STORAGE_ADDRESS, chainOwnerKey, addr);
     }
 
-    function setL2BaseFee(uint256) external override {
-        revert("Not implemented");
+    function setL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
+        bytes memory l2PricingStorageKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.L2_PRICING_SUBSTORAGE
+        );
+        
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint256(l2PricingStorageKey, ArbosState.L2_PRICING_BASE_FEE_WEI_OFFSET, priceInWei);
+        
+        emit OwnerActs(bytes4(keccak256("setL2BaseFee(uint256)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL2BaseFee(uint256)")), priceInWei));
     }
 
     function setMinimumL2BaseFee(uint256) external override {

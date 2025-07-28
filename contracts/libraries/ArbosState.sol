@@ -27,4 +27,24 @@ library ArbosState {
     bytes internal constant PROGRAMS_SUBSTORAGE = hex"08";
     bytes internal constant FEATURES_SUBSTORAGE = hex"09";
     bytes internal constant NATIVE_TOKEN_OWNER_SUBSTORAGE = hex"0a";
+    
+    uint256 internal constant L2_PRICING_SPEED_LIMIT_PER_SECOND_OFFSET = 0;
+    uint256 internal constant L2_PRICING_PER_BLOCK_GAS_LIMIT_OFFSET = 1;
+    uint256 internal constant L2_PRICING_BASE_FEE_WEI_OFFSET = 2;
+    uint256 internal constant L2_PRICING_MIN_BASE_FEE_WEI_OFFSET = 3;
+    uint256 internal constant L2_PRICING_GAS_BACKLOG_OFFSET = 4;
+    uint256 internal constant L2_PRICING_PRICING_INERTIA_OFFSET = 5;
+    uint256 internal constant L2_PRICING_BACKLOG_TOLERANCE_OFFSET = 6;
+    
+    uint256 internal constant L1_PRICING_PAY_REWARDS_TO_OFFSET = 0;
+    uint256 internal constant L1_PRICING_EQUILIBRATION_UNITS_OFFSET = 1;
+    uint256 internal constant L1_PRICING_INERTIA_OFFSET = 2;
+    uint256 internal constant L1_PRICING_PER_UNIT_REWARD_OFFSET = 3;
+    uint256 internal constant L1_PRICING_LAST_UPDATE_TIME_OFFSET = 4;
+    uint256 internal constant L1_PRICING_FUNDS_DUE_FOR_REWARDS_OFFSET = 5;
+    uint256 internal constant L1_PRICING_UNITS_SINCE_OFFSET = 6;
+    uint256 internal constant L1_PRICING_PRICE_PER_UNIT_OFFSET = 7;
+    uint256 internal constant L1_PRICING_LAST_SURPLUS_OFFSET = 8;
+    uint256 internal constant L1_PRICING_PER_BATCH_GAS_COST_OFFSET = 9;
+    uint256 internal constant L1_PRICING_AMORTIZED_COST_CAP_BIPS_OFFSET = 10;
 }
