@@ -2,13 +2,14 @@
 pragma solidity ^0.8.0;
 
 import {ArbosStorage} from "../ArbosStorage.sol";
-import {Storage} from "./ArbosState.sol";
+import {Storage, AddressSetStorage} from "./ArbosState.sol";
 
 /**
  * @notice Mirror of arbos/addressSet/addressSet.go
  * @dev Size is stored at position 0, members are stored sequentially from position 1 onward
  */
 library AddressSet {
+    using AddressSet for AddressSetStorage;
     function isMember(
         Storage memory store,
         address addr
@@ -98,5 +99,34 @@ library AddressSet {
         // go code does an decrement - which always reads before writing
         arbosStorage.getUint64(store.key, 0);
         arbosStorage.setUint64(store.key, 0, newSize);
+    }
+    
+    // Wrapper functions for AddressSetStorage
+    function isMember(
+        AddressSetStorage memory self,
+        address addr
+    ) internal view returns (bool) {
+        return isMember(self.store, addr);
+    }
+    
+    function allMembers(
+        AddressSetStorage memory self,
+        uint64 maxMembers
+    ) internal view returns (address[] memory) {
+        return allMembers(self.store, maxMembers);
+    }
+    
+    function add(
+        AddressSetStorage memory self,
+        address addr
+    ) internal {
+        add(self.store, addr);
+    }
+    
+    function remove(
+        AddressSetStorage memory self,
+        address addr
+    ) internal {
+        remove(self.store, addr);
     }
 }

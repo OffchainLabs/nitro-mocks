@@ -1,20 +1,20 @@
 import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
 import { expectEquivalentTxFromMultipleAddresses, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
-import { ArbOwner__factory } from "../../typechain-types";
-import { parseEther } from "ethers";
+import { ArbOwner__factory, ArbOwnerPublic__factory } from "../../typechain-types";
 
-describe("ArbOwner.releaseL1PricerSurplusFunds", function () {
+describe("ArbOwner.setBrotliCompressionLevel", function () {
   beforeEach(async function() {  
     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
     await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
+    await deployAndSetCode("contracts/ArbOwnerPublic.sol:ArbOwnerPublic", PRECOMPILE_ADDRESSES.ArbOwnerPublic);
   });
 
-  it("should match native implementation when releasing partial surplus", async function () {
+  it("should match native implementation when setting compression level to 0", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,
-      "releaseL1PricerSurplusFunds",
-      [parseEther("0.1")],
+      "setBrotliCompressionLevel",
+      [0],
       {
         storageAccess: storageAccessComparerExcludingVersion,
         storageValues: storageValueComparerExcludingVersion
@@ -22,12 +22,12 @@ describe("ArbOwner.releaseL1PricerSurplusFunds", function () {
     );
   });
 
-  it("should match native implementation when releasing all surplus", async function () {
+  it("should match native implementation when setting compression level to 1", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,
-      "releaseL1PricerSurplusFunds",
-      [parseEther("1000000")], // Large amount to ensure we release all surplus
+      "setBrotliCompressionLevel",
+      [1],
       {
         storageAccess: storageAccessComparerExcludingVersion,
         storageValues: storageValueComparerExcludingVersion
@@ -35,12 +35,12 @@ describe("ArbOwner.releaseL1PricerSurplusFunds", function () {
     );
   });
 
-  it("should match native implementation when there is no surplus", async function () {
+  it("should match native implementation when setting compression level to 11", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,
-      "releaseL1PricerSurplusFunds",
-      [parseEther("1")],
+      "setBrotliCompressionLevel",
+      [11],
       {
         storageAccess: storageAccessComparerExcludingVersion,
         storageValues: storageValueComparerExcludingVersion

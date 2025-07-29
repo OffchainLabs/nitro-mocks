@@ -4,10 +4,15 @@ pragma solidity ^0.8.0;
 import {ArbosStorage} from "../ArbosStorage.sol";
 import {ArbosState, Storage} from "./ArbosState.sol";
 
+struct L2PricingStorage {
+    Storage store;
+}
+
 /**
  * @notice Mirror of arbos/l2pricing/l2pricing.go
  */
 library L2PricingState {
+    using L2PricingState for L2PricingStorage;
     uint256 internal constant SPEED_LIMIT_PER_SECOND_OFFSET = 0;
     uint256 internal constant PER_BLOCK_GAS_LIMIT_OFFSET = 1;
     uint256 internal constant BASE_FEE_WEI_OFFSET = 2;
@@ -16,19 +21,19 @@ library L2PricingState {
     uint256 internal constant PRICING_INERTIA_OFFSET = 5;
     uint256 internal constant BACKLOG_TOLERANCE_OFFSET = 6;
     
-    function setBaseFeeWei(Storage memory store, uint256 priceInWei) internal {
-        ArbosStorage(store.addr).setUint256(store.key, BASE_FEE_WEI_OFFSET, priceInWei);
+    function setBaseFeeWei(L2PricingStorage memory self, uint256 priceInWei) internal {
+        ArbosStorage(self.store.addr).setUint256(self.store.key, BASE_FEE_WEI_OFFSET, priceInWei);
     }
     
-    function setMinBaseFeeWei(Storage memory store, uint256 priceInWei) internal {
-        ArbosStorage(store.addr).setUint256(store.key, MIN_BASE_FEE_WEI_OFFSET, priceInWei);
+    function setMinBaseFeeWei(L2PricingStorage memory self, uint256 priceInWei) internal {
+        ArbosStorage(self.store.addr).setUint256(self.store.key, MIN_BASE_FEE_WEI_OFFSET, priceInWei);
     }
     
-    function setSpeedLimitPerSecond(Storage memory store, uint64 limit) internal {
-        ArbosStorage(store.addr).setUint64(store.key, SPEED_LIMIT_PER_SECOND_OFFSET, limit);
+    function setSpeedLimitPerSecond(L2PricingStorage memory self, uint64 limit) internal {
+        ArbosStorage(self.store.addr).setUint64(self.store.key, SPEED_LIMIT_PER_SECOND_OFFSET, limit);
     }
     
-    function setMaxPerBlockGasLimit(Storage memory store, uint64 limit) internal {
-        ArbosStorage(store.addr).setUint64(store.key, PER_BLOCK_GAS_LIMIT_OFFSET, limit);
+    function setMaxPerBlockGasLimit(L2PricingStorage memory self, uint64 limit) internal {
+        ArbosStorage(self.store.addr).setUint64(self.store.key, PER_BLOCK_GAS_LIMIT_OFFSET, limit);
     }
 }

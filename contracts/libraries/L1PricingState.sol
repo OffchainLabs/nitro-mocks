@@ -4,10 +4,18 @@ pragma solidity ^0.8.0;
 import {ArbosStorage} from "../ArbosStorage.sol";
 import {ArbosState, Storage} from "./ArbosState.sol";
 
+struct L1PricingStorage {
+    Storage store;
+}
+
 /**
  * @notice Mirror of arbos/l1pricing/l1pricing.go
  */
 library L1PricingState {
+    using L1PricingState for L1PricingStorage;
+    
+    address internal constant L1_PRICER_FUNDS_POOL_ADDRESS = 0xa4B00000000000000000000000000000000000F6;
+    
     uint256 internal constant PAY_REWARDS_TO_OFFSET = 0;
     uint256 internal constant EQUILIBRATION_UNITS_OFFSET = 1;
     uint256 internal constant INERTIA_OFFSET = 2;
@@ -21,22 +29,27 @@ library L1PricingState {
     uint256 internal constant AMORTIZED_COST_CAP_BIPS_OFFSET = 10;
     uint256 internal constant L1_FEES_AVAILABLE_OFFSET = 11;
     
-    function setInertia(Storage memory store, uint64 inertia) internal {
-        ArbosStorage(store.addr).setUint64(store.key, INERTIA_OFFSET, inertia);
+    function setInertia(L1PricingStorage memory self, uint64 inertia) internal {
+        ArbosStorage(self.store.addr).setUint64(self.store.key, INERTIA_OFFSET, inertia);
     }
     
-    function setAmortizedCostCapBips(Storage memory store, uint64 cap) internal {
-        ArbosStorage(store.addr).setUint64(store.key, AMORTIZED_COST_CAP_BIPS_OFFSET, cap);
+    function setAmortizedCostCapBips(L1PricingStorage memory self, uint64 cap) internal {
+        ArbosStorage(self.store.addr).setUint64(self.store.key, AMORTIZED_COST_CAP_BIPS_OFFSET, cap);
     }
     
-    function l1FeesAvailable(Storage memory store) internal view returns (uint256) {
-        return ArbosStorage(store.addr).getUint256(store.key, L1_FEES_AVAILABLE_OFFSET);
+    function l1FeesAvailable(L1PricingStorage memory self) internal view returns (uint256) {
+        return ArbosStorage(self.store.addr).getUint256(self.store.key, L1_FEES_AVAILABLE_OFFSET);
     }
     
-    function addToL1FeesAvailable(Storage memory store, uint256 delta) internal returns (uint256) {
-        uint256 oldValue = l1FeesAvailable(store);
-        uint256 newValue = oldValue + delta;
-        ArbosStorage(store.addr).setUint256(store.key, L1_FEES_AVAILABLE_OFFSET, newValue);
-        return newValue;
+    function addToL1FeesAvailable(L1PricingStorage memory self, int256 delta) internal {
+        uint256 current = self.l1FeesAvailable();
+        if (delta >= 0) {
+            current += uint256(delta);
+        } else {
+            uint256 absDelta = uint256(-delta);
+            require(current >= absDelta, "L1 fees available underflow");
+            current -= absDelta;
+        }
+        ArbosStorage(self.store.addr).setUint256(self.store.key, L1_FEES_AVAILABLE_OFFSET, current);
     }
 }
