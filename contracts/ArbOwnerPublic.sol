@@ -4,17 +4,14 @@ pragma solidity ^0.8.19;
 import {ArbOwnerPublic as IArbOwnerPublic} from "../submodules/nitro-precompile-interfaces/ArbOwnerPublic.sol";
 import {AddressSet} from "./libraries/AddressSet.sol";
 import {ArbosState} from "./libraries/ArbosState.sol";
-import {ArbosStorage} from "./ArbosStorage.sol";
 
 contract ArbOwnerPublic is IArbOwnerPublic {
-    address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
-
     function isChainOwner(address addr) external view override returns (bool) {
         return AddressSet.isMember(ArbosState.ChainOwners(), addr);
     }
 
     function rectifyChainOwner(address) external override {
-        revert("Not implemented");
+        revert("Not implemented - testnode version too low");
     }
 
     function getAllChainOwners() external view override returns (address[] memory) {
@@ -22,47 +19,30 @@ contract ArbOwnerPublic is IArbOwnerPublic {
     }
 
     function isNativeTokenOwner(address) external view override returns (bool) {
-        revert("Not implemented");
+        revert("Not implemented - testnode version too low");
     }
 
     function getAllNativeTokenOwners() external view override returns (address[] memory) {
-        revert("Not implemented");
+        revert("Not implemented - testnode version too low");
     }
 
     function getNetworkFeeAccount() external view override returns (address) {
-        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.NETWORK_FEE_ACCOUNT_OFFSET
-        );
+        return ArbosState.networkFeeAccount();
     }
 
     function getInfraFeeAccount() external view override returns (address) {
-        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.INFRA_FEE_ACCOUNT_OFFSET
-        );
+        return ArbosState.infraFeeAccount();
     }
 
     function getBrotliCompressionLevel() external view override returns (uint64) {
-        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.BROTLI_COMPRESSION_LEVEL_OFFSET
-        );
+        return ArbosState.brotliCompressionLevel();
     }
 
     function getScheduledUpgrade() external view override returns (uint64, uint64) {
-        uint64 version = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.UPGRADE_VERSION_OFFSET
-        );
-        uint64 timestamp = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.UPGRADE_TIMESTAMP_OFFSET
-        );
-        return (version, timestamp);
+        return ArbosState.getScheduledUpgrade();
     }
 
     function isCalldataPriceIncreaseEnabled() external view override returns (bool) {
-        revert("Not implemented");
+        revert("Not implemented - testnode version too low");
     }
 }

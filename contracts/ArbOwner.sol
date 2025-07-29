@@ -6,11 +6,8 @@ import {AddressSet} from "./libraries/AddressSet.sol";
 import {ArbosState, Storage} from "./libraries/ArbosState.sol";
 import {L1PricingState} from "./libraries/L1PricingState.sol";
 import {L2PricingState} from "./libraries/L2PricingState.sol";
-import {ArbosStorage} from "./ArbosStorage.sol";
 
 contract ArbOwner is IArbOwner {
-    address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
-    
     modifier onlyChainOwner() {
         require(AddressSet.isMember(ArbosState.ChainOwners(), msg.sender), "unauthorized caller to access-controlled method");
         _;
@@ -45,8 +42,9 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), inertia));
     }
 
-    function setNetworkFeeAccount(address) external override {
-        revert("Not implemented");
+    function setNetworkFeeAccount(address newNetworkFeeAccount) external override onlyChainOwner {
+        ArbosState.setNetworkFeeAccount(newNetworkFeeAccount);
+        emit OwnerActs(bytes4(keccak256("setNetworkFeeAccount(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setNetworkFeeAccount(address)")), newNetworkFeeAccount));
     }
 
     function setMaxTxGasLimit(uint64 limit) external override {
@@ -117,12 +115,12 @@ contract ArbOwner is IArbOwner {
         revert("Not implemented");
     }
     
-    function getNetworkFeeAccount() external view override returns (address) {
-        revert("Not implemented");
+    function getNetworkFeeAccount() external view override onlyChainOwner returns (address) {
+        return ArbosState.networkFeeAccount();
     }
     
-    function getInfraFeeAccount() external view override returns (address) {
-        revert("Not implemented");
+    function getInfraFeeAccount() external view override onlyChainOwner returns (address) {
+        return ArbosState.infraFeeAccount();
     }
     
     function setInfraFeeAccount(address newInfraFeeAccount) external override {

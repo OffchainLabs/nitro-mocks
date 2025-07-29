@@ -21,6 +21,62 @@ library ArbosState {
     uint256 internal constant INFRA_FEE_ACCOUNT_OFFSET = 6;
     uint256 internal constant BROTLI_COMPRESSION_LEVEL_OFFSET = 7;
     uint256 internal constant NATIVE_TOKEN_ENABLED_TIME_OFFSET = 8;
+    
+    function networkFeeAccount() internal view returns (address) {
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(
+            ROOT_STORAGE_KEY,
+            NETWORK_FEE_ACCOUNT_OFFSET
+        );
+    }
+    
+    function setNetworkFeeAccount(address account) internal {
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(
+            ROOT_STORAGE_KEY,
+            NETWORK_FEE_ACCOUNT_OFFSET,
+            account
+        );
+    }
+    
+    function infraFeeAccount() internal view returns (address) {
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(
+            ROOT_STORAGE_KEY,
+            INFRA_FEE_ACCOUNT_OFFSET
+        );
+    }
+    
+    function setInfraFeeAccount(address account) internal {
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(
+            ROOT_STORAGE_KEY,
+            INFRA_FEE_ACCOUNT_OFFSET,
+            account
+        );
+    }
+    
+    function brotliCompressionLevel() internal view returns (uint64) {
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
+            ROOT_STORAGE_KEY,
+            BROTLI_COMPRESSION_LEVEL_OFFSET
+        );
+    }
+    
+    function setBrotliCompressionLevel(uint64 level) internal {
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(
+            ROOT_STORAGE_KEY,
+            BROTLI_COMPRESSION_LEVEL_OFFSET,
+            level
+        );
+    }
+    
+    function getScheduledUpgrade() internal view returns (uint64 version, uint64 timestamp) {
+        version = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
+            ROOT_STORAGE_KEY,
+            UPGRADE_VERSION_OFFSET
+        );
+        timestamp = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
+            ROOT_STORAGE_KEY,
+            UPGRADE_TIMESTAMP_OFFSET
+        );
+    }
 
     bytes internal constant L1_PRICING_SUBSTORAGE = hex"00";
     bytes internal constant L2_PRICING_SUBSTORAGE = hex"01";
