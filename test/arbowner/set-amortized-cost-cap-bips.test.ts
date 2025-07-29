@@ -2,24 +2,28 @@ import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
 import { expectEquivalentTxFromMultipleAddresses, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbOwner__factory } from "../../typechain-types";
 
-describe("ArbOwner.setMaxTxGasLimit", function () {
+describe("ArbOwner.setAmortizedCostCapBips", function () {
   beforeEach(async function() {  
+    // Deploy required contracts
     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
     await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
   });
 
   it("should match native implementation", async function () {
-    const newMaxTxGasLimit = 32000137;
+    // Test with various cap values
+    const testCaps = [0, 1, 100, 1000, 5000, 10000, 65535];
     
-    await expectEquivalentTxFromMultipleAddresses(
-      ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
-      "setMaxTxGasLimit",
-      [newMaxTxGasLimit],
-      {
-        storageAccess: storageAccessComparerExcludingVersion,
-        storageValues: storageValueComparerExcludingVersion
-      }
-    );
+    for (const cap of testCaps) {
+      await expectEquivalentTxFromMultipleAddresses(
+        ArbOwner__factory,
+        PRECOMPILE_ADDRESSES.ArbOwner,
+        "setAmortizedCostCapBips",
+        [cap],
+        {
+          storageAccess: storageAccessComparerExcludingVersion,
+          storageValues: storageValueComparerExcludingVersion
+        }
+      );
+    }
   });
 });

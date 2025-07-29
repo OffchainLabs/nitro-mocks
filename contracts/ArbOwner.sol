@@ -23,49 +23,50 @@ contract ArbOwner is IArbOwner {
 
     function setL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
         L2PricingState.setBaseFeeWei(ArbosState.l2PricingState(), priceInWei);
-        emit OwnerActs(bytes4(keccak256("setL2BaseFee(uint256)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL2BaseFee(uint256)")), priceInWei));
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setMinimumL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
         L2PricingState.setMinBaseFeeWei(ArbosState.l2PricingState(), priceInWei);
-        emit OwnerActs(bytes4(keccak256("setMinimumL2BaseFee(uint256)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setMinimumL2BaseFee(uint256)")), priceInWei));
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setSpeedLimit(uint64 limit) external override onlyChainOwner {
         require(limit != 0, "speed limit must be nonzero");
         L2PricingState.setSpeedLimitPerSecond(ArbosState.l2PricingState(), limit);
-        emit OwnerActs(bytes4(keccak256("setSpeedLimit(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setSpeedLimit(uint64)")), limit));
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setL1BaseFeeEstimateInertia(uint64 inertia) external override onlyChainOwner {
         L1PricingState.setInertia(ArbosState.l1PricingState(), inertia);
-        emit OwnerActs(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), inertia));
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setNetworkFeeAccount(address newNetworkFeeAccount) external override onlyChainOwner {
         ArbosState.setNetworkFeeAccount(newNetworkFeeAccount);
-        emit OwnerActs(bytes4(keccak256("setNetworkFeeAccount(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setNetworkFeeAccount(address)")), newNetworkFeeAccount));
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setMaxTxGasLimit(uint64 limit) external override onlyChainOwner {
         L2PricingState.setMaxPerBlockGasLimit(ArbosState.l2PricingState(), limit);
-        emit OwnerActs(bytes4(keccak256("setMaxTxGasLimit(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setMaxTxGasLimit(uint64)")), limit));
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function addChainOwner(address newOwner) external override onlyChainOwner {
         AddressSet.add(ArbosState.chainOwners(), newOwner);
-        emit OwnerActs(bytes4(keccak256("addChainOwner(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("addChainOwner(address)")), newOwner));
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function removeChainOwner(address ownerToRemove) external override onlyChainOwner {
         require(AddressSet.isMember(ArbosState.chainOwners(), ownerToRemove), "tried to remove non-owner");
         
         AddressSet.remove(ArbosState.chainOwners(), ownerToRemove);
-        emit OwnerActs(bytes4(keccak256("removeChainOwner(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("removeChainOwner(address)")), ownerToRemove));
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setAmortizedCostCapBips(uint64 cap) external override {
-        revert("Not implemented");
+    function setAmortizedCostCapBips(uint64 cap) external override onlyChainOwner {
+        L1PricingState.setAmortizedCostCapBips(ArbosState.l1PricingState(), cap);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setBrotliCompressionLevel(uint64 level) external override {

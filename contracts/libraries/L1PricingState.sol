@@ -23,4 +23,8 @@ library L1PricingState {
     function setInertia(Storage memory store, uint64 inertia) internal {
         ArbosStorage(store.addr).setUint64(store.key, INERTIA_OFFSET, inertia);
     }
+    
+    function setAmortizedCostCapBips(Storage memory store, uint64 cap) internal {
+        ArbosStorage(store.addr).setUint64(store.key, AMORTIZED_COST_CAP_BIPS_OFFSET, cap);
+    }
 }
