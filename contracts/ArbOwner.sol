@@ -69,8 +69,15 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(bytes4(keccak256("setSpeedLimit(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setSpeedLimit(uint64)")), limit));
     }
 
-    function setL1BaseFeeEstimateInertia(uint64) external override {
-        revert("Not implemented");
+    function setL1BaseFeeEstimateInertia(uint64 inertia) external override onlyChainOwner {
+        bytes memory l1PricingStorageKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ArbosState.ROOT_STORAGE_KEY,
+            ArbosState.L1_PRICING_SUBSTORAGE
+        );
+        
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(l1PricingStorageKey, ArbosState.L1_PRICING_INERTIA_OFFSET, inertia);
+        
+        emit OwnerActs(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), inertia));
     }
 
     function setNetworkFeeAccount(address) external override {

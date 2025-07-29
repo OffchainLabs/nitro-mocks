@@ -41,7 +41,14 @@ interface EquivalenceError {
 }
 
 function failWithError(error: EquivalenceError): void {
-  expect.fail(JSON.stringify(error, null, 2));
+  // Custom replacer to handle BigInt serialization
+  const replacer = (key: string, value: any) => {
+    if (typeof value === 'bigint') {
+      return value.toString() + 'n';
+    }
+    return value;
+  };
+  expect.fail(JSON.stringify(error, replacer, 2));
 }
 
 export function createStorageAccessComparer(errorContext?: Partial<EquivalenceError>) {
@@ -475,6 +482,7 @@ export async function expectEquivalentTx<TContract extends BaseContract>(
     // TODO: we should still compare storage and events even if both reverted - if they're available
     return;
   } else if (mockReverted || underlyingReverted) {
+    console.log(mockReverted, underlyingReverted);
     failWithError({
       ...errorContext,
       result: {
