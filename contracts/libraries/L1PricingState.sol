@@ -19,6 +19,7 @@ library L1PricingState {
     uint256 internal constant LAST_SURPLUS_OFFSET = 8;
     uint256 internal constant PER_BATCH_GAS_COST_OFFSET = 9;
     uint256 internal constant AMORTIZED_COST_CAP_BIPS_OFFSET = 10;
+    uint256 internal constant L1_FEES_AVAILABLE_OFFSET = 11;
     
     function setInertia(Storage memory store, uint64 inertia) internal {
         ArbosStorage(store.addr).setUint64(store.key, INERTIA_OFFSET, inertia);
@@ -26,5 +27,16 @@ library L1PricingState {
     
     function setAmortizedCostCapBips(Storage memory store, uint64 cap) internal {
         ArbosStorage(store.addr).setUint64(store.key, AMORTIZED_COST_CAP_BIPS_OFFSET, cap);
+    }
+    
+    function l1FeesAvailable(Storage memory store) internal view returns (uint256) {
+        return ArbosStorage(store.addr).getUint256(store.key, L1_FEES_AVAILABLE_OFFSET);
+    }
+    
+    function addToL1FeesAvailable(Storage memory store, uint256 delta) internal returns (uint256) {
+        uint256 oldValue = l1FeesAvailable(store);
+        uint256 newValue = oldValue + delta;
+        ArbosStorage(store.addr).setUint256(store.key, L1_FEES_AVAILABLE_OFFSET, newValue);
+        return newValue;
     }
 }
