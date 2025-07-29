@@ -73,8 +73,25 @@ contract ArbOwner is IArbOwner {
         revert("Not implemented");
     }
 
-    function releaseL1PricerSurplusFunds(uint256) external override returns (uint256) {
-        revert("Not implemented");
+    function releaseL1PricerSurplusFunds(uint256 maxWeiToRelease) external override onlyChainOwner returns (uint256) {
+        address L1_PRICER_FUNDS_POOL_ADDRESS = 0xa4B00000000000000000000000000000000000F6;
+        uint256 balance = L1_PRICER_FUNDS_POOL_ADDRESS.balance;
+        Storage memory l1PricingState = ArbosState.l1PricingState();
+        uint256 recognized = L1PricingState.l1FeesAvailable(l1PricingState);
+        
+        if (balance <= recognized) {
+            return 0;
+        }
+        
+        uint256 weiToTransfer = balance - recognized;
+        if (weiToTransfer > maxWeiToRelease) {
+            weiToTransfer = maxWeiToRelease;
+        }
+        
+        L1PricingState.addToL1FeesAvailable(l1PricingState, weiToTransfer);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
+        
+        return weiToTransfer;
     }
 
     function setPerBatchGasCharge(int64 cost) external override {
