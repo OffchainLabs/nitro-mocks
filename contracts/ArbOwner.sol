@@ -2,43 +2,46 @@
 pragma solidity ^0.8.19;
 
 import {ArbOwner as IArbOwner} from "../submodules/nitro-precompile-interfaces/ArbOwner.sol";
-import {AddressSet} from "./libraries/AddressSet.sol";
+import {AddressSet, AddressSetStorage} from "./libraries/AddressSet.sol";
 import {ArbosState, Storage} from "./libraries/ArbosState.sol";
-import {L1PricingState} from "./libraries/L1PricingState.sol";
-import {L2PricingState} from "./libraries/L2PricingState.sol";
+import {L1PricingState, L1PricingStorage} from "./libraries/L1PricingState.sol";
+import {L2PricingState, L2PricingStorage} from "./libraries/L2PricingState.sol";
 
 contract ArbOwner is IArbOwner {
+    using L1PricingState for L1PricingStorage;
+    using L2PricingState for L2PricingStorage;
+    using AddressSet for AddressSetStorage;
     modifier onlyChainOwner() {
-        require(AddressSet.isMember(ArbosState.chainOwners(), msg.sender), "unauthorized caller to access-controlled method");
+        require(ArbosState.chainOwners().isMember(msg.sender), "unauthorized caller to access-controlled method");
         _;
     }
     
     function getAllChainOwners() external view override onlyChainOwner returns (address[] memory) {
-        return AddressSet.allMembers(ArbosState.chainOwners(), 65536);
+        return ArbosState.chainOwners().allMembers(65536);
     }
 
     function isChainOwner(address addr) external view override onlyChainOwner returns (bool) {
-        return AddressSet.isMember(ArbosState.chainOwners(), addr);
+        return ArbosState.chainOwners().isMember(addr);
     }
 
     function setL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
-        L2PricingState.setBaseFeeWei(ArbosState.l2PricingState(), priceInWei);
+        ArbosState.l2PricingState().setBaseFeeWei(priceInWei);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setMinimumL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
-        L2PricingState.setMinBaseFeeWei(ArbosState.l2PricingState(), priceInWei);
+        ArbosState.l2PricingState().setMinBaseFeeWei(priceInWei);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setSpeedLimit(uint64 limit) external override onlyChainOwner {
         require(limit != 0, "speed limit must be nonzero");
-        L2PricingState.setSpeedLimitPerSecond(ArbosState.l2PricingState(), limit);
+        ArbosState.l2PricingState().setSpeedLimitPerSecond(limit);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setL1BaseFeeEstimateInertia(uint64 inertia) external override onlyChainOwner {
-        L1PricingState.setInertia(ArbosState.l1PricingState(), inertia);
+        ArbosState.l1PricingState().setInertia(inertia);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
@@ -48,50 +51,50 @@ contract ArbOwner is IArbOwner {
     }
 
     function setMaxTxGasLimit(uint64 limit) external override onlyChainOwner {
-        L2PricingState.setMaxPerBlockGasLimit(ArbosState.l2PricingState(), limit);
+        ArbosState.l2PricingState().setMaxPerBlockGasLimit(limit);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function addChainOwner(address newOwner) external override onlyChainOwner {
-        AddressSet.add(ArbosState.chainOwners(), newOwner);
+        ArbosState.chainOwners().add(newOwner);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function removeChainOwner(address ownerToRemove) external override onlyChainOwner {
-        require(AddressSet.isMember(ArbosState.chainOwners(), ownerToRemove), "tried to remove non-owner");
+        require(ArbosState.chainOwners().isMember(ownerToRemove), "tried to remove non-owner");
         
-        AddressSet.remove(ArbosState.chainOwners(), ownerToRemove);
+        ArbosState.chainOwners().remove(ownerToRemove);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setAmortizedCostCapBips(uint64 cap) external override onlyChainOwner {
-        L1PricingState.setAmortizedCostCapBips(ArbosState.l1PricingState(), cap);
+        ArbosState.l1PricingState().setAmortizedCostCapBips(cap);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setBrotliCompressionLevel(uint64 level) external override {
-        revert("Not implemented");
+    function setBrotliCompressionLevel(uint64 level) external override onlyChainOwner {
+        ArbosState.setBrotliCompressionLevel(level);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function releaseL1PricerSurplusFunds(uint256 maxWeiToRelease) external override onlyChainOwner returns (uint256) {
-        address L1_PRICER_FUNDS_POOL_ADDRESS = 0xa4B00000000000000000000000000000000000F6;
-        uint256 balance = L1_PRICER_FUNDS_POOL_ADDRESS.balance;
-        Storage memory l1PricingState = ArbosState.l1PricingState();
-        uint256 recognized = L1PricingState.l1FeesAvailable(l1PricingState);
+        uint256 balance = L1PricingState.L1_PRICER_FUNDS_POOL_ADDRESS.balance;
+        L1PricingStorage memory l1PricingState = ArbosState.l1PricingState();
+        uint256 recognized = l1PricingState.l1FeesAvailable();
         
-        if (balance <= recognized) {
+        int256 weiToTransfer = int256(balance) - int256(recognized);
+        if (weiToTransfer < 0) {
             return 0;
         }
         
-        uint256 weiToTransfer = balance - recognized;
-        if (weiToTransfer > maxWeiToRelease) {
-            weiToTransfer = maxWeiToRelease;
+        uint256 weiToTransferUint = uint256(weiToTransfer);
+        if (weiToTransferUint > maxWeiToRelease) {
+            weiToTransferUint = maxWeiToRelease;
         }
         
-        L1PricingState.addToL1FeesAvailable(l1PricingState, weiToTransfer);
+        l1PricingState.addToL1FeesAvailable(int256(weiToTransferUint));
         emit OwnerActs(msg.sig, msg.sender, msg.data);
-        
-        return weiToTransfer;
+        return weiToTransferUint;
     }
 
     function setPerBatchGasCharge(int64 cost) external override {

@@ -2,10 +2,16 @@
 pragma solidity ^0.8.0;
 
 import {ArbosStorage} from "../ArbosStorage.sol";
+import {L1PricingStorage} from "./L1PricingState.sol";
+import {L2PricingStorage} from "./L2PricingState.sol";
 
 struct Storage {
     address addr;
     bytes key;
+}
+
+struct AddressSetStorage {
+    Storage store;
 }
 
 library ArbosState {
@@ -90,27 +96,27 @@ library ArbosState {
     bytes internal constant FEATURES_SUBSTORAGE = hex"09";
     bytes internal constant NATIVE_TOKEN_OWNER_SUBSTORAGE = hex"0a";
     
-    function chainOwners() internal pure returns (Storage memory) {
+    function chainOwners() internal pure returns (AddressSetStorage memory) {
         bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
             ROOT_STORAGE_KEY,
             CHAIN_OWNER_SUBSTORAGE
         );
-        return Storage(ARBOS_STORAGE_ADDRESS, key);
+        return AddressSetStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
     
-    function l2PricingState() internal pure returns (Storage memory) {
+    function l2PricingState() internal pure returns (L2PricingStorage memory) {
         bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
             ROOT_STORAGE_KEY,
             L2_PRICING_SUBSTORAGE
         );
-        return Storage(ARBOS_STORAGE_ADDRESS, key);
+        return L2PricingStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
     
-    function l1PricingState() internal pure returns (Storage memory) {
+    function l1PricingState() internal pure returns (L1PricingStorage memory) {
         bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
             ROOT_STORAGE_KEY,
             L1_PRICING_SUBSTORAGE
         );
-        return Storage(ARBOS_STORAGE_ADDRESS, key);
+        return L1PricingStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
 }

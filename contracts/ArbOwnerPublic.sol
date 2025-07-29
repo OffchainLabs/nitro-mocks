@@ -2,12 +2,13 @@
 pragma solidity ^0.8.19;
 
 import {ArbOwnerPublic as IArbOwnerPublic} from "../submodules/nitro-precompile-interfaces/ArbOwnerPublic.sol";
-import {AddressSet} from "./libraries/AddressSet.sol";
+import {AddressSet, AddressSetStorage} from "./libraries/AddressSet.sol";
 import {ArbosState} from "./libraries/ArbosState.sol";
 
 contract ArbOwnerPublic is IArbOwnerPublic {
+    using AddressSet for AddressSetStorage;
     function isChainOwner(address addr) external view override returns (bool) {
-        return AddressSet.isMember(ArbosState.chainOwners(), addr);
+        return ArbosState.chainOwners().isMember(addr);
     }
 
     function rectifyChainOwner(address) external override {
@@ -15,7 +16,7 @@ contract ArbOwnerPublic is IArbOwnerPublic {
     }
 
     function getAllChainOwners() external view override returns (address[] memory) {
-        return AddressSet.allMembers(ArbosState.chainOwners(), 65536);
+        return ArbosState.chainOwners().allMembers(65536);
     }
 
     function isNativeTokenOwner(address) external view override returns (bool) {
