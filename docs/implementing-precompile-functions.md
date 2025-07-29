@@ -46,13 +46,19 @@ This creates a challenge for developers:
 1. **Check existing libraries**
    - Look for existing Solidity libraries that match Go patterns
    - Extend libraries if needed rather than duplicating code
+   - Check existing precompile Solidity implementations for common patterns
 
 2. **Match behavior exactly**
    - Function signatures must be identical to the interface
    - Error messages must match word-for-word
    - Storage access order must be preserved
 
-3. **Handle access control**
+3. **Mirror Go code structure**
+   - If Go has methods on ArbosState (e.g., `state.NetworkFeeAccount()`), create corresponding accessor functions in the ArbosState library
+   - This makes the Solidity implementation more maintainable and closer to the Go structure
+   - Place accessor functions after offset constants in ArbosState.sol
+
+4. **Handle access control**
    - Many functions require ownership or permission checks
    - Look for modifiers like `onlyChainOwner` in existing code
 
