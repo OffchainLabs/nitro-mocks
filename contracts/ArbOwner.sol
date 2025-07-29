@@ -3,80 +3,45 @@ pragma solidity ^0.8.19;
 
 import {ArbOwner as IArbOwner} from "../submodules/nitro-precompile-interfaces/ArbOwner.sol";
 import {AddressSet} from "./libraries/AddressSet.sol";
-import {ArbosState} from "./libraries/ArbosState.sol";
+import {ArbosState, Storage} from "./libraries/ArbosState.sol";
+import {L1PricingState} from "./libraries/L1PricingState.sol";
+import {L2PricingState} from "./libraries/L2PricingState.sol";
 import {ArbosStorage} from "./ArbosStorage.sol";
 
 contract ArbOwner is IArbOwner {
     address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
     
     modifier onlyChainOwner() {
-        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.CHAIN_OWNER_SUBSTORAGE
-        );
-        require(AddressSet.isMember(ARBOS_STORAGE_ADDRESS, chainOwnerKey, msg.sender), "unauthorized caller to access-controlled method");
+        require(AddressSet.isMember(ArbosState.ChainOwners(), msg.sender), "unauthorized caller to access-controlled method");
         _;
     }
     
     function getAllChainOwners() external view override onlyChainOwner returns (address[] memory) {
-        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.CHAIN_OWNER_SUBSTORAGE
-        );
-        return AddressSet.allMembers(ARBOS_STORAGE_ADDRESS, chainOwnerKey, 65536);
+        return AddressSet.allMembers(ArbosState.ChainOwners(), 65536);
     }
 
     function isChainOwner(address addr) external view override onlyChainOwner returns (bool) {
-        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.CHAIN_OWNER_SUBSTORAGE
-        );
-        return AddressSet.isMember(ARBOS_STORAGE_ADDRESS, chainOwnerKey, addr);
+        return AddressSet.isMember(ArbosState.ChainOwners(), addr);
     }
 
     function setL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
-        bytes memory l2PricingStorageKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.L2_PRICING_SUBSTORAGE
-        );
-        
-        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint256(l2PricingStorageKey, ArbosState.L2_PRICING_BASE_FEE_WEI_OFFSET, priceInWei);
-        
+        L2PricingState.setBaseFeeWei(ArbosState.L2PricingState(), priceInWei);
         emit OwnerActs(bytes4(keccak256("setL2BaseFee(uint256)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL2BaseFee(uint256)")), priceInWei));
     }
 
     function setMinimumL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
-        bytes memory l2PricingStorageKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.L2_PRICING_SUBSTORAGE
-        );
-        
-        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint256(l2PricingStorageKey, ArbosState.L2_PRICING_MIN_BASE_FEE_WEI_OFFSET, priceInWei);
-        
+        L2PricingState.setMinBaseFeeWei(ArbosState.L2PricingState(), priceInWei);
         emit OwnerActs(bytes4(keccak256("setMinimumL2BaseFee(uint256)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setMinimumL2BaseFee(uint256)")), priceInWei));
     }
 
     function setSpeedLimit(uint64 limit) external override onlyChainOwner {
         require(limit != 0, "speed limit must be nonzero");
-        
-        bytes memory l2PricingStorageKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.L2_PRICING_SUBSTORAGE
-        );
-        
-        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(l2PricingStorageKey, ArbosState.L2_PRICING_SPEED_LIMIT_PER_SECOND_OFFSET, limit);
-        
+        L2PricingState.setSpeedLimitPerSecond(ArbosState.L2PricingState(), limit);
         emit OwnerActs(bytes4(keccak256("setSpeedLimit(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setSpeedLimit(uint64)")), limit));
     }
 
     function setL1BaseFeeEstimateInertia(uint64 inertia) external override onlyChainOwner {
-        bytes memory l1PricingStorageKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.L1_PRICING_SUBSTORAGE
-        );
-        
-        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(l1PricingStorageKey, ArbosState.L1_PRICING_INERTIA_OFFSET, inertia);
-        
+        L1PricingState.setInertia(ArbosState.L1PricingState(), inertia);
         emit OwnerActs(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), inertia));
     }
 
@@ -89,23 +54,14 @@ contract ArbOwner is IArbOwner {
     }
 
     function addChainOwner(address newOwner) external override onlyChainOwner {
-        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.CHAIN_OWNER_SUBSTORAGE
-        );
-        AddressSet.add(ARBOS_STORAGE_ADDRESS, chainOwnerKey, newOwner);
+        AddressSet.add(ArbosState.ChainOwners(), newOwner);
         emit OwnerActs(bytes4(keccak256("addChainOwner(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("addChainOwner(address)")), newOwner));
     }
 
     function removeChainOwner(address ownerToRemove) external override onlyChainOwner {
-        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.CHAIN_OWNER_SUBSTORAGE
-        );
+        require(AddressSet.isMember(ArbosState.ChainOwners(), ownerToRemove), "tried to remove non-owner");
         
-        require(AddressSet.isMember(ARBOS_STORAGE_ADDRESS, chainOwnerKey, ownerToRemove), "tried to remove non-owner");
-        
-        AddressSet.remove(ARBOS_STORAGE_ADDRESS, chainOwnerKey, ownerToRemove);
+        AddressSet.remove(ArbosState.ChainOwners(), ownerToRemove);
         emit OwnerActs(bytes4(keccak256("removeChainOwner(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("removeChainOwner(address)")), ownerToRemove));
     }
 

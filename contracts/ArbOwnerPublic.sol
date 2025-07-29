@@ -10,11 +10,7 @@ contract ArbOwnerPublic is IArbOwnerPublic {
     address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
 
     function isChainOwner(address addr) external view override returns (bool) {
-        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.CHAIN_OWNER_SUBSTORAGE
-        );
-        return AddressSet.isMember(ARBOS_STORAGE_ADDRESS, chainOwnerKey, addr);
+        return AddressSet.isMember(ArbosState.ChainOwners(), addr);
     }
 
     function rectifyChainOwner(address) external override {
@@ -22,11 +18,7 @@ contract ArbOwnerPublic is IArbOwnerPublic {
     }
 
     function getAllChainOwners() external view override returns (address[] memory) {
-        bytes memory chainOwnerKey = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ArbosState.ROOT_STORAGE_KEY,
-            ArbosState.CHAIN_OWNER_SUBSTORAGE
-        );
-        return AddressSet.allMembers(ARBOS_STORAGE_ADDRESS, chainOwnerKey, 65536);
+        return AddressSet.allMembers(ArbosState.ChainOwners(), 65536);
     }
 
     function isNativeTokenOwner(address) external view override returns (bool) {

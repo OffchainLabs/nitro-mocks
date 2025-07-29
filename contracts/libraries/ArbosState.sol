@@ -3,7 +3,13 @@ pragma solidity ^0.8.0;
 
 import {ArbosStorage} from "../ArbosStorage.sol";
 
+struct Storage {
+    address addr;
+    bytes key;
+}
+
 library ArbosState {
+    address internal constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
     bytes internal constant ROOT_STORAGE_KEY = hex"";
     
     uint256 internal constant VERSION_OFFSET = 0;
@@ -28,23 +34,27 @@ library ArbosState {
     bytes internal constant FEATURES_SUBSTORAGE = hex"09";
     bytes internal constant NATIVE_TOKEN_OWNER_SUBSTORAGE = hex"0a";
     
-    uint256 internal constant L2_PRICING_SPEED_LIMIT_PER_SECOND_OFFSET = 0;
-    uint256 internal constant L2_PRICING_PER_BLOCK_GAS_LIMIT_OFFSET = 1;
-    uint256 internal constant L2_PRICING_BASE_FEE_WEI_OFFSET = 2;
-    uint256 internal constant L2_PRICING_MIN_BASE_FEE_WEI_OFFSET = 3;
-    uint256 internal constant L2_PRICING_GAS_BACKLOG_OFFSET = 4;
-    uint256 internal constant L2_PRICING_PRICING_INERTIA_OFFSET = 5;
-    uint256 internal constant L2_PRICING_BACKLOG_TOLERANCE_OFFSET = 6;
+    function ChainOwners() internal pure returns (Storage memory) {
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ROOT_STORAGE_KEY,
+            CHAIN_OWNER_SUBSTORAGE
+        );
+        return Storage(ARBOS_STORAGE_ADDRESS, key);
+    }
     
-    uint256 internal constant L1_PRICING_PAY_REWARDS_TO_OFFSET = 0;
-    uint256 internal constant L1_PRICING_EQUILIBRATION_UNITS_OFFSET = 1;
-    uint256 internal constant L1_PRICING_INERTIA_OFFSET = 2;
-    uint256 internal constant L1_PRICING_PER_UNIT_REWARD_OFFSET = 3;
-    uint256 internal constant L1_PRICING_LAST_UPDATE_TIME_OFFSET = 4;
-    uint256 internal constant L1_PRICING_FUNDS_DUE_FOR_REWARDS_OFFSET = 5;
-    uint256 internal constant L1_PRICING_UNITS_SINCE_OFFSET = 6;
-    uint256 internal constant L1_PRICING_PRICE_PER_UNIT_OFFSET = 7;
-    uint256 internal constant L1_PRICING_LAST_SURPLUS_OFFSET = 8;
-    uint256 internal constant L1_PRICING_PER_BATCH_GAS_COST_OFFSET = 9;
-    uint256 internal constant L1_PRICING_AMORTIZED_COST_CAP_BIPS_OFFSET = 10;
+    function L2PricingState() internal pure returns (Storage memory) {
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ROOT_STORAGE_KEY,
+            L2_PRICING_SUBSTORAGE
+        );
+        return Storage(ARBOS_STORAGE_ADDRESS, key);
+    }
+    
+    function L1PricingState() internal pure returns (Storage memory) {
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ROOT_STORAGE_KEY,
+            L1_PRICING_SUBSTORAGE
+        );
+        return Storage(ARBOS_STORAGE_ADDRESS, key);
+    }
 }
