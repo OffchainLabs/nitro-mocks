@@ -27,4 +27,8 @@ library L2PricingState {
     function setSpeedLimitPerSecond(Storage memory store, uint64 limit) internal {
         ArbosStorage(store.addr).setUint64(store.key, SPEED_LIMIT_PER_SECOND_OFFSET, limit);
     }
+    
+    function setMaxPerBlockGasLimit(Storage memory store, uint64 limit) internal {
+        ArbosStorage(store.addr).setUint64(store.key, PER_BLOCK_GAS_LIMIT_OFFSET, limit);
+    }
 }

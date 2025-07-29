@@ -90,7 +90,7 @@ library ArbosState {
     bytes internal constant FEATURES_SUBSTORAGE = hex"09";
     bytes internal constant NATIVE_TOKEN_OWNER_SUBSTORAGE = hex"0a";
     
-    function ChainOwners() internal pure returns (Storage memory) {
+    function chainOwners() internal pure returns (Storage memory) {
         bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
             ROOT_STORAGE_KEY,
             CHAIN_OWNER_SUBSTORAGE
@@ -98,7 +98,7 @@ library ArbosState {
         return Storage(ARBOS_STORAGE_ADDRESS, key);
     }
     
-    function L2PricingState() internal pure returns (Storage memory) {
+    function l2PricingState() internal pure returns (Storage memory) {
         bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
             ROOT_STORAGE_KEY,
             L2_PRICING_SUBSTORAGE
@@ -106,7 +106,7 @@ library ArbosState {
         return Storage(ARBOS_STORAGE_ADDRESS, key);
     }
     
-    function L1PricingState() internal pure returns (Storage memory) {
+    function l1PricingState() internal pure returns (Storage memory) {
         bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
             ROOT_STORAGE_KEY,
             L1_PRICING_SUBSTORAGE

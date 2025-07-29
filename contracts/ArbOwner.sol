@@ -9,36 +9,36 @@ import {L2PricingState} from "./libraries/L2PricingState.sol";
 
 contract ArbOwner is IArbOwner {
     modifier onlyChainOwner() {
-        require(AddressSet.isMember(ArbosState.ChainOwners(), msg.sender), "unauthorized caller to access-controlled method");
+        require(AddressSet.isMember(ArbosState.chainOwners(), msg.sender), "unauthorized caller to access-controlled method");
         _;
     }
     
     function getAllChainOwners() external view override onlyChainOwner returns (address[] memory) {
-        return AddressSet.allMembers(ArbosState.ChainOwners(), 65536);
+        return AddressSet.allMembers(ArbosState.chainOwners(), 65536);
     }
 
     function isChainOwner(address addr) external view override onlyChainOwner returns (bool) {
-        return AddressSet.isMember(ArbosState.ChainOwners(), addr);
+        return AddressSet.isMember(ArbosState.chainOwners(), addr);
     }
 
     function setL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
-        L2PricingState.setBaseFeeWei(ArbosState.L2PricingState(), priceInWei);
+        L2PricingState.setBaseFeeWei(ArbosState.l2PricingState(), priceInWei);
         emit OwnerActs(bytes4(keccak256("setL2BaseFee(uint256)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL2BaseFee(uint256)")), priceInWei));
     }
 
     function setMinimumL2BaseFee(uint256 priceInWei) external override onlyChainOwner {
-        L2PricingState.setMinBaseFeeWei(ArbosState.L2PricingState(), priceInWei);
+        L2PricingState.setMinBaseFeeWei(ArbosState.l2PricingState(), priceInWei);
         emit OwnerActs(bytes4(keccak256("setMinimumL2BaseFee(uint256)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setMinimumL2BaseFee(uint256)")), priceInWei));
     }
 
     function setSpeedLimit(uint64 limit) external override onlyChainOwner {
         require(limit != 0, "speed limit must be nonzero");
-        L2PricingState.setSpeedLimitPerSecond(ArbosState.L2PricingState(), limit);
+        L2PricingState.setSpeedLimitPerSecond(ArbosState.l2PricingState(), limit);
         emit OwnerActs(bytes4(keccak256("setSpeedLimit(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setSpeedLimit(uint64)")), limit));
     }
 
     function setL1BaseFeeEstimateInertia(uint64 inertia) external override onlyChainOwner {
-        L1PricingState.setInertia(ArbosState.L1PricingState(), inertia);
+        L1PricingState.setInertia(ArbosState.l1PricingState(), inertia);
         emit OwnerActs(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setL1BaseFeeEstimateInertia(uint64)")), inertia));
     }
 
@@ -47,19 +47,20 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(bytes4(keccak256("setNetworkFeeAccount(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setNetworkFeeAccount(address)")), newNetworkFeeAccount));
     }
 
-    function setMaxTxGasLimit(uint64 limit) external override {
-        revert("Not implemented");
+    function setMaxTxGasLimit(uint64 limit) external override onlyChainOwner {
+        L2PricingState.setMaxPerBlockGasLimit(ArbosState.l2PricingState(), limit);
+        emit OwnerActs(bytes4(keccak256("setMaxTxGasLimit(uint64)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("setMaxTxGasLimit(uint64)")), limit));
     }
 
     function addChainOwner(address newOwner) external override onlyChainOwner {
-        AddressSet.add(ArbosState.ChainOwners(), newOwner);
+        AddressSet.add(ArbosState.chainOwners(), newOwner);
         emit OwnerActs(bytes4(keccak256("addChainOwner(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("addChainOwner(address)")), newOwner));
     }
 
     function removeChainOwner(address ownerToRemove) external override onlyChainOwner {
-        require(AddressSet.isMember(ArbosState.ChainOwners(), ownerToRemove), "tried to remove non-owner");
+        require(AddressSet.isMember(ArbosState.chainOwners(), ownerToRemove), "tried to remove non-owner");
         
-        AddressSet.remove(ArbosState.ChainOwners(), ownerToRemove);
+        AddressSet.remove(ArbosState.chainOwners(), ownerToRemove);
         emit OwnerActs(bytes4(keccak256("removeChainOwner(address)")), msg.sender, abi.encodeWithSelector(bytes4(keccak256("removeChainOwner(address)")), ownerToRemove));
     }
 

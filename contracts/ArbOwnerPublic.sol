@@ -7,7 +7,7 @@ import {ArbosState} from "./libraries/ArbosState.sol";
 
 contract ArbOwnerPublic is IArbOwnerPublic {
     function isChainOwner(address addr) external view override returns (bool) {
-        return AddressSet.isMember(ArbosState.ChainOwners(), addr);
+        return AddressSet.isMember(ArbosState.chainOwners(), addr);
     }
 
     function rectifyChainOwner(address) external override {
@@ -15,7 +15,7 @@ contract ArbOwnerPublic is IArbOwnerPublic {
     }
 
     function getAllChainOwners() external view override returns (address[] memory) {
-        return AddressSet.allMembers(ArbosState.ChainOwners(), 65536);
+        return AddressSet.allMembers(ArbosState.chainOwners(), 65536);
     }
 
     function isNativeTokenOwner(address) external view override returns (bool) {
