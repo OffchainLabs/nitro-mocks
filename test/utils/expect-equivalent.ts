@@ -168,11 +168,15 @@ export function createStorageValueComparer(
 export const storageValueComparerExact = createStorageValueComparer();
 export const storageValueComparerExcludingVersion = createStorageValueComparer(undefined, { excludeSlots: [VERSION_SLOT] });
 
-async function getAndVerifyChainOwners(): Promise<string[]> {
-  const wallet = getWalletFromMnemonic(5);
-  return [wallet.address];
+function getFromAddresses(): string[] {
+  const chainOwnerWallet = getWalletFromMnemonic(5);
+  const testWallet = getWalletFromMnemonic(6);
+  
+  return [
+    chainOwnerWallet.address,
+    testWallet.address
+  ];
 }
-
 
 export interface EquivalenceOptions {
   from?: string;
@@ -565,15 +569,6 @@ export async function expectEquivalentTx<TContract extends BaseContract>(
   }
 }
 
-function getTestAddresses(chainOwners: string[]): string[] {
-  const wallet = getWalletFromMnemonic(6);
-  
-  return [
-    ...chainOwners,
-    wallet.address
-  ];
-}
-
 export async function expectEquivalentCallFromMultipleAddresses<TContract extends BaseContract>(
   ContractFactory: {
     connect(address: string, provider: any): TContract;
@@ -584,8 +579,7 @@ export async function expectEquivalentCallFromMultipleAddresses<TContract extend
   args: any[] = [],
   options?: EquivalenceOptions
 ): Promise<void> {
-  const chainOwners = await getAndVerifyChainOwners();
-  const testAddresses = [...getTestAddresses(chainOwners), ethers.ZeroAddress];
+  const testAddresses = [...getFromAddresses(), ethers.ZeroAddress];
   
   for (const fromAddress of testAddresses) {
     await expectEquivalentCall(
@@ -611,8 +605,7 @@ export async function expectEquivalentTxFromMultipleAddresses<TContract extends 
   args: any[] = [],
   options?: EquivalenceOptions
 ): Promise<void> {
-  const chainOwners = await getAndVerifyChainOwners();
-  const testAddresses = getTestAddresses(chainOwners);
+  const testAddresses = getFromAddresses();
   
   for (const fromAddress of testAddresses) {
     await expectEquivalentTx(
