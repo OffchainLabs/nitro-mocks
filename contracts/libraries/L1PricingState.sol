@@ -72,4 +72,8 @@ library L1PricingState {
     function setPricePerUnit(L1PricingStorage memory self, uint256 pricePerUnit) internal {
         ArbosStorage(self.store.addr).setUint256(self.store.key, PRICE_PER_UNIT_OFFSET, pricePerUnit);
     }
+    
+    function pricePerUnit(L1PricingStorage memory self) internal view returns (uint256) {
+        return ArbosStorage(self.store.addr).getUint256(self.store.key, PRICE_PER_UNIT_OFFSET);
+    }
 }
