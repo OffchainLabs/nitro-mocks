@@ -459,6 +459,28 @@ export async function expectEquivalentTx<TContract extends BaseContract>(
   const mockContract = ContractFactory.connect(address, mockSigner);
   const underlyingContract = ContractFactory.connect(address, underlyingSigner);
   
+  let mockResult: any;
+  let underlyingResult: any;
+  let mockStaticReverted = false;
+  let underlyingStaticReverted = false;
+  
+  try {
+    mockResult = await (mockContract as any)[method as string].staticCall(...args);
+  } catch (error: any) {
+    mockStaticReverted = true;
+    mockResult = error;
+  }
+  
+  try {
+    underlyingResult = await (underlyingContract as any)[method as string].staticCall(...args);
+  } catch (error: any) {
+    underlyingStaticReverted = true;
+    underlyingResult = error;
+  }
+  
+  if (!mockStaticReverted && !underlyingStaticReverted) {
+    compareResults(mockResult, underlyingResult, errorContext, options?.result);
+  }
   let mockTx: any;
   let mockReceipt: any;
   let underlyingTx: any;

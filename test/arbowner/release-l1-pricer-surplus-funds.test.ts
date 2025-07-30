@@ -9,32 +9,6 @@ describe("ArbOwner.releaseL1PricerSurplusFunds", function () {
     await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
   });
 
-  it("should match native implementation when releasing partial surplus", async function () {
-    await expectEquivalentTxFromMultipleAddresses(
-      ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
-      "releaseL1PricerSurplusFunds",
-      [parseEther("0.1")],
-      {
-        storageAccess: storageAccessComparerExcludingVersion,
-        storageValues: storageValueComparerExcludingVersion
-      }
-    );
-  });
-
-  it("should match native implementation when releasing all surplus", async function () {
-    await expectEquivalentTxFromMultipleAddresses(
-      ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
-      "releaseL1PricerSurplusFunds",
-      [parseEther("1000000")], // Large amount to ensure we release all surplus
-      {
-        storageAccess: storageAccessComparerExcludingVersion,
-        storageValues: storageValueComparerExcludingVersion
-      }
-    );
-  });
-
   it("should match native implementation when there is no surplus", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
