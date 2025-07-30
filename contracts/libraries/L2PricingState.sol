@@ -36,4 +36,8 @@ library L2PricingState {
     function setMaxPerBlockGasLimit(L2PricingStorage memory self, uint64 limit) internal {
         ArbosStorage(self.store.addr).setUint64(self.store.key, PER_BLOCK_GAS_LIMIT_OFFSET, limit);
     }
+    
+    function minBaseFeeWei(L2PricingStorage memory self) internal view returns (uint256) {
+        return ArbosStorage(self.store.addr).getUint256(self.store.key, MIN_BASE_FEE_WEI_OFFSET);
+    }
 }
