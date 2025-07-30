@@ -10,7 +10,7 @@ describe("ArbOwner.setL1BaseFeeEstimateInertia", function () {
   });
 
   it("should match native implementation", async function () {
-    const testValues = [0n, 10n, 18446744073709551615n]; // 0, 10, max uint64
+    const testValues = [18446744073709551615n, 0n, 10n]; // 0, 10, max uint64
     
     for (const inertia of testValues) {
       await expectEquivalentTxFromMultipleAddresses(

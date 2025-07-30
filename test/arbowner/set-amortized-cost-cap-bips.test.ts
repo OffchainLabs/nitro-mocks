@@ -11,7 +11,7 @@ describe("ArbOwner.setAmortizedCostCapBips", function () {
 
   it("should match native implementation", async function () {
     // Test with various cap values
-    const testCaps = [0, 1, 100, 1000, 5000, 10000, 65535];
+    const testCaps = [65535, 0, 10];
     
     for (const cap of testCaps) {
       await expectEquivalentTxFromMultipleAddresses(

@@ -14,7 +14,7 @@ describe("ArbOwner.setL1PricePerUnit", function () {
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,
       "setL1PricePerUnit",
-      [ethers.parseEther("0.001")], // Using a typical price value
+      [ethers.parseEther("0.000139")], // Using a typical price value
       {
         storageAccess: storageAccessComparerExcludingVersion,
         storageValues: storageValueComparerExcludingVersion
