@@ -76,4 +76,8 @@ library L1PricingState {
     function pricePerUnit(L1PricingStorage memory self) internal view returns (uint256) {
         return ArbosStorage(self.store.addr).getUint256(self.store.key, PRICE_PER_UNIT_OFFSET);
     }
+    
+    function inertia(L1PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, INERTIA_OFFSET);
+    }
 }

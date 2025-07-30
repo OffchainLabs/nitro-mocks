@@ -48,7 +48,7 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getL1BaseFeeEstimateInertia() external view override returns (uint64) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().inertia();
     }
 
     function getL1RewardRate() external view override returns (uint64) {
