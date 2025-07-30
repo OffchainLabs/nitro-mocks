@@ -107,8 +107,9 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setL1PricingInertia(uint64 inertia) external override {
-        revert("Not implemented");
+    function setL1PricingInertia(uint64 inertia) external override onlyChainOwner {
+        ArbosState.l1PricingState().setInertia(inertia);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setL1PricingRewardRecipient(address recipient) external override onlyChainOwner {
