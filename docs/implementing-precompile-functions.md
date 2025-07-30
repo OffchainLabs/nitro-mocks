@@ -187,7 +187,6 @@ Before considering implementation complete:
 - [ ] All error messages match Go implementation
 - [ ] Storage access patterns verified via differential testing
 - [ ] Tests pass with version-excluding comparers only
-- [ ] Access control properly implemented
-- [ ] Edge cases tested
+- [ ] Access control properly implemente
 - [ ] Code follows project conventions
 - [ ] No unnecessary comments or documentation
