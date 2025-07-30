@@ -110,8 +110,9 @@ contract ArbOwner is IArbOwner {
         revert("Not implemented");
     }
 
-    function setL1PricingRewardRecipient(address) external override {
-        revert("Not implemented");
+    function setL1PricingRewardRecipient(address recipient) external override onlyChainOwner {
+        ArbosState.l1PricingState().setPayRewardsTo(recipient);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setL1PricingRewardRate(uint64 weiPerUnit) external override {

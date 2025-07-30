@@ -56,4 +56,8 @@ library L1PricingState {
     function setPerBatchGasCost(L1PricingStorage memory self, int64 cost) internal {
         ArbosStorage(self.store.addr).setInt64(self.store.key, PER_BATCH_GAS_COST_OFFSET, cost);
     }
+    
+    function setPayRewardsTo(L1PricingStorage memory self, address recipient) internal {
+        ArbosStorage(self.store.addr).setAddr(self.store.key, PAY_REWARDS_TO_OFFSET, recipient);
+    }
 }
