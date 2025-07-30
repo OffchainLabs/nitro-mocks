@@ -17,20 +17,6 @@ export function getUnderlyingProvider(): JsonRpcProvider {
   return new JsonRpcProvider(forkingConfig.url);
 }
 
-export function itFork(
-  description: string, 
-  testFn: (this: Mocha.Context & TestContext) => Promise<void>
-): void {
-  it(description, async function() {
-    const context: TestContext = {
-      underlyingProvider: getUnderlyingProvider(),
-      forkProvider: hre.ethers.provider
-    };
-    
-    return testFn.call(Object.assign(this, context));
-  });
-}
-
 export const PRECOMPILE_ADDRESSES = {
   ArbSys: "0x0000000000000000000000000000000000000064",
   ArbOwner: "0x0000000000000000000000000000000000000070",
