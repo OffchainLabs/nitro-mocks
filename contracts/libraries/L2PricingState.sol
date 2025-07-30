@@ -40,4 +40,8 @@ library L2PricingState {
     function minBaseFeeWei(L2PricingStorage memory self) internal view returns (uint256) {
         return ArbosStorage(self.store.addr).getUint256(self.store.key, MIN_BASE_FEE_WEI_OFFSET);
     }
+    
+    function gasBacklog(L2PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, GAS_BACKLOG_OFFSET);
+    }
 }
