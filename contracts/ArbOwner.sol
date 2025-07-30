@@ -97,8 +97,9 @@ contract ArbOwner is IArbOwner {
         return weiToTransferUint;
     }
 
-    function setPerBatchGasCharge(int64 cost) external override {
-        revert("Not implemented");
+    function setPerBatchGasCharge(int64 cost) external override onlyChainOwner {
+        ArbosState.l1PricingState().setPerBatchGasCost(cost);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setL1PricingEquilibrationUnits(uint256) external override {
