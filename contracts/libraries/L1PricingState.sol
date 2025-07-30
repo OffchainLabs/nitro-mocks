@@ -64,4 +64,8 @@ library L1PricingState {
     function setEquilibrationUnits(L1PricingStorage memory self, uint256 units) internal {
         ArbosStorage(self.store.addr).setUint256(self.store.key, EQUILIBRATION_UNITS_OFFSET, units);
     }
+    
+    function setPerUnitReward(L1PricingStorage memory self, uint64 weiPerUnit) internal {
+        ArbosStorage(self.store.addr).setUint64(self.store.key, PER_UNIT_REWARD_OFFSET, weiPerUnit);
+    }
 }

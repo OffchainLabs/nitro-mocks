@@ -117,8 +117,9 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setL1PricingRewardRate(uint64 weiPerUnit) external override {
-        revert("Not implemented");
+    function setL1PricingRewardRate(uint64 weiPerUnit) external override onlyChainOwner {
+        ArbosState.l1PricingState().setPerUnitReward(weiPerUnit);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setL1PricePerUnit(uint256) external override {
