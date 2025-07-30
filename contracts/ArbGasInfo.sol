@@ -56,7 +56,7 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getL1RewardRecipient() external view override returns (address) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().payRewardsTo();
     }
 
     function getL1GasPriceEstimate() external view override returns (uint256) {
