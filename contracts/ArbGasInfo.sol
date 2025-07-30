@@ -64,6 +64,7 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getCurrentTxL1GasFees() external view override returns (uint256) {
+        // Cannot be mocked: requires access to txProcessor.PosterFee from current transaction context
         revert("NOT_IMPLEMENTED");
     }
 
@@ -112,11 +113,6 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getLastL1PricingSurplus() external view override returns (int256) {
-        revert("NOT_IMPLEMENTED");
-    }
-
-    function getCurrentTxL1GasFee() external view override returns (uint256) {
-        // Cannot be mocked: requires access to txProcessor.PosterFee from current transaction context
         revert("NOT_IMPLEMENTED");
     }
 }
