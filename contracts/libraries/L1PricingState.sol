@@ -84,4 +84,8 @@ library L1PricingState {
     function perUnitReward(L1PricingStorage memory self) internal view returns (uint64) {
         return ArbosStorage(self.store.addr).getUint64(self.store.key, PER_UNIT_REWARD_OFFSET);
     }
+    
+    function payRewardsTo(L1PricingStorage memory self) internal view returns (address) {
+        return ArbosStorage(self.store.addr).getAddr(self.store.key, PAY_REWARDS_TO_OFFSET);
+    }
 }
