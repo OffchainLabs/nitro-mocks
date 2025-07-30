@@ -60,7 +60,7 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getL1GasPriceEstimate() external view override returns (uint256) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().pricePerUnit();
     }
 
     function getCurrentTxL1GasFees() external view override returns (uint256) {
