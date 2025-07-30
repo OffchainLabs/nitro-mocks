@@ -3,9 +3,11 @@ pragma solidity ^0.8.0;
 
 import {ArbGasInfo as IArbGasInfo} from "../submodules/nitro-precompile-interfaces/ArbGasInfo.sol";
 import {ArbosState} from "./libraries/ArbosState.sol";
+import {L1PricingState, L1PricingStorage} from "./libraries/L1PricingState.sol";
 import {L2PricingState, L2PricingStorage} from "./libraries/L2PricingState.sol";
 
 contract ArbGasInfo is IArbGasInfo {
+    using L1PricingState for L1PricingStorage;
     using L2PricingState for L2PricingStorage;
 
     function getPricesInWeiWithAggregator(
@@ -42,7 +44,7 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getL1BaseFeeEstimate() external view override returns (uint256) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().pricePerUnit();
     }
 
     function getL1BaseFeeEstimateInertia() external view override returns (uint64) {
