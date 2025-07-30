@@ -102,8 +102,9 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setL1PricingEquilibrationUnits(uint256) external override {
-        revert("Not implemented");
+    function setL1PricingEquilibrationUnits(uint256 equilibrationUnits) external override onlyChainOwner {
+        ArbosState.l1PricingState().setEquilibrationUnits(equilibrationUnits);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setL1PricingInertia(uint64 inertia) external override {

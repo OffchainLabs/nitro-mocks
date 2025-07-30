@@ -60,4 +60,8 @@ library L1PricingState {
     function setPayRewardsTo(L1PricingStorage memory self, address recipient) internal {
         ArbosStorage(self.store.addr).setAddr(self.store.key, PAY_REWARDS_TO_OFFSET, recipient);
     }
+    
+    function setEquilibrationUnits(L1PricingStorage memory self, uint256 units) internal {
+        ArbosStorage(self.store.addr).setUint256(self.store.key, EQUILIBRATION_UNITS_OFFSET, units);
+    }
 }
