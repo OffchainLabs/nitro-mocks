@@ -80,4 +80,8 @@ library L1PricingState {
     function inertia(L1PricingStorage memory self) internal view returns (uint64) {
         return ArbosStorage(self.store.addr).getUint64(self.store.key, INERTIA_OFFSET);
     }
+    
+    function perUnitReward(L1PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, PER_UNIT_REWARD_OFFSET);
+    }
 }
