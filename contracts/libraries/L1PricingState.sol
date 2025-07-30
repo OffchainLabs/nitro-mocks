@@ -68,4 +68,8 @@ library L1PricingState {
     function setPerUnitReward(L1PricingStorage memory self, uint64 weiPerUnit) internal {
         ArbosStorage(self.store.addr).setUint64(self.store.key, PER_UNIT_REWARD_OFFSET, weiPerUnit);
     }
+    
+    function setPricePerUnit(L1PricingStorage memory self, uint256 pricePerUnit) internal {
+        ArbosStorage(self.store.addr).setUint256(self.store.key, PRICE_PER_UNIT_OFFSET, pricePerUnit);
+    }
 }
