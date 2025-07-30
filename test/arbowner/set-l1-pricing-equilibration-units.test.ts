@@ -10,7 +10,7 @@ describe("ArbOwner.setL1PricingEquilibrationUnits", function () {
   });
 
   it("should match native implementation", async function () {
-    const testValues = [0n, 1000n];
+    const testValues = [0n, 1000n, 1n];
     
     for (const units of testValues) {
       await expectEquivalentTxFromMultipleAddresses(

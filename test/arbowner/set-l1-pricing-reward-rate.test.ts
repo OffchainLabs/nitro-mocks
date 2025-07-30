@@ -14,7 +14,7 @@ describe("ArbOwner.setL1PricingRewardRate", function () {
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,
       "setL1PricingRewardRate",
-      [1000n],
+      [137n],
       {
         storageAccess: storageAccessComparerExcludingVersion,
         storageValues: storageValueComparerExcludingVersion

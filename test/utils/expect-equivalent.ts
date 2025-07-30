@@ -168,8 +168,12 @@ export function createStorageValueComparer(
 export const storageValueComparerExact = createStorageValueComparer();
 export const storageValueComparerExcludingVersion = createStorageValueComparer(undefined, { excludeSlots: [VERSION_SLOT] });
 
+function getChainOwner() {
+  return getWalletFromMnemonic(5);
+}
+
 function getFromAddresses(): string[] {
-  const chainOwnerWallet = getWalletFromMnemonic(5);
+  const chainOwnerWallet = getChainOwner()
   const testWallet = getWalletFromMnemonic(6);
   
   return [
@@ -508,7 +512,6 @@ export async function expectEquivalentTx<TContract extends BaseContract>(
     // TODO: we should still compare storage and events even if both reverted - if they're available
     return;
   } else if (mockReverted || underlyingReverted) {
-    console.log(mockReverted, underlyingReverted);
     failWithError({
       ...errorContext,
       result: {

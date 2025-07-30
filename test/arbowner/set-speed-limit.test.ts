@@ -10,7 +10,7 @@ describe("ArbOwner.setSpeedLimit", function () {
   });
 
   it("should match native implementation", async function () {
-    const newSpeedLimit = 1000000n; // Example speed limit value
+    const newSpeedLimit = 1370000n; // Example speed limit value
     
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
