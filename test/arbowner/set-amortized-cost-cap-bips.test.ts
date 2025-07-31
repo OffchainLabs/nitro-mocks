@@ -1,16 +1,43 @@
 import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
-import { expectEquivalentTxFromMultipleAddresses, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
-import { ArbOwner__factory } from "../../typechain-types";
+import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
+import { ArbOwner__factory, ArbGasInfo__factory } from "../../typechain-types";
 
 describe("ArbOwner.setAmortizedCostCapBips", function () {
+  let originalValue: bigint;
+
   beforeEach(async function() {  
-    // Deploy required contracts
     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
     await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
+    await deployAndSetCode("contracts/ArbGasInfo.sol:ArbGasInfo", PRECOMPILE_ADDRESSES.ArbGasInfo);
+
+    await expectEquivalentCallFromChainOwner(
+      ArbGasInfo__factory,
+      PRECOMPILE_ADDRESSES.ArbGasInfo,
+      "getAmortizedCostCapBips",
+      [],
+      {
+        storageAccess: storageAccessComparerExcludingVersion,
+        result: (mock, underlying) => {
+          originalValue = mock;
+        }
+      }
+    );
+  });
+
+  afterEach(async function() {
+    await expectEquivalentTxFromChainOwner(
+      ArbOwner__factory,
+      PRECOMPILE_ADDRESSES.ArbOwner,
+      "setAmortizedCostCapBips",
+      [originalValue],
+      {
+        storageAccess: storageAccessComparerExcludingVersion,
+        storageValues: storageValueComparerExcludingVersion
+      }
+    );
   });
 
   it("should match native implementation", async function () {
-    // Test with various cap values
     const testCaps = [65535, 0, 10];
     
     for (const cap of testCaps) {

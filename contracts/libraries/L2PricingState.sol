@@ -52,4 +52,16 @@ library L2PricingState {
     function backlogTolerance(L2PricingStorage memory self) internal view returns (uint64) {
         return ArbosStorage(self.store.addr).getUint64(self.store.key, BACKLOG_TOLERANCE_OFFSET);
     }
+    
+    function speedLimitPerSecond(L2PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, SPEED_LIMIT_PER_SECOND_OFFSET);
+    }
+    
+    function perBlockGasLimit(L2PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, PER_BLOCK_GAS_LIMIT_OFFSET);
+    }
+    
+    function baseFeeWei(L2PricingStorage memory self) internal view returns (uint256) {
+        return ArbosStorage(self.store.addr).getUint256(self.store.key, BASE_FEE_WEI_OFFSET);
+    }
 }
