@@ -113,6 +113,6 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getLastL1PricingSurplus() external view override returns (int256) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().lastSurplus();
     }
 }
