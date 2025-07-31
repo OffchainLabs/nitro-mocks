@@ -36,7 +36,10 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getGasAccountingParams() external view override returns (uint256, uint256, uint256) {
-        revert("NOT_IMPLEMENTED");
+        L2PricingStorage memory l2pricing = ArbosState.l2PricingState();
+        uint256 speedLimit = l2pricing.speedLimitPerSecond();
+        uint256 maxTxGasLimit = l2pricing.perBlockGasLimit();
+        return (speedLimit, maxTxGasLimit, maxTxGasLimit);
     }
 
     function getMinimumGasPrice() external view override returns (uint256) {

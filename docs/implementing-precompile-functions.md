@@ -113,6 +113,9 @@ There are two main testing utilities:
    - Instead, fix your implementation to match the native behavior
    - If you genuinely need exceptions beyond version, raise this with the requester for guidance
 
+3. **For state-mutating tests, implement state restoration**
+   - Use `beforeEach` to capture original values and `afterEach` to restore them (see `test/arbowner/set-l1-price-per-unit.test.ts` for example)
+
 ### Step 4: Debugging Test Failures
 
 When differential tests fail, they provide detailed storage access traces:

@@ -645,3 +645,49 @@ export async function expectEquivalentTxFromMultipleAddresses<TContract extends 
     );
   }
 }
+
+export async function expectEquivalentCallFromChainOwner<TContract extends BaseContract>(
+  ContractFactory: {
+    connect(address: string, provider: any): TContract;
+    createInterface(): any;
+  },
+  address: string,
+  method: ContractFunctionNames<TContract>,
+  args: any[] = [],
+  options?: EquivalenceOptions
+): Promise<void> {
+  const chainOwner = getChainOwner();
+  await expectEquivalentCall(
+    ContractFactory,
+    address,
+    method,
+    args,
+    {
+      ...options,
+      from: chainOwner.address
+    }
+  );
+}
+
+export async function expectEquivalentTxFromChainOwner<TContract extends BaseContract>(
+  ContractFactory: {
+    connect(address: string, provider: any): TContract;
+    createInterface(): any;
+  },
+  address: string,
+  method: ContractFunctionNames<TContract>,
+  args: any[] = [],
+  options?: EquivalenceOptions
+): Promise<void> {
+  const chainOwner = getChainOwner();
+  await expectEquivalentTx(
+    ContractFactory,
+    address,
+    method,
+    args,
+    {
+      ...options,
+      from: chainOwner.address
+    }
+  );
+}
