@@ -73,11 +73,11 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getPricingInertia() external view override returns (uint64) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l2PricingState().pricingInertia();
     }
 
     function getGasBacklogTolerance() external view override returns (uint64) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l2PricingState().backlogTolerance();
     }
 
     function getL1PricingSurplus() external view override returns (int256) {
