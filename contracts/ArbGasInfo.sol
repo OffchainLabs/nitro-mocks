@@ -97,19 +97,19 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getL1PricingEquilibrationUnits() external view override returns (uint256) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().equilibrationUnits();
     }
 
     function getLastL1PricingUpdateTime() external view override returns (uint64) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().lastUpdateTime();
     }
 
     function getL1PricingFundsDueForRewards() external view override returns (uint256) {
-        revert("NOT_IMPLEMENTED");
+        return uint256(ArbosState.l1PricingState().fundsDueForRewards());
     }
 
     function getL1PricingUnitsSinceUpdate() external view override returns (uint64) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().unitsSinceUpdate();
     }
 
     function getLastL1PricingSurplus() external view override returns (int256) {

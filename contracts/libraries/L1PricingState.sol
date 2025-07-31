@@ -118,6 +118,18 @@ library L1PricingState {
         });
     }
     
+    function equilibrationUnits(L1PricingStorage memory self) internal view returns (uint256) {
+        return ArbosStorage(self.store.addr).getUint256(self.store.key, EQUILIBRATION_UNITS_OFFSET);
+    }
+    
+    function lastUpdateTime(L1PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, LAST_UPDATE_TIME_OFFSET);
+    }
+    
+    function unitsSinceUpdate(L1PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, UNITS_SINCE_OFFSET);
+    }
+    
     function getL1PricingSurplus(L1PricingStorage memory self) internal view returns (int256) {
         uint256 fundsDueForRefunds = self.batchPosterTable().totalFundsDue();
         int256 fundsDueForRewards = self.fundsDueForRewards();
