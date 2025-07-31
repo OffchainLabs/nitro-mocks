@@ -138,4 +138,8 @@ library L1PricingState {
         int256 needFunds = int256(fundsDueForRefunds) + fundsDueForRewards;
         return int256(haveFunds) - needFunds;
     }
+    
+    function lastSurplus(L1PricingStorage memory self) internal view returns (int256) {
+        return int256(ArbosStorage(self.store.addr).getUint256(self.store.key, LAST_SURPLUS_OFFSET));
+    }
 }
