@@ -10,6 +10,10 @@ contract ArbGasInfo is IArbGasInfo {
     using L1PricingState for L1PricingStorage;
     using L2PricingState for L2PricingStorage;
 
+    uint256 constant TX_DATA_NON_ZERO_GAS_EIP2028 = 16;
+    uint256 constant ASSUMED_SIMPLE_TX_SIZE = 140;
+    uint256 constant STORAGE_ARB_GAS = 20000; // StorageWriteCost
+
     function getPricesInWeiWithAggregator(
         address aggregator
     ) external view override returns (uint256, uint256, uint256, uint256, uint256, uint256) {
@@ -28,11 +32,25 @@ contract ArbGasInfo is IArbGasInfo {
     function getPricesInArbGasWithAggregator(
         address aggregator
     ) external view override returns (uint256, uint256, uint256) {
-        revert("NOT_IMPLEMENTED");
+        uint256 l1GasPrice = ArbosState.l1PricingState().pricePerUnit();
+        uint256 l2GasPrice = block.basefee;
+
+        // aggregators compress calldata, so we must estimate accordingly
+        uint256 weiForL1Calldata = l1GasPrice * TX_DATA_NON_ZERO_GAS_EIP2028;
+        uint256 weiPerL2Tx = weiForL1Calldata * ASSUMED_SIMPLE_TX_SIZE;
+        
+        uint256 gasForL1Calldata = 0;
+        uint256 gasPerL2Tx = 0;
+        if (l2GasPrice > 0) {
+            gasForL1Calldata = weiForL1Calldata / l2GasPrice;
+            gasPerL2Tx = weiPerL2Tx / l2GasPrice;
+        }
+
+        return (gasPerL2Tx, gasForL1Calldata, STORAGE_ARB_GAS);
     }
 
     function getPricesInArbGas() external view override returns (uint256, uint256, uint256) {
-        revert("NOT_IMPLEMENTED");
+        return this.getPricesInArbGasWithAggregator(address(0));
     }
 
     function getGasAccountingParams() external view override returns (uint256, uint256, uint256) {
