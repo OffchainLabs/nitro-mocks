@@ -29,7 +29,7 @@ describe("ArbOwner.setL2BaseFee", function () {
   });
 
   it("should match native implementation", async function () {
-    const newBaseFee = ethers.parseUnits("0.0096", "gwei");
+    const newBaseFee = ethers.parseUnits("0.00096", "gwei");
     
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
