@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {ArbosStorage} from "../ArbosStorage.sol";
 import {ArbosState, Storage} from "./ArbosState.sol";
+import {BatchPostersTable, BatchPostersTableStorage} from "./BatchPostersTable.sol";
 
 struct L1PricingStorage {
     Storage store;
@@ -13,6 +14,7 @@ struct L1PricingStorage {
  */
 library L1PricingState {
     using L1PricingState for L1PricingStorage;
+    using BatchPostersTable for BatchPostersTableStorage;
     
     address internal constant L1_PRICER_FUNDS_POOL_ADDRESS = 0xa4B00000000000000000000000000000000000F6;
     
@@ -28,6 +30,8 @@ library L1PricingState {
     uint256 internal constant PER_BATCH_GAS_COST_OFFSET = 9;
     uint256 internal constant AMORTIZED_COST_CAP_BIPS_OFFSET = 10;
     uint256 internal constant L1_FEES_AVAILABLE_OFFSET = 11;
+    
+    bytes internal constant BATCH_POSTER_TABLE_KEY = hex"00";
     
     function setInertia(L1PricingStorage memory self, uint64 inertia) internal {
         ArbosStorage(self.store.addr).setUint64(self.store.key, INERTIA_OFFSET, inertia);
@@ -87,5 +91,39 @@ library L1PricingState {
     
     function payRewardsTo(L1PricingStorage memory self) internal view returns (address) {
         return ArbosStorage(self.store.addr).getAddr(self.store.key, PAY_REWARDS_TO_OFFSET);
+    }
+    
+    function perBatchGasCost(L1PricingStorage memory self) internal view returns (int64) {
+        return ArbosStorage(self.store.addr).getInt64(self.store.key, PER_BATCH_GAS_COST_OFFSET);
+    }
+    
+    function amortizedCostCapBips(L1PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, AMORTIZED_COST_CAP_BIPS_OFFSET);
+    }
+    
+    function fundsDueForRewards(L1PricingStorage memory self) internal view returns (int256) {
+        return int256(ArbosStorage(self.store.addr).getUint256(self.store.key, FUNDS_DUE_FOR_REWARDS_OFFSET));
+    }
+    
+    function batchPosterTable(L1PricingStorage memory self) internal pure returns (BatchPostersTableStorage memory) {
+        bytes memory tableKey = ArbosStorage(self.store.addr).openSubStorage(
+            self.store.key, 
+            BATCH_POSTER_TABLE_KEY
+        );
+        return BatchPostersTableStorage({
+            store: Storage({
+                addr: self.store.addr,
+                key: tableKey
+            })
+        });
+    }
+    
+    function getL1PricingSurplus(L1PricingStorage memory self) internal view returns (int256) {
+        uint256 fundsDueForRefunds = self.batchPosterTable().totalFundsDue();
+        int256 fundsDueForRewards = self.fundsDueForRewards();
+        uint256 haveFunds = self.l1FeesAvailable();
+        
+        int256 needFunds = int256(fundsDueForRefunds) + fundsDueForRewards;
+        return int256(haveFunds) - needFunds;
     }
 }

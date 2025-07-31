@@ -81,19 +81,19 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getL1PricingSurplus() external view override returns (int256) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().getL1PricingSurplus();
     }
 
     function getPerBatchGasCharge() external view override returns (int64) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().perBatchGasCost();
     }
 
     function getAmortizedCostCapBips() external view override returns (uint64) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().amortizedCostCapBips();
     }
 
     function getL1FeesAvailable() external view override returns (uint256) {
-        revert("NOT_IMPLEMENTED");
+        return ArbosState.l1PricingState().l1FeesAvailable();
     }
 
     function getL1PricingEquilibrationUnits() external view override returns (uint256) {
