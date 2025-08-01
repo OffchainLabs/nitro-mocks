@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
-import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
-import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
+import { deployAndSetCode, getUnderlyingProvider, PRECOMPILE_ADDRESSES } from "../utils/utils";
+import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion, getChainOwner } from "../utils/expect-equivalent";
 import { ArbOwner__factory, ArbGasInfo__factory } from "../../typechain-types";
 
 describe("ArbOwner.setMinimumL2BaseFee", function () {
@@ -10,7 +10,7 @@ describe("ArbOwner.setMinimumL2BaseFee", function () {
     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
     await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
     await deployAndSetCode("contracts/ArbGasInfo.sol:ArbGasInfo", PRECOMPILE_ADDRESSES.ArbGasInfo);
-
+    
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,
       PRECOMPILE_ADDRESSES.ArbGasInfo,
@@ -24,7 +24,7 @@ describe("ArbOwner.setMinimumL2BaseFee", function () {
       }
     );
   });
-
+  
   afterEach(async function() {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
@@ -36,10 +36,16 @@ describe("ArbOwner.setMinimumL2BaseFee", function () {
         storageValues: storageValueComparerExcludingVersion
       }
     );
+    
+    // we need to mine a block afterwards to that base fee settings get reverted
+    await (await getChainOwner().connect(getUnderlyingProvider()).sendTransaction({to: getChainOwner().address, value: 0n, gasPrice: 1000000000n, gasLimit: 300000})).wait();
+    await new Promise(resolve => setTimeout(resolve, 1000)); // wait for the block to be mined
+    await (await getChainOwner().connect(getUnderlyingProvider()).sendTransaction({to: getChainOwner().address, value: 0n, gasPrice: 1000000000n, gasLimit: 300000})).wait();
+    
   });
 
   it("should match native implementation", async function () {
-    const newMinBaseFee = ethers.parseUnits("0.0005", "gwei");
+    const newMinBaseFee = ethers.parseUnits("0.0000005", "gwei");
     
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,

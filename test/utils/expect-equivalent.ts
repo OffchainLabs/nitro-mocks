@@ -181,7 +181,7 @@ export function createStorageValueComparer(
 export const storageValueComparerExact = createStorageValueComparer();
 export const storageValueComparerExcludingVersion = createStorageValueComparer(undefined, { excludeSlots: [VERSION_SLOT] });
 
-function getChainOwner() {
+export function getChainOwner() {
   return getWalletFromMnemonic(5);
 }
 

@@ -38,10 +38,31 @@ export const PRECOMPILE_ADDRESSES = {
   NodeInterface: "0x00000000000000000000000000000000000000c8"
 } as const;
 
+let isForkSynced = false;
+
+export async function ensureForkSync(): Promise<void> {
+  if (isForkSynced) return;
+
+  const underlyingBlock = await getUnderlyingProvider().getBlockNumber();
+  await hre.network.provider.send("hardhat_reset", [{
+    forking: {
+      jsonRpcUrl: process.env.IS_DOCKER ? "http://host.docker.internal:8547" : "http://localhost:8547",
+      blockNumber: underlyingBlock
+    }
+  }]);
+  
+  const mockBlock = await hre.ethers.provider.getBlockNumber();  
+  isForkSynced = true;
+}
+
 export async function deployAndSetCode(
   contractName: string, 
   precompileAddress: string
 ): Promise<void> {
+  // For some reason hardhat doesnt automatically fork from the latest block
+  // so we force it up to date here
+  await ensureForkSync();
+  
   const Contract = await hre.ethers.getContractFactory(contractName);
   const contract = await Contract.deploy();
   await contract.waitForDeployment();

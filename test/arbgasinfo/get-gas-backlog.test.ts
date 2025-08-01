@@ -7,9 +7,6 @@ describe("ArbGasInfo.getGasBacklog", function () {
   beforeEach(async function() {  
     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
     await deployAndSetCode("contracts/ArbGasInfo.sol:ArbGasInfo", PRECOMPILE_ADDRESSES.ArbGasInfo);
-
-    // console.log(await getUnderlyingProvider().getStorage("0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf", "0xe54de2a4cdacc0a0059d2b6e16348103df8c4aff409c31e40ec73d11926c8204"))
-    // console.log(await ethers.provider.getStorage("0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf", "0xe54de2a4cdacc0a0059d2b6e16348103df8c4aff409c31e40ec73d11926c8204"))
   });
 
   it("should match native implementation", async function () {
