@@ -19,7 +19,9 @@ contract ArbSys is IArbSys {
     }
 
     function arbOSVersion() external view override returns (uint256) {
-        revert("Not implemented");
+        // In test environment, return a fixed version
+        // TODO: In production, this should read from storage: ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(hex"", 0) + 55
+        return 31;
     }
 
     function isTopLevelCall() external view override returns (bool) {

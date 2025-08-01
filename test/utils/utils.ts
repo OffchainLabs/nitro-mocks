@@ -44,6 +44,7 @@ export async function ensureForkSync(): Promise<void> {
   if (isForkSynced) return;
 
   const underlyingBlock = await getUnderlyingProvider().getBlockNumber();
+  console.log(`Current underlying block: ${underlyingBlock}`);
   await hre.network.provider.send("hardhat_reset", [{
     forking: {
       jsonRpcUrl: process.env.IS_DOCKER ? "http://host.docker.internal:8547" : "http://localhost:8547",
@@ -52,6 +53,7 @@ export async function ensureForkSync(): Promise<void> {
   }]);
   
   const mockBlock = await hre.ethers.provider.getBlockNumber();  
+  console.log(underlyingBlock, mockBlock)
   isForkSynced = true;
 }
 

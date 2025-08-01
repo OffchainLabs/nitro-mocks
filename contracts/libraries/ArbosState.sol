@@ -83,6 +83,19 @@ library ArbosState {
             UPGRADE_TIMESTAMP_OFFSET
         );
     }
+    
+    function scheduleArbOSUpgrade(uint64 newVersion, uint64 timestamp) internal {
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(
+            ROOT_STORAGE_KEY,
+            UPGRADE_VERSION_OFFSET,
+            newVersion
+        );
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(
+            ROOT_STORAGE_KEY,
+            UPGRADE_TIMESTAMP_OFFSET,
+            timestamp
+        );
+    }
 
     bytes internal constant L1_PRICING_SUBSTORAGE = hex"00";
     bytes internal constant L2_PRICING_SUBSTORAGE = hex"01";

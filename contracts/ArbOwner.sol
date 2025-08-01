@@ -138,8 +138,9 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function scheduleArbOSUpgrade(uint64 newVersion, uint64 timestamp) external override {
-        revert("Not implemented");
+    function scheduleArbOSUpgrade(uint64 newVersion, uint64 timestamp) external override onlyChainOwner {
+        ArbosState.scheduleArbOSUpgrade(newVersion, timestamp);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setChainConfig(string calldata) external override {
