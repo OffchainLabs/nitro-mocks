@@ -65,4 +65,8 @@ library L2PricingState {
     function setBacklogTolerance(L2PricingStorage memory self, uint64 sec) internal {
         ArbosStorage(self.store.addr).setUint64(self.store.key, BACKLOG_TOLERANCE_OFFSET, sec);
     }
+    
+    function setPricingInertia(L2PricingStorage memory self, uint64 val) internal {
+        ArbosStorage(self.store.addr).setUint64(self.store.key, PRICING_INERTIA_OFFSET, val);
+    }
 }

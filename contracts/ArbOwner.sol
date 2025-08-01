@@ -132,8 +132,10 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setL2GasPricingInertia(uint64 sec) external override {
-        revert("Not implemented");
+    function setL2GasPricingInertia(uint64 sec) external override onlyChainOwner {
+        require(sec != 0, "price inertia must be nonzero");
+        ArbosState.l2PricingState().setPricingInertia(sec);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function scheduleArbOSUpgrade(uint64 newVersion, uint64 timestamp) external override {
