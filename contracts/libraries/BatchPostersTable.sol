@@ -8,9 +8,6 @@ struct BatchPostersTableStorage {
     Storage store;
 }
 
-/**
- * @notice Mirror of arbos/l1pricing/batchPoster.go BatchPostersTable
- */
 library BatchPostersTable {
     using BatchPostersTable for BatchPostersTableStorage;
     

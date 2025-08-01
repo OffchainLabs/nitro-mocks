@@ -8,9 +8,6 @@ struct L2PricingStorage {
     Storage store;
 }
 
-/**
- * @notice Mirror of arbos/l2pricing/l2pricing.go
- */
 library L2PricingState {
     using L2PricingState for L2PricingStorage;
     uint256 internal constant SPEED_LIMIT_PER_SECOND_OFFSET = 0;

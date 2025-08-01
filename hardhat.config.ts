@@ -29,7 +29,7 @@ const config: HardhatUserConfig = {
       forking: {
         url: process.env.IS_DOCKER ? "http://host.docker.internal:8547" : "http://localhost:8547"
       },
-      chainId: 412346
+      chainId: 412346,
     }
   },
   typechain: {

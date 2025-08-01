@@ -5,7 +5,6 @@ import {ArbosStorage} from "../ArbosStorage.sol";
 import {Storage, AddressSetStorage} from "./ArbosState.sol";
 
 /**
- * @notice Mirror of arbos/addressSet/addressSet.go
  * @dev Size is stored at position 0, members are stored sequentially from position 1 onward
  */
 library AddressSet {

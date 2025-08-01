@@ -9,9 +9,6 @@ struct L1PricingStorage {
     Storage store;
 }
 
-/**
- * @notice Mirror of arbos/l1pricing/l1pricing.go
- */
 library L1PricingState {
     using L1PricingState for L1PricingStorage;
     using BatchPostersTable for BatchPostersTableStorage;

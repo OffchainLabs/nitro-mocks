@@ -17,7 +17,21 @@ contract ArbGasInfo is IArbGasInfo {
     function getPricesInWeiWithAggregator(
         address aggregator
     ) external view override returns (uint256, uint256, uint256, uint256, uint256, uint256) {
-        revert("NOT_IMPLEMENTED");
+        uint256 l1GasPrice = ArbosState.l1PricingState().pricePerUnit();
+        uint256 l2GasPrice = block.basefee;
+
+        uint256 weiForL1Calldata = l1GasPrice * TX_DATA_NON_ZERO_GAS_EIP2028;
+        uint256 perL2Tx = weiForL1Calldata * ASSUMED_SIMPLE_TX_SIZE;
+        uint256 perArbGasBase = ArbosState.l2PricingState().minBaseFeeWei();
+        if (l2GasPrice < perArbGasBase) {
+            perArbGasBase = l2GasPrice;
+        }
+        uint256 perArbGasCongestion = l2GasPrice - perArbGasBase;
+        uint256 perArbGasTotal = l2GasPrice;
+
+        uint256 weiForL2Storage = l2GasPrice * STORAGE_ARB_GAS;
+
+        return (perL2Tx, weiForL1Calldata, weiForL2Storage, perArbGasBase, perArbGasCongestion, perArbGasTotal);
     }
 
     function getPricesInWei()
@@ -26,7 +40,7 @@ contract ArbGasInfo is IArbGasInfo {
         override
         returns (uint256, uint256, uint256, uint256, uint256, uint256)
     {
-        revert("NOT_IMPLEMENTED");
+        return this.getPricesInWeiWithAggregator(address(0));
     }
 
     function getPricesInArbGasWithAggregator(
@@ -35,7 +49,6 @@ contract ArbGasInfo is IArbGasInfo {
         uint256 l1GasPrice = ArbosState.l1PricingState().pricePerUnit();
         uint256 l2GasPrice = block.basefee;
 
-        // aggregators compress calldata, so we must estimate accordingly
         uint256 weiForL1Calldata = l1GasPrice * TX_DATA_NON_ZERO_GAS_EIP2028;
         uint256 weiPerL2Tx = weiForL1Calldata * ASSUMED_SIMPLE_TX_SIZE;
         
