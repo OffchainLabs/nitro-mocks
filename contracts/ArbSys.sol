@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import {ArbSys as IArbSys} from "../submodules/nitro-precompile-interfaces/ArbSys.sol";
 import {ArbosStorage} from "./ArbosStorage.sol";
+import {ArbosState} from "./libraries/ArbosState.sol";
 
 contract ArbSys is IArbSys {
     address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
@@ -19,9 +20,7 @@ contract ArbSys is IArbSys {
     }
 
     function arbOSVersion() external view override returns (uint256) {
-        // In test environment, return a fixed version
-        // TODO: In production, this should read from storage: ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(hex"", 0) + 55
-        return 31;
+        return ArbosState.version() + 55;
     }
 
     function isTopLevelCall() external view override returns (bool) {

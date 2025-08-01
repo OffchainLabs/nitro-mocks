@@ -28,6 +28,13 @@ library ArbosState {
     uint256 internal constant BROTLI_COMPRESSION_LEVEL_OFFSET = 7;
     uint256 internal constant NATIVE_TOKEN_ENABLED_TIME_OFFSET = 8;
     
+    function version() internal view returns (uint64) {
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
+            ROOT_STORAGE_KEY,
+            VERSION_OFFSET
+        );
+    }
+    
     function networkFeeAccount() internal view returns (address) {
         return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(
             ROOT_STORAGE_KEY,
