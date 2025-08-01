@@ -1,5 +1,5 @@
 import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
-import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersion } from "../utils/expect-equivalent";
+import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersionAndBaseFee } from "../utils/expect-equivalent";
 import { ArbGasInfo__factory } from "../../typechain-types";
 
 describe("ArbGasInfo.getPricesInWei", function () {
@@ -15,7 +15,7 @@ describe("ArbGasInfo.getPricesInWei", function () {
       "getPricesInWei",
       [],
       {
-        storageAccess: storageAccessComparerExcludingVersion
+        storageAccess: storageAccessComparerExcludingVersionAndBaseFee
       }
     );
   });

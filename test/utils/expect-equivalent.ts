@@ -6,6 +6,7 @@ import { ethers } from "hardhat";
 import { ArbOwnerPublic__factory } from "../../typechain-types";
 
 const VERSION_SLOT = "0x15fed0451499512d95f3ec5a41c878b9de55f21878b5b4e190d4667ec709b400";
+const L2_BASE_FEE_SLOT = "0xe54de2a4cdacc0a0059d2b6e16348103df8c4aff409c31e40ec73d11926c8202";
 const TEST_MNEMONIC = "indoor dish desk flag debris potato excuse depart ticket judge file exit";
 
 function getWalletFromMnemonic(index: number, provider?: any): HDNodeWallet {
@@ -111,8 +112,20 @@ export function createStorageAccessComparerExcludingVersion(errorContext?: Parti
   };
 }
 
+export function createStorageAccessComparerExcludingVersionAndBaseFee(errorContext?: Partial<EquivalenceError>) {
+  return function storageAccessComparerExcludingVersionAndBaseFee(mock: StorageAccess[], underlying: StorageAccess[]): void {
+    // The native precompile returns the actual L2 base fee even during eth_call,
+    // while our mock implementation needs to read it from storage when block.basefee is 0.
+    // This causes an extra storage access that we need to filter out.
+    const mockFiltered = mock.filter(access => access.slot !== L2_BASE_FEE_SLOT);
+    const underlyingFiltered = underlying.filter(access => access.slot !== VERSION_SLOT);
+    createStorageAccessComparer(errorContext)(mockFiltered, underlyingFiltered);
+  };
+}
+
 export const storageAccessComparerExact = createStorageAccessComparer();
 export const storageAccessComparerExcludingVersion = createStorageAccessComparerExcludingVersion();
+export const storageAccessComparerExcludingVersionAndBaseFee = createStorageAccessComparerExcludingVersionAndBaseFee();
 
 export interface StorageValueComparerOptions {
   excludeSlots?: string[];

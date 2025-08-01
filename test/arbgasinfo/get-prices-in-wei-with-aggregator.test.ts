@@ -1,5 +1,5 @@
 import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
-import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersion } from "../utils/expect-equivalent";
+import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersionAndBaseFee } from "../utils/expect-equivalent";
 import { ArbGasInfo__factory } from "../../typechain-types";
 import { ethers } from "hardhat";
 
@@ -18,7 +18,7 @@ describe("ArbGasInfo.getPricesInWeiWithAggregator", function () {
       "getPricesInWeiWithAggregator",
       [aggregator],
       {
-        storageAccess: storageAccessComparerExcludingVersion
+        storageAccess: storageAccessComparerExcludingVersionAndBaseFee
       }
     );
   });

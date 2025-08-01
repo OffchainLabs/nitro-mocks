@@ -15,10 +15,16 @@ contract ArbGasInfo is IArbGasInfo {
     uint256 constant STORAGE_ARB_GAS = 20000; // StorageWriteCost
 
     function getPricesInWeiWithAggregator(
-        address aggregator
+        address // aggregator - not used in the go implementation
     ) external view override returns (uint256, uint256, uint256, uint256, uint256, uint256) {
         uint256 l1GasPrice = ArbosState.l1PricingState().pricePerUnit();
         uint256 l2GasPrice = block.basefee;
+        // The native precompile returns the actual L2 base fee even during eth_call,
+        // while the block.basefee opcode returns 0 during eth_call.
+        // To mimic the precompile behavior, we fall back to reading from L2PricingState.
+        if (l2GasPrice == 0) {
+            l2GasPrice = ArbosState.l2PricingState().baseFeeWei();
+        }
 
         uint256 weiForL1Calldata = l1GasPrice * TX_DATA_NON_ZERO_GAS_EIP2028;
         uint256 perL2Tx = weiForL1Calldata * ASSUMED_SIMPLE_TX_SIZE;
@@ -44,10 +50,16 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getPricesInArbGasWithAggregator(
-        address aggregator
+        address  // aggregator - not used in the go implementation
     ) external view override returns (uint256, uint256, uint256) {
         uint256 l1GasPrice = ArbosState.l1PricingState().pricePerUnit();
         uint256 l2GasPrice = block.basefee;
+        // The native precompile returns the actual L2 base fee even during eth_call,
+        // while the block.basefee opcode returns 0 during eth_call.
+        // To mimic the precompile behavior, we fall back to reading from L2PricingState.
+        if (l2GasPrice == 0) {
+            l2GasPrice = ArbosState.l2PricingState().baseFeeWei();
+        }
 
         uint256 weiForL1Calldata = l1GasPrice * TX_DATA_NON_ZERO_GAS_EIP2028;
         uint256 weiPerL2Tx = weiForL1Calldata * ASSUMED_SIMPLE_TX_SIZE;
