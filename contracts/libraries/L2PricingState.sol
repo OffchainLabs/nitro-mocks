@@ -61,4 +61,8 @@ library L2PricingState {
     function baseFeeWei(L2PricingStorage memory self) internal view returns (uint256) {
         return ArbosStorage(self.store.addr).getUint256(self.store.key, BASE_FEE_WEI_OFFSET);
     }
+    
+    function setBacklogTolerance(L2PricingStorage memory self, uint64 sec) internal {
+        ArbosStorage(self.store.addr).setUint64(self.store.key, BACKLOG_TOLERANCE_OFFSET, sec);
+    }
 }

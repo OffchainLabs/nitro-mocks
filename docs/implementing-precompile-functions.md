@@ -171,8 +171,9 @@ Arbitrum uses a hierarchical storage system:
 
 3. **Document only when necessary**
    - Code should be self-documenting
-   - Add comments only for non-obvious behavior
-   - Explain "why" not "what"
+   - Only add comments that explain WHY code exists, not WHAT it does
+   - Comments describing what code does are unnecessary and should be avoided
+   - Valid reasons for comments: explaining non-obvious behavior, documenting workarounds, or clarifying complex business logic
 
 
 ## When to Seek Help
