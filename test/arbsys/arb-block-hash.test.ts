@@ -1,10 +1,11 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
+import { PRECOMPILE_ADDRESSES, deployAndSetCode, forkSync } from "../utils/utils";
 import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbSys__factory } from "../../typechain-types/factories/contracts/ArbSys__factory";
 import { ethers } from "hardhat";
 
 describe("ArbSys.arbBlockHash", function () {
   beforeEach(async function() {
+    await forkSync();
     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
     await deployAndSetCode("contracts/ArbSys.sol:ArbSys", PRECOMPILE_ADDRESSES.ArbSys);
   });

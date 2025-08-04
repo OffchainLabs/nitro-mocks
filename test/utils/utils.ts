@@ -49,9 +49,7 @@ export const PRECOMPILE_ADDRESSES = {
 
 let isForkSynced = false;
 
-export async function ensureForkSync(): Promise<void> {
-  if (isForkSynced) return;
-
+export async function forkSync(): Promise<void> {
   const underlyingBlock = await getUnderlyingProvider().getBlockNumber();
   console.log(`Current underlying block: ${underlyingBlock}`);
   await hre.network.provider.send("hardhat_reset", [{
@@ -63,6 +61,12 @@ export async function ensureForkSync(): Promise<void> {
   
   const mockBlock = await hre.ethers.provider.getBlockNumber();  
   console.log(underlyingBlock, mockBlock)
+}
+
+export async function ensureForkSync(): Promise<void> {
+  if (isForkSynced) return;
+  
+  await forkSync();
   isForkSynced = true;
 }
 
