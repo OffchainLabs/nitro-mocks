@@ -39,8 +39,10 @@ contract ArbSys is IArbSys {
         revert("Not implemented");
     }
 
-    function mapL1SenderContractAddressToL2Alias(address, address) external pure override returns (address) {
-        revert("Not implemented");
+    function mapL1SenderContractAddressToL2Alias(address sender, address) external pure override returns (address) {
+        uint160 offset = uint160(0x1111000000000000000000000000000000001111);
+        uint160 sum = uint160(sender) + offset;
+        return address(sum);
     }
 
     function sendTxToL1(address, bytes calldata) external payable override returns (uint256) {
