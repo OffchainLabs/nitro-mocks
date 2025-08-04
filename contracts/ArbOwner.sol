@@ -155,28 +155,9 @@ contract ArbOwner is IArbOwner {
         return ArbosState.infraFeeAccount();
     }
     
-    function setInfraFeeAccount(address newInfraFeeAccount) external override {
-        revert("Not implemented");
-    }
-    
-    function setNativeTokenManagementFrom(uint64 timestamp) external override {
-        revert("Not implemented");
-    }
-    
-    function addNativeTokenOwner(address newOwner) external override {
-        revert("Not implemented");
-    }
-    
-    function removeNativeTokenOwner(address ownerToRemove) external override {
-        revert("Not implemented");
-    }
-    
-    function isNativeTokenOwner(address addr) external view override returns (bool) {
-        revert("Not implemented");
-    }
-    
-    function getAllNativeTokenOwners() external view override returns (address[] memory) {
-        revert("Not implemented");
+    function setInfraFeeAccount(address newInfraFeeAccount) external override onlyChainOwner {
+        ArbosState.setInfraFeeAccount(newInfraFeeAccount);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
     
     function setInkPrice(uint32 price) external override {
@@ -228,10 +209,6 @@ contract ArbOwner is IArbOwner {
     }
     
     function removeWasmCacheManager(address manager) external override {
-        revert("Not implemented");
-    }
-    
-    function setCalldataPriceIncrease(bool enable) external override {
         revert("Not implemented");
     }
 }

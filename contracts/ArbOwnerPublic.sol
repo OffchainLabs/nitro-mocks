@@ -12,19 +12,11 @@ contract ArbOwnerPublic is IArbOwnerPublic {
     }
 
     function rectifyChainOwner(address) external override {
-        revert("Not implemented - testnode version too low");
+        revert("Not implemented");
     }
 
     function getAllChainOwners() external view override returns (address[] memory) {
         return ArbosState.chainOwners().allMembers(65536);
-    }
-
-    function isNativeTokenOwner(address) external view override returns (bool) {
-        revert("Not implemented - testnode version too low");
-    }
-
-    function getAllNativeTokenOwners() external view override returns (address[] memory) {
-        revert("Not implemented - testnode version too low");
     }
 
     function getNetworkFeeAccount() external view override returns (address) {
@@ -41,9 +33,5 @@ contract ArbOwnerPublic is IArbOwnerPublic {
 
     function getScheduledUpgrade() external view override returns (uint64, uint64) {
         return ArbosState.getScheduledUpgrade();
-    }
-
-    function isCalldataPriceIncreaseEnabled() external view override returns (bool) {
-        revert("Not implemented - testnode version too low");
     }
 }
