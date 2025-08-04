@@ -11,8 +11,12 @@ contract ArbSys is IArbSys {
         return block.number;
     }
 
-    function arbBlockHash(uint256) external view override returns (bytes32) {
-        revert("Not implemented");
+    function arbBlockHash(uint256 arbBlockNum) external view override returns (bytes32) {
+        uint256 currentBlockNum = block.number;
+        if (arbBlockNum >= currentBlockNum || arbBlockNum + 256 < currentBlockNum) {
+            revert InvalidBlockNumber(arbBlockNum, currentBlockNum);
+        }
+        return blockhash(arbBlockNum);
     }
 
     function arbChainID() external view override returns (uint256) {
