@@ -8,7 +8,7 @@ import {ArbosState} from "./libraries/ArbosState.sol";
 contract ArbSys is IArbSys {
     address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
     function arbBlockNumber() external view override returns (uint256) {
-        revert("Not implemented");
+        return block.number;
     }
 
     function arbBlockHash(uint256) external view override returns (bytes32) {

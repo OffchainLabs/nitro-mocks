@@ -4,6 +4,15 @@ import "mocha";
 
 declare const hre: HardhatRuntimeEnvironment;
 
+/**
+ * Returns the appropriate JSON RPC URL based on the environment.
+ * When running in Docker, we need to use host.docker.internal to access
+ * the host machine's localhost from within the container.
+ */
+export function getTestNodeRpcUrl(): string {
+  return process.env.IS_DOCKER ? "http://host.docker.internal:8547" : "http://localhost:8547";
+}
+
 export interface TestContext {
   underlyingProvider: JsonRpcProvider;
   forkProvider: Provider;
@@ -47,7 +56,7 @@ export async function ensureForkSync(): Promise<void> {
   console.log(`Current underlying block: ${underlyingBlock}`);
   await hre.network.provider.send("hardhat_reset", [{
     forking: {
-      jsonRpcUrl: process.env.IS_DOCKER ? "http://host.docker.internal:8547" : "http://localhost:8547",
+      jsonRpcUrl: getTestNodeRpcUrl(),
       blockNumber: underlyingBlock
     }
   }]);

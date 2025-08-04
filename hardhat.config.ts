@@ -2,7 +2,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-ethers";
 import "@typechain/hardhat";
 import "hardhat-preprocessor";
-
+import { getTestNodeRpcUrl } from "./test/utils/utils";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -27,7 +27,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       forking: {
-        url: process.env.IS_DOCKER ? "http://host.docker.internal:8547" : "http://localhost:8547"
+        url: getTestNodeRpcUrl()
       },
       chainId: 412346,
     }

@@ -1,9 +1,8 @@
 import { expect } from "chai";
 import { BaseContract, HDNodeWallet } from "ethers";
 import { getAllStorageAccessesFromCall, getAllStorageAccessesFromTx, StorageAccess } from "./storage";
-import { getUnderlyingProvider, PRECOMPILE_ADDRESSES } from "./utils";
+import { getUnderlyingProvider } from "./utils";
 import { ethers } from "hardhat";
-import { ArbOwnerPublic__factory } from "../../typechain-types";
 
 const VERSION_SLOT = "0x15fed0451499512d95f3ec5a41c878b9de55f21878b5b4e190d4667ec709b400";
 const L2_BASE_FEE_SLOT = "0xe54de2a4cdacc0a0059d2b6e16348103df8c4aff409c31e40ec73d11926c8202";
