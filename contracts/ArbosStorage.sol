@@ -112,6 +112,22 @@ contract ArbosStorage {
         }
     }
     
+    function getBytes32(bytes memory storageKey, uint256 offset) external view returns (bytes32) {
+        bytes32 slot = mapAddress(storageKey, bytes32(offset));
+        bytes32 value;
+        assembly {
+            value := sload(slot)
+        }
+        return value;
+    }
+    
+    function setBytes32(bytes memory storageKey, uint256 offset, bytes32 value) external {
+        bytes32 slot = mapAddress(storageKey, bytes32(offset));
+        assembly {
+            sstore(slot, value)
+        }
+    }
+    
     function getStorageAt(bytes32 slot) external view returns (bytes32 value) {
         assembly {
             value := sload(slot)

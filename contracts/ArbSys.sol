@@ -3,9 +3,12 @@ pragma solidity ^0.8.19;
 
 import {ArbSys as IArbSys} from "../submodules/nitro-precompile-interfaces/ArbSys.sol";
 import {ArbosStorage} from "./ArbosStorage.sol";
-import {ArbosState} from "./libraries/ArbosState.sol";
+import {ArbosState, MerkleAccumulatorStorage} from "./libraries/ArbosState.sol";
+import {MerkleAccumulator} from "./libraries/MerkleAccumulator.sol";
 
 contract ArbSys is IArbSys {
+    using MerkleAccumulator for MerkleAccumulatorStorage;
+    
     address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
     function arbBlockNumber() external view override returns (uint256) {
         return block.number;
@@ -50,7 +53,14 @@ contract ArbSys is IArbSys {
     }
 
     function sendMerkleTreeState() external view override returns (uint256, bytes32, bytes32[] memory) {
-        revert("Not implemented");
+        if (msg.sender != address(0)) {
+            bytes32[] memory emptyPartials;
+            return (0, bytes32(0), emptyPartials);
+        }
+        
+        (uint64 size, bytes32 rootHash, bytes32[] memory partials) = ArbosState.sendMerkleAccumulator().stateForExport();
+        
+        return (uint256(size), rootHash, partials);
     }
 
     function withdrawEth(address) external payable override returns (uint256) {

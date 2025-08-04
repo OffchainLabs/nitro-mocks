@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {ArbosStorage} from "../ArbosStorage.sol";
 import {L1PricingStorage} from "./L1PricingState.sol";
 import {L2PricingStorage} from "./L2PricingState.sol";
+import {MerkleAccumulatorStorage, MerkleAccumulator} from "./MerkleAccumulator.sol";
 
 struct Storage {
     address addr;
@@ -15,6 +16,8 @@ struct AddressSetStorage {
 }
 
 library ArbosState {
+    using MerkleAccumulator for MerkleAccumulatorStorage;
+    
     address internal constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
     bytes internal constant ROOT_STORAGE_KEY = hex"";
     
@@ -138,5 +141,13 @@ library ArbosState {
             L1_PRICING_SUBSTORAGE
         );
         return L1PricingStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
+    }
+    
+    function sendMerkleAccumulator() internal pure returns (MerkleAccumulatorStorage memory) {
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ROOT_STORAGE_KEY,
+            SEND_MERKLE_SUBSTORAGE
+        );
+        return MerkleAccumulatorStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
 }
