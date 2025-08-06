@@ -1,5 +1,14 @@
 import { expect } from "chai";
-import { BaseContract, HDNodeWallet } from "ethers";
+import { 
+  BaseContract, 
+  HDNodeWallet,
+  ContractTransactionResponse, 
+  ContractTransactionReceipt,
+  EventLog,
+  Provider,
+  Interface,
+  Signer
+} from "ethers";
 import { getAllStorageAccessesFromCall, getAllStorageAccessesFromTx, StorageAccess } from "./storage";
 import { getUnderlyingProvider } from "./utils";
 import { ethers } from "hardhat";
@@ -8,13 +17,12 @@ const VERSION_SLOT = "0x15fed0451499512d95f3ec5a41c878b9de55f21878b5b4e190d4667e
 const L2_BASE_FEE_SLOT = "0xe54de2a4cdacc0a0059d2b6e16348103df8c4aff409c31e40ec73d11926c8202";
 const TEST_MNEMONIC = "indoor dish desk flag debris potato excuse depart ticket judge file exit";
 
-function getWalletFromMnemonic(index: number, provider?: any): HDNodeWallet {
+function getWalletFromMnemonic(index: number, provider?: Provider): HDNodeWallet {
   const wallet = ethers.HDNodeWallet.fromPhrase(TEST_MNEMONIC, undefined, `m/44'/60'/0'/0/${index}`);
   return provider ? wallet.connect(provider) : wallet;
 }
 
 function getWalletIndexFromAddress(address: string): number {
-  // Check for known wallet indices
   for (let i = 0; i <= 10; i++) {
     const wallet = getWalletFromMnemonic(i);
     if (wallet.address.toLowerCase() === address.toLowerCase()) {
@@ -29,20 +37,20 @@ interface EquivalenceError {
     contractFactory: string;
     address: string;
     method: string;
-    args: any[];
+    args: unknown[];
     options?: EquivalenceOptions;
   };
   result: {
     reason: string;
-    mockData?: any;
-    underlyingData?: any;
-    details?: any;
+    mockData?: unknown;
+    underlyingData?: unknown;
+    details?: unknown;
   };
 }
 
 function failWithError(error: EquivalenceError): void {
   // Custom replacer to handle BigInt serialization
-  const replacer = (key: string, value: any) => {
+  const replacer = (key: string, value: unknown) => {
     if (typeof value === 'bigint') {
       return value.toString() + 'n';
     }
@@ -142,7 +150,6 @@ export function createStorageValueComparer(
   ): void {
     const excludeSlots = new Set(options?.excludeSlots || []);
     
-    // Get unique address/slot pairs that were accessed by both
     const allAccessedSlots = new Set<string>();
     
     for (const access of mockAccesses) {
@@ -157,7 +164,6 @@ export function createStorageValueComparer(
       }
     }
     
-    // Compare final values for each accessed slot
     for (const key of allAccessedSlots) {
       const mockValue = mockValues.get(key) || "0x0";
       const underlyingValue = underlyingValues.get(key) || "0x0";
@@ -198,18 +204,21 @@ export interface EquivalenceOptions {
   from?: string;
   storageAccess?: (mock: StorageAccess[], underlying: StorageAccess[]) => void;
   storageValues?: (mock: StorageAccess[], underlying: StorageAccess[], mockValues: Map<string, string>, underlyingValues: Map<string, string>) => void;
-  result?: (mock: any, underlying: any) => void;
-  events?: (mock: any[], underlying: any[]) => void;
+  result?: (mock: unknown, underlying: unknown) => void;
+  events?: (mock: EventLog[], underlying: EventLog[]) => void;
 }
 
-type ContractFunctionNames<T> = {
-  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
-}[keyof T];
+// Extract function names from the contract's interface getFunction parameter type
+type ContractFunctionNames<T extends BaseContract> = T extends {
+  interface: {
+    getFunction(nameOrSignature: infer N): unknown;
+  };
+} ? N : string;
 function compareResults(
-  mockResult: any,
-  underlyingResult: any,
+  mockResult: unknown,
+  underlyingResult: unknown,
   errorContext: EquivalenceError,
-  customComparer?: (mock: any, underlying: any) => void
+  customComparer?: (mock: unknown, underlying: unknown) => void
 ): void {
   if (customComparer) {
     customComparer(mockResult, underlyingResult);
@@ -284,12 +293,12 @@ function compareResults(
 
 export async function expectEquivalentCall<TContract extends BaseContract>(
   ContractFactory: {
-    connect(address: string, provider: any): TContract;
-    createInterface(): any;
+    connect(address: string, signerOrProvider: Signer | Provider): TContract;
+    createInterface(): Interface;
   },
   address: string,
   method: ContractFunctionNames<TContract>,
-  args: any[] = [],
+  args: unknown[] = [],
   options?: EquivalenceOptions
 ): Promise<void> {
   const errorContext: EquivalenceError = {
@@ -313,21 +322,23 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
   const iface = ContractFactory.createInterface();
   const callData = iface.encodeFunctionData(method as string, args);
   
-  let mockResult: any;
-  let underlyingResult: any;
+  let mockResult: unknown;
+  let underlyingResult: unknown;
   let mockReverted = false;
   let underlyingReverted = false;
   
   try {
-    mockResult = await (mockContract as any)[method as string](...args);
-  } catch (error: any) {
+    const mockFn = mockContract.getFunction(method as string);
+    mockResult = await mockFn.staticCall(...args);
+  } catch (error) {
     mockReverted = true;
     mockResult = error;
   }
   
   try {
-    underlyingResult = await (underlyingContract as any)[method as string](...args);
-  } catch (error: any) {
+    const underlyingFn = underlyingContract.getFunction(method as string);
+    underlyingResult = await underlyingFn.staticCall(...args);
+  } catch (error) {
     underlyingReverted = true;
     underlyingResult = error;
   }
@@ -340,8 +351,8 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
       ...errorContext,
       result: {
         reason: mockReverted ? "Mock reverted but underlying succeeded" : "Underlying reverted but mock succeeded",
-        mockData: mockReverted ? { error: mockResult.reason || mockResult.message } : mockResult,
-        underlyingData: underlyingReverted ? { error: underlyingResult.reason || underlyingResult.message } : underlyingResult
+        mockData: mockReverted ? { error: (mockResult as any)?.reason || (mockResult as any)?.message } : mockResult,
+        underlyingData: underlyingReverted ? { error: (underlyingResult as any)?.reason || (underlyingResult as any)?.message } : underlyingResult
       }
     });
   }
@@ -360,9 +371,9 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
   }
 }
 
-function compareEvents(
-  mockEvents: any[],
-  underlyingEvents: any[],
+export function compareEvents(
+  mockEvents: EventLog[],
+  underlyingEvents: EventLog[],
   errorContext: EquivalenceError
 ): void {
   if (mockEvents.length !== underlyingEvents.length) {
@@ -432,16 +443,136 @@ function compareEvents(
   }
 }
 
-export async function expectEquivalentTx<TContract extends BaseContract>(
+export interface TxExecutionResult {
+  staticResult?: unknown;
+  staticReverted: boolean;
+  staticError?: Error;
+  
+  tx?: ContractTransactionResponse;
+  receipt?: ContractTransactionReceipt;
+  reverted: boolean;
+  revertReason?: string;
+  
+  storageAccesses: StorageAccess[];
+  finalStorageValues: Map<string, string>;
+  
+  events?: EventLog[];
+}
+
+export async function executeTx<TContract extends BaseContract>(
   ContractFactory: {
-    connect(address: string, provider: any): TContract;
-    createInterface(): any;
+    connect(address: string, signerOrProvider: Signer | Provider): TContract;
+    createInterface(): Interface;
   },
   address: string,
   method: ContractFunctionNames<TContract>,
-  args: any[] = [],
+  args: unknown[] = [],
+  from: string,
+  provider: Provider,
+  overrides?: { value?: bigint }
+): Promise<TxExecutionResult> {
+  const walletIndex = getWalletIndexFromAddress(from);
+  if (walletIndex === -1) {
+    throw new Error(`Unknown test address: ${from}`);
+  }
+  const signer = getWalletFromMnemonic(walletIndex, provider);
+  const contract = ContractFactory.connect(address, signer);
+  
+  let staticResult: unknown;
+  let staticReverted = false;
+  let staticError: Error | undefined;
+  
+  try {
+    const fn = contract.getFunction(method as string);
+    if (overrides?.value) {
+      staticResult = await fn.staticCall(...args, { value: overrides.value });
+    } else {
+      staticResult = await fn.staticCall(...args);
+    }
+  } catch (error) {
+    staticReverted = true;
+    staticError = error instanceof Error ? error : new Error(String(error));
+  }
+  
+  let tx: ContractTransactionResponse | undefined;
+  let receipt: ContractTransactionReceipt | undefined;
+  let reverted = false;
+  let revertReason: string | undefined;
+  
+  try {
+    const fn = contract.getFunction(method as string);
+    if (overrides?.value) {
+      tx = await fn.send(...args, { value: overrides.value });
+    } else {
+      tx = await fn.send(...args);
+    }
+    const txReceipt = await tx!.wait();
+    receipt = txReceipt || undefined;
+  } catch (error) {
+    reverted = true;
+    revertReason = error instanceof Error ? error.message : String(error);
+  }
+  
+  let storageAccesses: StorageAccess[] = [];
+  if (!reverted && tx && tx.hash) {
+    storageAccesses = await getAllStorageAccessesFromTx(provider, tx.hash);
+  }
+  
+  const finalStorageValues = new Map<string, string>();
+  const slotsToCheck = new Map<string, Set<string>>();
+  
+  for (const access of storageAccesses) {
+    if (!slotsToCheck.has(access.address)) {
+      slotsToCheck.set(access.address, new Set());
+    }
+    slotsToCheck.get(access.address)!.add(access.slot);
+  }
+  
+  const fetchPromises: Promise<void>[] = [];
+  for (const [contractAddress, slots] of slotsToCheck) {
+    for (const slot of slots) {
+      const key = `${contractAddress}:${slot}`;
+      fetchPromises.push(
+        provider.getStorage(contractAddress, slot).then((value: string) => {
+          finalStorageValues.set(key, value);
+        })
+      );
+    }
+  }
+  
+  await Promise.all(fetchPromises);
+  
+  let events: EventLog[] | undefined;
+  if (receipt && receipt.logs) {
+    events = receipt.logs.filter((log): log is EventLog => log instanceof EventLog);
+  }
+  
+  return {
+    staticResult,
+    staticReverted,
+    staticError,
+    tx,
+    receipt,
+    reverted,
+    revertReason,
+    storageAccesses,
+    finalStorageValues,
+    events
+  };
+}
+
+export function compareTxResults<TContract extends BaseContract>(
+  mockResult: TxExecutionResult,
+  underlyingResult: TxExecutionResult,
+  ContractFactory: {
+    connect(address: string, signerOrProvider: Signer | Provider): TContract;
+    createInterface(): Interface;
+  },
+  address: string,
+  method: ContractFunctionNames<TContract>,
+  args: unknown[] = [],
   options?: EquivalenceOptions
-): Promise<void> {
+): void {
   const errorContext: EquivalenceError = {
     parameters: {
       contractFactory: ContractFactory.constructor.name,
@@ -454,166 +585,129 @@ export async function expectEquivalentTx<TContract extends BaseContract>(
       reason: ""
     }
   };
-  const forkProvider = ethers.provider;
-  const underlyingProvider = getUnderlyingProvider();
   
-  let mockSigner: any;
-  let underlyingSigner: any;
-  
-  if (options?.from) {
-    const walletIndex = getWalletIndexFromAddress(options.from);
-    if (walletIndex !== -1) {
-      mockSigner = getWalletFromMnemonic(walletIndex, forkProvider);
-      underlyingSigner = getWalletFromMnemonic(walletIndex, underlyingProvider);
-    } else {
-      throw new Error(`Unknown test address: ${options.from}`);
-    }
-  } else {
-    throw new Error("From address is required for transactions");
+  if (!mockResult.staticReverted && !underlyingResult.staticReverted) {
+    compareResults(mockResult.staticResult, underlyingResult.staticResult, errorContext, options?.result);
   }
   
-  const mockContract = ContractFactory.connect(address, mockSigner);
-  const underlyingContract = ContractFactory.connect(address, underlyingSigner);
-  
-  let mockResult: any;
-  let underlyingResult: any;
-  let mockStaticReverted = false;
-  let underlyingStaticReverted = false;
-  
-  try {
-    mockResult = await (mockContract as any)[method as string].staticCall(...args);
-  } catch (error: any) {
-    mockStaticReverted = true;
-    mockResult = error;
-  }
-  
-  try {
-    underlyingResult = await (underlyingContract as any)[method as string].staticCall(...args);
-  } catch (error: any) {
-    underlyingStaticReverted = true;
-    underlyingResult = error;
-  }
-  
-  if (!mockStaticReverted && !underlyingStaticReverted) {
-    compareResults(mockResult, underlyingResult, errorContext, options?.result);
-  }
-  let mockTx: any;
-  let mockReceipt: any;
-  let underlyingTx: any;
-  let underlyingReceipt: any;
-  let mockReverted = false;
-  let underlyingReverted = false;
-  
-  try {
-    mockTx = await (mockContract as any)[method as string](...args);
-    mockReceipt = await mockTx.wait();
-  } catch (error: any) {
-    mockReverted = true;
-    mockTx = error;
-  }
-
-  try {
-    underlyingTx = await (underlyingContract as any)[method as string](...args);
-    underlyingReceipt = await underlyingTx.wait();
-  } catch (error: any) {
-    underlyingReverted = true;
-    underlyingTx = error;
-  }
-  
-  if (mockReverted && underlyingReverted) {
+  if (mockResult.reverted && underlyingResult.reverted) {
     // TODO: we should still compare storage and events even if both reverted - if they're available
     return;
-  } else if (mockReverted || underlyingReverted) {
+  } else if (mockResult.reverted || underlyingResult.reverted) {
     failWithError({
       ...errorContext,
       result: {
-        reason: mockReverted ? "Mock tx reverted but underlying succeeded" : "Underlying tx reverted but mock succeeded",
-        mockData: mockReverted ? { error: mockTx.reason || mockTx.message } : mockTx.hash,
-        underlyingData: underlyingReverted ? { error: underlyingTx.reason || underlyingTx.message } : underlyingTx.hash
+        reason: mockResult.reverted ? "Mock tx reverted but underlying succeeded" : "Underlying tx reverted but mock succeeded",
+        mockData: mockResult.reverted ? { error: mockResult.revertReason } : mockResult.tx?.hash,
+        underlyingData: underlyingResult.reverted ? { error: underlyingResult.revertReason } : underlyingResult.tx?.hash
       }
     });
   }
   
-  if (mockReceipt.status !== underlyingReceipt.status) {
+  if (mockResult.receipt?.status !== underlyingResult.receipt?.status) {
     failWithError({
       ...errorContext,
       result: {
         reason: "Transaction status mismatch",
-        mockData: { status: mockReceipt.status, receipt: mockReceipt },
-        underlyingData: { status: underlyingReceipt.status, receipt: underlyingReceipt }
+        mockData: { status: mockResult.receipt?.status, receipt: mockResult.receipt },
+        underlyingData: { status: underlyingResult.receipt?.status, receipt: underlyingResult.receipt }
       }
     });
   }
-
+  
   if (options?.events) {
-    options.events(mockReceipt.logs, underlyingReceipt.logs);
+    const mockLogs = mockResult.receipt?.logs?.filter((log): log is EventLog => log instanceof EventLog) || [];
+    const underlyingLogs = underlyingResult.receipt?.logs?.filter((log): log is EventLog => log instanceof EventLog) || [];
+    options.events(mockLogs, underlyingLogs);
   } else {
-    compareEvents(mockReceipt.logs, underlyingReceipt.logs, errorContext);
+    const mockLogs = mockResult.receipt?.logs?.filter((log): log is EventLog => log instanceof EventLog) || [];
+    const underlyingLogs = underlyingResult.receipt?.logs?.filter((log): log is EventLog => log instanceof EventLog) || [];
+    compareEvents(mockLogs, underlyingLogs, errorContext);
   }
   
-  const [mockAccesses, underlyingAccesses] = await Promise.all([
-    getAllStorageAccessesFromTx(forkProvider, mockTx.hash),
-    getAllStorageAccessesFromTx(underlyingProvider, underlyingTx.hash)
-  ]);
-  
-  // First compare storage accesses
   if (options?.storageAccess) {
-    options.storageAccess(mockAccesses, underlyingAccesses);
+    options.storageAccess(mockResult.storageAccesses, underlyingResult.storageAccesses);
   } else {
-    createStorageAccessComparer(errorContext)(mockAccesses, underlyingAccesses);
+    createStorageAccessComparer(errorContext)(mockResult.storageAccesses, underlyingResult.storageAccesses);
   }
   
-  // Then fetch and compare final storage values
-  const mockFinalValues = new Map<string, string>();
-  const underlyingFinalValues = new Map<string, string>();
-  
-  // Get unique address/slot pairs from both mock and underlying
+  const allStorageValues = new Map<string, string>();
   const slotsToCheck = new Map<string, Set<string>>();
   
-  for (const access of [...mockAccesses, ...underlyingAccesses]) {
+  for (const access of [...mockResult.storageAccesses, ...underlyingResult.storageAccesses]) {
     if (!slotsToCheck.has(access.address)) {
       slotsToCheck.set(access.address, new Set());
     }
     slotsToCheck.get(access.address)!.add(access.slot);
   }
   
-  // Fetch storage values in parallel
-  const fetchPromises: Promise<void>[] = [];
+  const mockFinalValues = new Map<string, string>();
+  const underlyingFinalValues = new Map<string, string>();
   
-  for (const [address, slots] of slotsToCheck) {
+  for (const [contractAddress, slots] of slotsToCheck) {
     for (const slot of slots) {
-      const key = `${address}:${slot}`;
-      fetchPromises.push(
-        forkProvider.getStorage(address, slot).then(value => {
-          mockFinalValues.set(key, value);
-        })
-      );
-      fetchPromises.push(
-        underlyingProvider.getStorage(address, slot).then(value => {
-          underlyingFinalValues.set(key, value);
-        })
-      );
+      const key = `${contractAddress}:${slot}`;
+      const mockValue = mockResult.finalStorageValues.get(key);
+      const underlyingValue = underlyingResult.finalStorageValues.get(key);
+      if (mockValue !== undefined) {
+        mockFinalValues.set(key, mockValue);
+      }
+      if (underlyingValue !== undefined) {
+        underlyingFinalValues.set(key, underlyingValue);
+      }
     }
   }
   
-  await Promise.all(fetchPromises);
-  
-  // Compare the final values
   if (options?.storageValues) {
-    options.storageValues(mockAccesses, underlyingAccesses, mockFinalValues, underlyingFinalValues);
+    options.storageValues(mockResult.storageAccesses, underlyingResult.storageAccesses, mockFinalValues, underlyingFinalValues);
   } else {
-    createStorageValueComparer(errorContext)(mockAccesses, underlyingAccesses, mockFinalValues, underlyingFinalValues);
+    createStorageValueComparer(errorContext)(mockResult.storageAccesses, underlyingResult.storageAccesses, mockFinalValues, underlyingFinalValues);
   }
+}
+
+export async function expectEquivalentTx<TContract extends BaseContract>(
+  ContractFactory: {
+    connect(address: string, signerOrProvider: Signer | Provider): TContract;
+    createInterface(): Interface;
+  },
+  address: string,
+  method: ContractFunctionNames<TContract>,
+  args: unknown[] = [],
+  options?: EquivalenceOptions & { value?: bigint }
+): Promise<void> {
+  if (!options?.from) {
+    throw new Error("From address is required for transactions");
+  }
+  
+  const forkProvider = ethers.provider;
+  const underlyingProvider = getUnderlyingProvider();
+  
+  const overrides = options?.value ? { value: options.value } : undefined;
+  
+  const [mockResult, underlyingResult] = await Promise.all([
+    executeTx(ContractFactory, address, method, args, options.from, forkProvider, overrides),
+    executeTx(ContractFactory, address, method, args, options.from, underlyingProvider, overrides)
+  ]);
+  
+  compareTxResults(
+    mockResult,
+    underlyingResult,
+    ContractFactory,
+    address,
+    method,
+    args,
+    options
+  );
 }
 
 export async function expectEquivalentCallFromMultipleAddresses<TContract extends BaseContract>(
   ContractFactory: {
-    connect(address: string, provider: any): TContract;
-    createInterface(): any;
+    connect(address: string, signerOrProvider: Signer | Provider): TContract;
+    createInterface(): Interface;
   },
   address: string,
   method: ContractFunctionNames<TContract>,
-  args: any[] = [],
+  args: unknown[] = [],
   options?: EquivalenceOptions
 ): Promise<void> {
   const testAddresses = [...getFromAddresses(), ethers.ZeroAddress];
@@ -634,12 +728,12 @@ export async function expectEquivalentCallFromMultipleAddresses<TContract extend
 
 export async function expectEquivalentTxFromMultipleAddresses<TContract extends BaseContract>(
   ContractFactory: {
-    connect(address: string, provider: any): TContract;
-    createInterface(): any;
+    connect(address: string, signerOrProvider: Signer | Provider): TContract;
+    createInterface(): Interface;
   },
   address: string,
   method: ContractFunctionNames<TContract>,
-  args: any[] = [],
+  args: unknown[] = [],
   options?: EquivalenceOptions
 ): Promise<void> {
   const testAddresses = getFromAddresses();
@@ -660,12 +754,12 @@ export async function expectEquivalentTxFromMultipleAddresses<TContract extends 
 
 export async function expectEquivalentCallFromChainOwner<TContract extends BaseContract>(
   ContractFactory: {
-    connect(address: string, provider: any): TContract;
-    createInterface(): any;
+    connect(address: string, signerOrProvider: Signer | Provider): TContract;
+    createInterface(): Interface;
   },
   address: string,
   method: ContractFunctionNames<TContract>,
-  args: any[] = [],
+  args: unknown[] = [],
   options?: EquivalenceOptions
 ): Promise<void> {
   const chainOwner = getChainOwner();
@@ -683,12 +777,12 @@ export async function expectEquivalentCallFromChainOwner<TContract extends BaseC
 
 export async function expectEquivalentTxFromChainOwner<TContract extends BaseContract>(
   ContractFactory: {
-    connect(address: string, provider: any): TContract;
-    createInterface(): any;
+    connect(address: string, signerOrProvider: Signer | Provider): TContract;
+    createInterface(): Interface;
   },
   address: string,
   method: ContractFunctionNames<TContract>,
-  args: any[] = [],
+  args: unknown[] = [],
   options?: EquivalenceOptions
 ): Promise<void> {
   const chainOwner = getChainOwner();

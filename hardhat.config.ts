@@ -11,7 +11,7 @@ const config: HardhatUserConfig = {
         version: "0.8.19",
         settings: {
           optimizer: {
-            enabled: true,
+            enabled: false,
             runs: 200
           }
         }
@@ -30,6 +30,7 @@ const config: HardhatUserConfig = {
         url: getTestNodeRpcUrl()
       },
       chainId: 412346,
+      allowBlocksWithSameTimestamp: true
     }
   },
   typechain: {

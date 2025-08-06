@@ -3,13 +3,17 @@ pragma solidity ^0.8.19;
 
 import {ArbSys as IArbSys} from "../submodules/nitro-precompile-interfaces/ArbSys.sol";
 import {ArbosStorage} from "./ArbosStorage.sol";
-import {ArbosState, MerkleAccumulatorStorage} from "./libraries/ArbosState.sol";
+import {ArbosState, MerkleAccumulatorStorage, BlockHashesStorage} from "./libraries/ArbosState.sol";
 import {MerkleAccumulator} from "./libraries/MerkleAccumulator.sol";
+import {BlockHashes} from "./libraries/BlockHashes.sol";
 
 contract ArbSys is IArbSys {
     using MerkleAccumulator for MerkleAccumulatorStorage;
+    using BlockHashes for BlockHashesStorage;
     
     address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
+    address constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
+    
     function arbBlockNumber() external view override returns (uint256) {
         return block.number;
     }
@@ -48,8 +52,63 @@ contract ArbSys is IArbSys {
         return address(sum);
     }
 
-    function sendTxToL1(address, bytes calldata) external payable override returns (uint256) {
-        revert("Not implemented");
+    function sendTxToL1(address destination, bytes calldata data) external payable override returns (uint256) {
+        uint256 l1BlockNum = ArbosState.blockHashes().l1BlockNumber();
+        
+        bytes32 sendHash = keccak256(abi.encodePacked(
+            msg.sender,
+            destination,
+            bytes32(block.number),
+            bytes32(l1BlockNum),
+            bytes32(block.timestamp),
+            bytes32(msg.value),
+            data
+        ));
+        
+        MerkleAccumulatorStorage memory merkleAcc = ArbosState.sendMerkleAccumulator();
+        MerkleAccumulator.MerkleTreeNodeEvent[] memory merkleUpdateEvents = merkleAcc.append(sendHash);
+        
+        uint256 size = merkleAcc.size();
+        
+        if (msg.value > 0) {
+            (bool success, ) = BURN_ADDRESS.call{value: msg.value}("");
+            require(success, "Burn transfer failed");
+        }
+
+        for (uint256 i = 0; i < merkleUpdateEvents.length; i++) {
+            uint256 position = (uint256(merkleUpdateEvents[i].level) << 192) | uint256(merkleUpdateEvents[i].numLeaves);
+            emit SendMerkleUpdate(
+                0,
+                merkleUpdateEvents[i].hash,
+                position
+            );
+        }
+        
+        uint256 leafNum = size - 1;
+        
+        _emitL2ToL1TxWithParams(sendHash, leafNum, destination, l1BlockNum, data);
+        
+        return leafNum;
+    }
+    
+    function _emitL2ToL1TxWithParams(
+        bytes32 sendHash,
+        uint256 leafNum,
+        address destination,
+        uint256 l1BlockNum,
+        bytes calldata data
+    ) private {
+        emit L2ToL1Tx(
+            msg.sender,
+            destination,
+            uint256(sendHash),
+            leafNum,
+            block.number,
+            l1BlockNum,
+            block.timestamp,
+            msg.value,
+            data
+        );
     }
 
     function sendMerkleTreeState() external view override returns (uint256, bytes32, bytes32[] memory) {

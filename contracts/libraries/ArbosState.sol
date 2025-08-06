@@ -5,6 +5,7 @@ import {ArbosStorage} from "../ArbosStorage.sol";
 import {L1PricingStorage} from "./L1PricingState.sol";
 import {L2PricingStorage} from "./L2PricingState.sol";
 import {MerkleAccumulatorStorage, MerkleAccumulator} from "./MerkleAccumulator.sol";
+import {BlockHashesStorage} from "./BlockHashes.sol";
 
 struct Storage {
     address addr;
@@ -149,5 +150,13 @@ library ArbosState {
             SEND_MERKLE_SUBSTORAGE
         );
         return MerkleAccumulatorStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
+    }
+    
+    function blockHashes() internal pure returns (BlockHashesStorage memory) {
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
+            ROOT_STORAGE_KEY,
+            BLOCKHASHES_SUBSTORAGE
+        );
+        return BlockHashesStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
 }
