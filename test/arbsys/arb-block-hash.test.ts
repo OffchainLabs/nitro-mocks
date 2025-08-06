@@ -1,9 +1,15 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, forkSync } from "../utils/utils";
+import { PRECOMPILE_ADDRESSES, deployAndSetCode, forkSync, getUnderlyingProvider } from "../utils/utils";
 import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbSys__factory } from "../../typechain-types/factories/contracts/ArbSys__factory";
 import { ethers } from "hardhat";
+import { mineBlocks } from "../utils/l2-to-l1-test-helpers"
 
 describe("ArbSys.arbBlockHash", function () {
+  this.beforeAll(async function() {
+    // wait a bit of time in case some blocks are being mined in other tests
+    await mineBlocks(1, getUnderlyingProvider());
+  })
+
   beforeEach(async function() {
     await forkSync();
     await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");

@@ -1,5 +1,5 @@
 import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
-import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
+import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion, storageAccessComparerExact } from "../utils/expect-equivalent";
 import { ArbOwner__factory } from "../../typechain-types/factories/contracts/ArbOwner__factory";
 import { ArbOwnerPublic__factory } from "../../typechain-types";
 import { ArbSys__factory } from "../../typechain-types";
@@ -21,7 +21,7 @@ describe("ArbOwner.scheduleArbOSUpgrade", function () {
       "arbOSVersion",
       [],
       {
-        storageAccess: storageAccessComparerExcludingVersion,
+        storageAccess: storageAccessComparerExact,
         result: (mock, underlying) => {
           currentVersion = BigInt(mock);
         }

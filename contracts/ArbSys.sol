@@ -113,8 +113,7 @@ contract ArbSys is IArbSys {
 
     function sendMerkleTreeState() external view override returns (uint256, bytes32, bytes32[] memory) {
         if (msg.sender != address(0)) {
-            bytes32[] memory emptyPartials;
-            return (0, bytes32(0), emptyPartials);
+            revert("method can only be called by address zero");
         }
         
         (uint64 size, bytes32 rootHash, bytes32[] memory partials) = ArbosState.sendMerkleAccumulator().stateForExport();

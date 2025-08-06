@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import type { TransactionReceipt, Provider } from "ethers";
+import { type TransactionReceipt, type Provider, parseEther } from "ethers";
 import { PRECOMPILE_ADDRESSES, deployAndSetCode, getUnderlyingProvider, forkSync } from "./utils";
 import { ArbSys__factory } from "../../typechain-types";
 import { 
@@ -7,7 +7,8 @@ import {
   compareTxResults, 
   storageAccessComparerExcludingVersion, 
   getChainOwner,
-  storageValueComparerExcludingVersion
+  storageValueComparerExcludingVersion,
+  getUser
 } from "./expect-equivalent";
 import { expect } from "chai";
 
@@ -33,17 +34,59 @@ async function waitForNextBlock(provider: Provider, txReceipt: TransactionReceip
   }
 }
 
-async function mineBlocks(n: number, provider: Provider) {
-  const chainOwner = getChainOwner();
-  const chainOwnerSigner = chainOwner.connect(provider);
+async function trySend(signer: any, txParams: any) {
+  let tx;
+  let receipt;
   
-  for (let index = 0; index < n; index++) { 
-    const tx = await chainOwnerSigner.sendTransaction({
-      to: chainOwner.address,
-      value: 0,
+  try {
+    tx = await signer.sendTransaction(txParams);
+    receipt = await tx.wait();
+  } catch (error: any) {
+    if (error.message?.includes('nonce too low')) {
+      console.log(`Nonce too low error, retrying after 5 seconds...`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
+      try {
+        const provider = signer.provider;
+        const retryNonce = await provider.getTransactionCount(signer.address);
+        tx = await signer.sendTransaction({
+          ...txParams,
+          nonce: retryNonce
+        });
+        receipt = await tx.wait();
+      } catch (retryError: any) {
+        console.error(`Retry failed: ${retryError.message}`);
+        throw retryError;
+      }
+    } else {
+      throw error;
+    }
+  }
+  
+  return receipt;
+}
+
+export async function mineBlocks(n: number, provider: Provider) {
+  const wal = getUser();
+  const walSigner = wal.connect(provider);
+  const bal = await provider.getBalance(wal.address) 
+  const chainOwner = getChainOwner().connect(provider);
+  if(bal < parseEther("1")) {
+    await chainOwner.sendTransaction({
+      to: wal.address,
+      value: parseEther("2"),
       nonce: await provider.getTransactionCount(chainOwner.address)
     });
-    const receipt = await tx.wait();
+  }
+
+  for (let index = 0; index < n; index++) { 
+    const nonce = await provider.getTransactionCount(wal.address);
+    const receipt = await trySend(walSigner, {
+      to: wal.address,
+      value: 0,
+      nonce: nonce
+    });
+    
     if (!receipt) {
       throw new Error("Transaction receipt is null");
     }
@@ -52,7 +95,7 @@ async function mineBlocks(n: number, provider: Provider) {
   }
 }
 
-export async function testL2ToL1Tx(functionName: string, args: any[], value: bigint) {
+export async function testL2ToL1Tx(functionName: "sendTxToL1" | "withdrawEth", args: any[], value: bigint) {
   await forkSync();
 
   await deployAndSetCode("ArbosStorage", ARBOS_STORAGE_ADDRESS);

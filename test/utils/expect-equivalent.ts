@@ -190,6 +190,12 @@ export function getChainOwner() {
   return getWalletFromMnemonic(5);
 }
 
+export function getUser() {
+  return new ethers.Wallet(
+    ethers.sha256(ethers.toUtf8Bytes("user_l2user"))
+  );
+}
+
 function getFromAddresses(): string[] {
   const chainOwnerWallet = getChainOwner()
   const testWallet = getWalletFromMnemonic(6);
@@ -329,7 +335,7 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
   
   try {
     const mockFn = mockContract.getFunction(method as string);
-    mockResult = await mockFn.staticCall(...args);
+    mockResult = await mockFn.staticCall(...args, { from: options?.from });
   } catch (error) {
     mockReverted = true;
     mockResult = error;
@@ -337,14 +343,14 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
   
   try {
     const underlyingFn = underlyingContract.getFunction(method as string);
-    underlyingResult = await underlyingFn.staticCall(...args);
+    underlyingResult = await underlyingFn.staticCall(...args,  { from: options?.from });
   } catch (error) {
     underlyingReverted = true;
     underlyingResult = error;
   }
   
   if (mockReverted && underlyingReverted) {
-    // TODO: we should still compare storage and events even if both reverted - if we can get a trace, and events are emitted
+    // CHRIS: TODO: we should still compare storage and events even if both reverted - if we can get a trace, and events are emitted
     return;
   } else if (mockReverted || underlyingReverted) {
     failWithError({
@@ -591,7 +597,7 @@ export function compareTxResults<TContract extends BaseContract>(
   }
   
   if (mockResult.reverted && underlyingResult.reverted) {
-    // TODO: we should still compare storage and events even if both reverted - if they're available
+    // CHRIS: TODO: we should still compare storage and events even if both reverted - if they're available
     return;
   } else if (mockResult.reverted || underlyingResult.reverted) {
     failWithError({
@@ -699,6 +705,8 @@ export async function expectEquivalentTx<TContract extends BaseContract>(
     options
   );
 }
+
+// CHRIS: TODO: we should compare revert messages to ensure parity there
 
 export async function expectEquivalentCallFromMultipleAddresses<TContract extends BaseContract>(
   ContractFactory: {
