@@ -52,7 +52,7 @@ contract ArbSys is IArbSys {
         return address(sum);
     }
 
-    function sendTxToL1(address destination, bytes calldata data) external payable override returns (uint256) {
+    function sendTxToL1(address destination, bytes memory data) public payable override returns (uint256) {
         uint256 l1BlockNum = ArbosState.blockHashes().l1BlockNumber();
         
         bytes32 sendHash = keccak256(abi.encodePacked(
@@ -96,7 +96,7 @@ contract ArbSys is IArbSys {
         uint256 leafNum,
         address destination,
         uint256 l1BlockNum,
-        bytes calldata data
+        bytes memory data
     ) private {
         emit L2ToL1Tx(
             msg.sender,
@@ -122,8 +122,8 @@ contract ArbSys is IArbSys {
         return (uint256(size), rootHash, partials);
     }
 
-    function withdrawEth(address) external payable override returns (uint256) {
-        revert("Not implemented");
+    function withdrawEth(address destination) external payable override returns (uint256) {
+        return sendTxToL1(destination, "");
     }
 
     function getStorageGasAvailable() external view override returns (uint256) {

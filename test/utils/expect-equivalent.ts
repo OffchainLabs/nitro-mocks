@@ -734,7 +734,7 @@ export async function expectEquivalentTxFromMultipleAddresses<TContract extends 
   address: string,
   method: ContractFunctionNames<TContract>,
   args: unknown[] = [],
-  options?: EquivalenceOptions
+  options?: EquivalenceOptions & { value?: bigint }
 ): Promise<void> {
   const testAddresses = getFromAddresses();
   
