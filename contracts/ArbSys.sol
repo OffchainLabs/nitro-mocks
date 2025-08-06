@@ -127,6 +127,7 @@ contract ArbSys is IArbSys {
     }
 
     function getStorageGasAvailable() external view override returns (uint256) {
-        revert("Not implemented");
+        ArbosState.version();
+        return 0;
     }
 }

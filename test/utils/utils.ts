@@ -51,16 +51,12 @@ let isForkSynced = false;
 
 export async function forkSync(): Promise<void> {
   const underlyingBlock = await getUnderlyingProvider().getBlockNumber();
-  console.log(`Current underlying block: ${underlyingBlock}`);
   await hre.network.provider.send("hardhat_reset", [{
     forking: {
       jsonRpcUrl: getTestNodeRpcUrl(),
       blockNumber: underlyingBlock
     }
   }]);
-  
-  const mockBlock = await hre.ethers.provider.getBlockNumber();  
-  console.log(underlyingBlock, mockBlock)
 }
 
 export async function ensureForkSync(): Promise<void> {
