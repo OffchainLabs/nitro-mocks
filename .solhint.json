@@ -16,7 +16,7 @@
     "const-name-snakecase": "off",
     "private-vars-leading-underscore": "off",
     "imports-on-top": "warn",
-    "ordering": "warn",
+    "ordering": "off",
     "visibility-modifier-order": "error",
     "no-console": "error",
     "no-global-import": "warn",

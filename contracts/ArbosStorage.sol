@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/**
+ * @title ArbosStorage
+ * @notice Gateway to Arbitrum's system storage
+ * @dev ArbOS stores all system state at a single special address (0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf).
+ * This contract provides access to that storage so it can be used by other precompiles.
+ */
 contract ArbosStorage {
     function openSubStorage(bytes memory parentKey, bytes memory subStorageId) public pure returns (bytes memory) {
         return abi.encodePacked(keccak256(abi.encodePacked(parentKey, subStorageId)));
