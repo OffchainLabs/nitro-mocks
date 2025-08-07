@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import {ArbOwner as IArbOwner} from "../submodules/nitro-precompile-interfaces/ArbOwner.sol";
 import {AddressSet, AddressSetStorage} from "./libraries/AddressSet.sol";
-import {ArbosState, Storage} from "./libraries/ArbosState.sol";
+import {ArbosState} from "./libraries/ArbosState.sol";
 import {L1PricingState, L1PricingStorage} from "./libraries/L1PricingState.sol";
 import {L2PricingState, L2PricingStorage} from "./libraries/L2PricingState.sol";
 
@@ -161,55 +161,55 @@ contract ArbOwner is IArbOwner {
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setInkPrice(uint32 price) external override {
+    function setInkPrice(uint32) external override {
         revert("Not implemented");
     }
 
-    function setWasmMaxStackDepth(uint32 depth) external override {
+    function setWasmMaxStackDepth(uint32) external override {
         revert("Not implemented");
     }
 
-    function setWasmFreePages(uint16 pages) external override {
+    function setWasmFreePages(uint16) external override {
         revert("Not implemented");
     }
 
-    function setWasmPageGas(uint16 gas) external override {
+    function setWasmPageGas(uint16) external override {
         revert("Not implemented");
     }
 
-    function setWasmPageLimit(uint16 limit) external override {
+    function setWasmPageLimit(uint16) external override {
         revert("Not implemented");
     }
 
-    function setWasmMaxSize(uint32 size) external override {
+    function setWasmMaxSize(uint32) external override {
         revert("Not implemented");
     }
 
-    function setWasmMinInitGas(uint8 gas, uint16 cached) external override {
+    function setWasmMinInitGas(uint8, uint16) external override {
         revert("Not implemented");
     }
 
-    function setWasmInitCostScalar(uint64 percent) external override {
+    function setWasmInitCostScalar(uint64) external override {
         revert("Not implemented");
     }
 
-    function setWasmExpiryDays(uint16 _days) external override {
+    function setWasmExpiryDays(uint16) external override {
         revert("Not implemented");
     }
 
-    function setWasmKeepaliveDays(uint16 _days) external override {
+    function setWasmKeepaliveDays(uint16) external override {
         revert("Not implemented");
     }
 
-    function setWasmBlockCacheSize(uint16 count) external override {
+    function setWasmBlockCacheSize(uint16) external override {
         revert("Not implemented");
     }
 
-    function addWasmCacheManager(address manager) external override {
+    function addWasmCacheManager(address) external override {
         revert("Not implemented");
     }
 
-    function removeWasmCacheManager(address manager) external override {
+    function removeWasmCacheManager(address) external override {
         revert("Not implemented");
     }
 }

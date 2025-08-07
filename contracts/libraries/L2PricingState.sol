@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {ArbosStorage} from "../ArbosStorage.sol";
-import {ArbosState, Storage} from "./ArbosState.sol";
+import {Storage} from "./ArbosState.sol";
 
 struct L2PricingStorage {
     Storage store;

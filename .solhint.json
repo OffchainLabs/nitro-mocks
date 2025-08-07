@@ -32,7 +32,12 @@
     "reentrancy": "warn",
     "use-natspec": "off",
     "gas-increment-by-one": "off",
-    "gas-custom-errors": "off"
+    "gas-custom-errors": "off",
+    "gas-calldata-parameters": "off",
+    "gas-strict-inequalities": "off",
+    "gas-small-strings": "off",
+    "no-inline-assembly": "off",
+    "one-contract-per-file": "off"
   },
   "plugins": []
 }

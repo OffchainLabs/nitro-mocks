@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {ArbosStorage} from "../ArbosStorage.sol";
-import {Storage, ArbosState} from "./ArbosState.sol";
+import {Storage} from "./ArbosState.sol";
 
 struct BlockHashesStorage {
     Storage store;

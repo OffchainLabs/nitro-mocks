@@ -10,9 +10,9 @@ contract ArbGasInfo is IArbGasInfo {
     using L1PricingState for L1PricingStorage;
     using L2PricingState for L2PricingStorage;
 
-    uint256 constant TX_DATA_NON_ZERO_GAS_EIP2028 = 16;
-    uint256 constant ASSUMED_SIMPLE_TX_SIZE = 140;
-    uint256 constant STORAGE_ARB_GAS = 20000; // StorageWriteCost
+    uint256 constant private TX_DATA_NON_ZERO_GAS_EIP2028 = 16;
+    uint256 constant private ASSUMED_SIMPLE_TX_SIZE = 140;
+    uint256 constant private STORAGE_ARB_GAS = 20000; // StorageWriteCost
 
     function getPricesInWeiWithAggregator(
         address // aggregator - not used in the go implementation

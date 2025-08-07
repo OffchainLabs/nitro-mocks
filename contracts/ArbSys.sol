@@ -2,7 +2,6 @@
 pragma solidity ^0.8.19;
 
 import {ArbSys as IArbSys} from "../submodules/nitro-precompile-interfaces/ArbSys.sol";
-import {ArbosStorage} from "./ArbosStorage.sol";
 import {ArbosState, MerkleAccumulatorStorage, BlockHashesStorage} from "./libraries/ArbosState.sol";
 import {MerkleAccumulator} from "./libraries/MerkleAccumulator.sol";
 import {BlockHashes} from "./libraries/BlockHashes.sol";
@@ -11,8 +10,8 @@ contract ArbSys is IArbSys {
     using MerkleAccumulator for MerkleAccumulatorStorage;
     using BlockHashes for BlockHashesStorage;
 
-    address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
-    address constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
+    address constant private ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
+    address constant private BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
     function arbBlockNumber() external view override returns (uint256) {
         return block.number;
