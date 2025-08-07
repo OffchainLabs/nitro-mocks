@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
+import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import { expectEquivalentCallFromMultipleAddresses, createStorageAccessComparer } from "../utils/expect-equivalent";
 import { StorageAccess } from "../utils/storage";
 import { ArbSys__factory } from "../../typechain-types/factories/contracts/ArbSys__factory";
@@ -8,8 +8,7 @@ const VERSION_SLOT = "0x15fed0451499512d95f3ec5a41c878b9de55f21878b5b4e190d4667e
 describe("ArbSys.arbOSVersion", function () {
   beforeEach(async function() {
     await deployAndSetCode([
-          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
-          { contractName: "contracts/ArbSys.sol:ArbSys", precompileAddress: PRECOMPILE_ADDRESSES.ArbSys }
+          ArbPrecompile.ArbSys
         ]);
   });
 

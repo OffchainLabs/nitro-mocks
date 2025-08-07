@@ -1,12 +1,11 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
+import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbSys__factory } from "../../typechain-types/factories/contracts/ArbSys__factory";
 
 describe("ArbSys.mapL1SenderContractAddressToL2Alias", function () {
   beforeEach(async function() {
     await deployAndSetCode([
-          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
-          { contractName: "contracts/ArbSys.sol:ArbSys", precompileAddress: PRECOMPILE_ADDRESSES.ArbSys }
+          ArbPrecompile.ArbSys
         ]);
   });
 

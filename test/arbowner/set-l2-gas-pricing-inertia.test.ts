@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
+import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
 import { expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbOwner__factory, ArbGasInfo__factory } from "../../typechain-types";
 
@@ -8,12 +8,7 @@ describe("ArbOwner.setL2GasPricingInertia", function () {
 
   beforeEach(async function() {  
     await deployAndSetCode([
-          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
-          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner }
-        ]);
-    await deployAndSetCode([
-          { contractName: "contracts/ArbGasInfo.sol:ArbGasInfo", precompileAddress: PRECOMPILE_ADDRESSES.ArbGasInfo }
-        ]);
+          ArbPrecompile.ArbOwner, ArbPrecompile.ArbGasInfo]);
 
     const arbGasInfo = ArbGasInfo__factory.connect(PRECOMPILE_ADDRESSES.ArbGasInfo, ethers.provider);
     originalPricingInertia = await arbGasInfo.getPricingInertia();

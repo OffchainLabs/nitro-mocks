@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { describe, it, beforeEach, afterEach } from "mocha";
-import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
+import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -15,9 +15,8 @@ describe("ArbOwner.setL1PricingRewardRecipient", function () {
 
   beforeEach(async function () {
     await deployAndSetCode([
-          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
-          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner },
-          { contractName: "contracts/ArbGasInfo.sol:ArbGasInfo", precompileAddress: PRECOMPILE_ADDRESSES.ArbGasInfo }
+          ArbPrecompile.ArbOwner,
+          ArbPrecompile.ArbGasInfo
         ]);
 
     await expectEquivalentCallFromChainOwner(

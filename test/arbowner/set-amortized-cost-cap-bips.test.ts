@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES } from "../utils/utils";
+import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
 import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbOwner__factory, ArbGasInfo__factory } from "../../typechain-types";
 
@@ -7,12 +7,7 @@ describe("ArbOwner.setAmortizedCostCapBips", function () {
 
   beforeEach(async function() {  
     await deployAndSetCode([
-          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
-          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner }
-        ]);
-    await deployAndSetCode([
-          { contractName: "contracts/ArbGasInfo.sol:ArbGasInfo", precompileAddress: PRECOMPILE_ADDRESSES.ArbGasInfo }
-        ]);
+          ArbPrecompile.ArbOwner, ArbPrecompile.ArbGasInfo]);
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,

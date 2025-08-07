@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { type TransactionReceipt, type Provider, parseEther } from "ethers";
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, getUnderlyingProvider, forkSync } from "./utils";
+import { PRECOMPILE_ADDRESSES, deployAndSetCode, getUnderlyingProvider, forkSync, ArbPrecompile } from "./utils";
 import { ArbSys__factory } from "../../typechain-types";
 import { 
   executeTx,
@@ -98,10 +98,7 @@ export async function mineBlocks(n: number, provider: Provider) {
 export async function testL2ToL1Tx(functionName: "sendTxToL1" | "withdrawEth", args: any[], value: bigint) {
   await forkSync();
 
-  await deployAndSetCode([
-        { contractName: "ArbosStorage", precompileAddress: ARBOS_STORAGE_ADDRESS },
-        { contractName: "contracts/ArbSys.sol:ArbSys", precompileAddress: PRECOMPILE_ADDRESSES.ArbSys }
-      ]);
+  await deployAndSetCode([ArbPrecompile.ArbSys]);
   
   const underlyingProvider = await getUnderlyingProvider();
   await mineBlocks(5, underlyingProvider);

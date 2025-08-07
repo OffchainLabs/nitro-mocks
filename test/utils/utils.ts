@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { ethers, JsonRpcProvider, Provider } from "ethers";
 import "mocha";
 import { deployNitroMocks, ArbPrecompile } from "../../deployer/hardhat";
+export { ArbPrecompile };
 
 declare const hre: HardhatRuntimeEnvironment;
 
@@ -71,45 +72,12 @@ export async function ensureForkSync(): Promise<void> {
   isForkSynced = true;
 }
 
-function mapContractNameToPrecompile(contractName: string): ArbPrecompile | null {
-  const baseName = contractName.split(':').pop() || contractName;
-  
-  switch (baseName) {
-    case "ArbSys":
-      return ArbPrecompile.ArbSys;
-    case "ArbGasInfo":
-      return ArbPrecompile.ArbGasInfo;
-    case "ArbOwner":
-      return ArbPrecompile.ArbOwner;
-    case "ArbOwnerPublic":
-      return ArbPrecompile.ArbOwnerPublic;
-    case "ArbosStorage":
-      return null;
-    default:
-      throw new Error(`Unknown contract name: ${contractName}`);
-  }
-}
-
 export async function deployAndSetCode(
-  contracts: Array<{ contractName: string, precompileAddress: string }>
+  contracts: Array<ArbPrecompile>
 ): Promise<void> {
   await ensureForkSync();
   
-  let foundArbosStorage = false;
-  const precompiles: ArbPrecompile[] = [];
-  
-  for (const { contractName } of contracts) {
-    const precompile = mapContractNameToPrecompile(contractName);
-    if (!precompile) {
-      foundArbosStorage = true;
-    } else {
-      precompiles.push(precompile);
-    }
-  }
-  
-  if (foundArbosStorage || precompiles.length > 0) {
-    await deployNitroMocks(precompiles, undefined, hre.ethers, hre.network);
-  }
+  await deployNitroMocks(contracts, undefined, hre.ethers, hre.network);
 }
 
 

@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
+import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbOwner__factory } from "../../typechain-types/factories/contracts/ArbOwner__factory";
 import { ArbOwnerPublic__factory } from "../../typechain-types";
@@ -8,9 +8,8 @@ describe("ArbOwner.setInfraFeeAccount", function () {
 
   beforeEach(async function() {  
     await deployAndSetCode([
-      { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
-      { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner },
-      { contractName: "contracts/ArbOwnerPublic.sol:ArbOwnerPublic", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwnerPublic }
+      ArbPrecompile.ArbOwner,
+      ArbPrecompile.ArbOwnerPublic
     ]);
 
     await expectEquivalentCallFromChainOwner(

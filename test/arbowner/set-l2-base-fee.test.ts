@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, getUnderlyingProvider } from "../utils/utils";
+import { deployAndSetCode, PRECOMPILE_ADDRESSES, getUnderlyingProvider, ArbPrecompile } from "../utils/utils";
 import { expectEquivalentTxFromMultipleAddresses, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbOwner__factory } from "../../typechain-types";
 
@@ -8,8 +8,7 @@ describe("ArbOwner.setL2BaseFee", function () {
 
   beforeEach(async function() {  
     await deployAndSetCode([
-          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
-          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner }
+          ArbPrecompile.ArbOwner
         ]);
 
     const underlyingProvider = getUnderlyingProvider();

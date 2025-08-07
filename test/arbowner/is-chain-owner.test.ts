@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode } from "../utils/utils";
+import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersion } from "../utils/expect-equivalent";
 import { ArbOwner__factory } from "../../typechain-types/factories/contracts/ArbOwner__factory";
 import { ArbOwnerPublic__factory } from "../../typechain-types/factories/contracts/ArbOwnerPublic__factory";
@@ -7,12 +7,7 @@ import { ethers } from "hardhat";
 describe("ArbOwner.isChainOwner", function () {
   beforeEach(async function() {
     await deployAndSetCode([
-          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
-          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner }
-        ]);
-    await deployAndSetCode([
-          { contractName: "contracts/ArbOwnerPublic.sol:ArbOwnerPublic", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwnerPublic }
-        ]);
+          ArbPrecompile.ArbOwner, ArbPrecompile.ArbOwnerPublic]);
   });
 
   it("should behave equivalently for existing chain owners", async function () {

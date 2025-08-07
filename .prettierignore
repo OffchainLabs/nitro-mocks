@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+artifacts/
+cache/
+dist/
+typechain-types/
+
+# Hardhat files
+coverage/
+coverage.json
+
+# Solidity files (handled by forge fmt)
+*.sol
+
+# Other
+*.md
+.env
+.env.*
