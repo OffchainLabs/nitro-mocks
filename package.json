@@ -1,9 +1,15 @@
 {
-  "name": "main",
+  "name": "nitro-mocks",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "hardhat compile && hardhat typechain",
+    "clean": "hardhat clean && rm -rf artifacts typechain-types cache",
+    "format": "forge fmt",
+    "format:check": "forge fmt --check",
+    "lint": "solhint 'contracts/**/*.sol'",
+    "lint:fix": "solhint 'contracts/**/*.sol' --fix",
     "test": "hardhat test"
   },
   "keywords": [],
@@ -20,6 +26,7 @@
     "ethers": "^6.13.0",
     "hardhat": "^2.25.0",
     "hardhat-preprocessor": "^0.1.5",
+    "solhint": "^6.0.0",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
     "typescript": "^5.8.3"
