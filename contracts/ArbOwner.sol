@@ -11,11 +11,12 @@ contract ArbOwner is IArbOwner {
     using L1PricingState for L1PricingStorage;
     using L2PricingState for L2PricingStorage;
     using AddressSet for AddressSetStorage;
+
     modifier onlyChainOwner() {
         require(ArbosState.chainOwners().isMember(msg.sender), "unauthorized caller to access-controlled method");
         _;
     }
-    
+
     function getAllChainOwners() external view override onlyChainOwner returns (address[] memory) {
         return ArbosState.chainOwners().allMembers(65536);
     }
@@ -62,7 +63,7 @@ contract ArbOwner is IArbOwner {
 
     function removeChainOwner(address ownerToRemove) external override onlyChainOwner {
         require(ArbosState.chainOwners().isMember(ownerToRemove), "tried to remove non-owner");
-        
+
         ArbosState.chainOwners().remove(ownerToRemove);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
@@ -81,17 +82,17 @@ contract ArbOwner is IArbOwner {
         uint256 balance = L1PricingState.L1_PRICER_FUNDS_POOL_ADDRESS.balance;
         L1PricingStorage memory l1PricingState = ArbosState.l1PricingState();
         uint256 recognized = l1PricingState.l1FeesAvailable();
-        
+
         int256 weiToTransfer = int256(balance) - int256(recognized);
         if (weiToTransfer < 0) {
             return 0;
         }
-        
+
         uint256 weiToTransferUint = uint256(weiToTransfer);
         if (weiToTransferUint > maxWeiToRelease) {
             weiToTransferUint = maxWeiToRelease;
         }
-        
+
         l1PricingState.addToL1FeesAvailable(int256(weiToTransferUint));
         emit OwnerActs(msg.sig, msg.sender, msg.data);
         return weiToTransferUint;
@@ -146,68 +147,68 @@ contract ArbOwner is IArbOwner {
     function setChainConfig(string calldata) external override {
         revert("Not implemented");
     }
-    
+
     function getNetworkFeeAccount() external view override onlyChainOwner returns (address) {
         return ArbosState.networkFeeAccount();
     }
-    
+
     function getInfraFeeAccount() external view override onlyChainOwner returns (address) {
         return ArbosState.infraFeeAccount();
     }
-    
+
     function setInfraFeeAccount(address newInfraFeeAccount) external override onlyChainOwner {
         ArbosState.setInfraFeeAccount(newInfraFeeAccount);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
-    
+
     function setInkPrice(uint32 price) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmMaxStackDepth(uint32 depth) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmFreePages(uint16 pages) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmPageGas(uint16 gas) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmPageLimit(uint16 limit) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmMaxSize(uint32 size) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmMinInitGas(uint8 gas, uint16 cached) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmInitCostScalar(uint64 percent) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmExpiryDays(uint16 _days) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmKeepaliveDays(uint16 _days) external override {
         revert("Not implemented");
     }
-    
+
     function setWasmBlockCacheSize(uint16 count) external override {
         revert("Not implemented");
     }
-    
+
     function addWasmCacheManager(address manager) external override {
         revert("Not implemented");
     }
-    
+
     function removeWasmCacheManager(address manager) external override {
         revert("Not implemented");
     }

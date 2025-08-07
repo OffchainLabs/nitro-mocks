@@ -40,17 +40,12 @@ contract ArbGasInfo is IArbGasInfo {
         return (perL2Tx, weiForL1Calldata, weiForL2Storage, perArbGasBase, perArbGasCongestion, perArbGasTotal);
     }
 
-    function getPricesInWei()
-        external
-        view
-        override
-        returns (uint256, uint256, uint256, uint256, uint256, uint256)
-    {
+    function getPricesInWei() external view override returns (uint256, uint256, uint256, uint256, uint256, uint256) {
         return this.getPricesInWeiWithAggregator(address(0));
     }
 
     function getPricesInArbGasWithAggregator(
-        address  // aggregator - not used in the go implementation
+        address // aggregator - not used in the go implementation
     ) external view override returns (uint256, uint256, uint256) {
         uint256 l1GasPrice = ArbosState.l1PricingState().pricePerUnit();
         uint256 l2GasPrice = block.basefee;
@@ -63,7 +58,7 @@ contract ArbGasInfo is IArbGasInfo {
 
         uint256 weiForL1Calldata = l1GasPrice * TX_DATA_NON_ZERO_GAS_EIP2028;
         uint256 weiPerL2Tx = weiForL1Calldata * ASSUMED_SIMPLE_TX_SIZE;
-        
+
         uint256 gasForL1Calldata = 0;
         uint256 gasPerL2Tx = 0;
         if (l2GasPrice > 0) {

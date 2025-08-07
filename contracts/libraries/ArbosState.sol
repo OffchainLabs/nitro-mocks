@@ -18,10 +18,10 @@ struct AddressSetStorage {
 
 library ArbosState {
     using MerkleAccumulator for MerkleAccumulatorStorage;
-    
+
     address internal constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
     bytes internal constant ROOT_STORAGE_KEY = hex"";
-    
+
     uint256 internal constant VERSION_OFFSET = 0;
     uint256 internal constant UPGRADE_VERSION_OFFSET = 1;
     uint256 internal constant UPGRADE_TIMESTAMP_OFFSET = 2;
@@ -31,81 +31,43 @@ library ArbosState {
     uint256 internal constant INFRA_FEE_ACCOUNT_OFFSET = 6;
     uint256 internal constant BROTLI_COMPRESSION_LEVEL_OFFSET = 7;
     uint256 internal constant NATIVE_TOKEN_ENABLED_TIME_OFFSET = 8;
-    
+
     function version() internal view returns (uint64) {
-        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
-            ROOT_STORAGE_KEY,
-            VERSION_OFFSET
-        );
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, VERSION_OFFSET);
     }
-    
+
     function networkFeeAccount() internal view returns (address) {
-        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(
-            ROOT_STORAGE_KEY,
-            NETWORK_FEE_ACCOUNT_OFFSET
-        );
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(ROOT_STORAGE_KEY, NETWORK_FEE_ACCOUNT_OFFSET);
     }
-    
+
     function setNetworkFeeAccount(address account) internal {
-        ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(
-            ROOT_STORAGE_KEY,
-            NETWORK_FEE_ACCOUNT_OFFSET,
-            account
-        );
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(ROOT_STORAGE_KEY, NETWORK_FEE_ACCOUNT_OFFSET, account);
     }
-    
+
     function infraFeeAccount() internal view returns (address) {
-        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(
-            ROOT_STORAGE_KEY,
-            INFRA_FEE_ACCOUNT_OFFSET
-        );
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(ROOT_STORAGE_KEY, INFRA_FEE_ACCOUNT_OFFSET);
     }
-    
+
     function setInfraFeeAccount(address account) internal {
-        ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(
-            ROOT_STORAGE_KEY,
-            INFRA_FEE_ACCOUNT_OFFSET,
-            account
-        );
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(ROOT_STORAGE_KEY, INFRA_FEE_ACCOUNT_OFFSET, account);
     }
-    
+
     function brotliCompressionLevel() internal view returns (uint64) {
-        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
-            ROOT_STORAGE_KEY,
-            BROTLI_COMPRESSION_LEVEL_OFFSET
-        );
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, BROTLI_COMPRESSION_LEVEL_OFFSET);
     }
-    
+
     function setBrotliCompressionLevel(uint64 level) internal {
-        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(
-            ROOT_STORAGE_KEY,
-            BROTLI_COMPRESSION_LEVEL_OFFSET,
-            level
-        );
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(ROOT_STORAGE_KEY, BROTLI_COMPRESSION_LEVEL_OFFSET, level);
     }
-    
+
     function getScheduledUpgrade() internal view returns (uint64 version, uint64 timestamp) {
-        version = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
-            ROOT_STORAGE_KEY,
-            UPGRADE_VERSION_OFFSET
-        );
-        timestamp = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(
-            ROOT_STORAGE_KEY,
-            UPGRADE_TIMESTAMP_OFFSET
-        );
+        version = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, UPGRADE_VERSION_OFFSET);
+        timestamp = ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, UPGRADE_TIMESTAMP_OFFSET);
     }
-    
+
     function scheduleArbOSUpgrade(uint64 newVersion, uint64 timestamp) internal {
-        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(
-            ROOT_STORAGE_KEY,
-            UPGRADE_VERSION_OFFSET,
-            newVersion
-        );
-        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(
-            ROOT_STORAGE_KEY,
-            UPGRADE_TIMESTAMP_OFFSET,
-            timestamp
-        );
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(ROOT_STORAGE_KEY, UPGRADE_VERSION_OFFSET, newVersion);
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(ROOT_STORAGE_KEY, UPGRADE_TIMESTAMP_OFFSET, timestamp);
     }
 
     bytes internal constant L1_PRICING_SUBSTORAGE = hex"00";
@@ -119,44 +81,29 @@ library ArbosState {
     bytes internal constant PROGRAMS_SUBSTORAGE = hex"08";
     bytes internal constant FEATURES_SUBSTORAGE = hex"09";
     bytes internal constant NATIVE_TOKEN_OWNER_SUBSTORAGE = hex"0a";
-    
+
     function chainOwners() internal pure returns (AddressSetStorage memory) {
-        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ROOT_STORAGE_KEY,
-            CHAIN_OWNER_SUBSTORAGE
-        );
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, CHAIN_OWNER_SUBSTORAGE);
         return AddressSetStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
-    
+
     function l2PricingState() internal pure returns (L2PricingStorage memory) {
-        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ROOT_STORAGE_KEY,
-            L2_PRICING_SUBSTORAGE
-        );
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, L2_PRICING_SUBSTORAGE);
         return L2PricingStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
-    
+
     function l1PricingState() internal pure returns (L1PricingStorage memory) {
-        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ROOT_STORAGE_KEY,
-            L1_PRICING_SUBSTORAGE
-        );
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, L1_PRICING_SUBSTORAGE);
         return L1PricingStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
-    
+
     function sendMerkleAccumulator() internal pure returns (MerkleAccumulatorStorage memory) {
-        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ROOT_STORAGE_KEY,
-            SEND_MERKLE_SUBSTORAGE
-        );
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, SEND_MERKLE_SUBSTORAGE);
         return MerkleAccumulatorStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
-    
+
     function blockHashes() internal pure returns (BlockHashesStorage memory) {
-        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(
-            ROOT_STORAGE_KEY,
-            BLOCKHASHES_SUBSTORAGE
-        );
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, BLOCKHASHES_SUBSTORAGE);
         return BlockHashesStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
 }

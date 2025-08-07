@@ -7,6 +7,7 @@ import {ArbosState} from "./libraries/ArbosState.sol";
 
 contract ArbOwnerPublic is IArbOwnerPublic {
     using AddressSet for AddressSetStorage;
+
     function isChainOwner(address addr) external view override returns (bool) {
         return ArbosState.chainOwners().isMember(addr);
     }
