@@ -4,8 +4,10 @@ import { ArbOwner__factory } from "../../typechain-types/factories/contracts/Arb
 
 describe("ArbOwner.getNetworkFeeAccount", function () {
   beforeEach(async function() {
-    await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
-    await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
+    await deployAndSetCode([
+          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
+          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner }
+        ]);
   });
 
   it("should behave equivalently from all standard addresses", async function () {

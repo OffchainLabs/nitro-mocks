@@ -6,8 +6,10 @@ import { parseEther } from "ethers";
 describe("ArbOwner.releaseL1PricerSurplusFunds", function () {
   beforeEach(async function() {  
     await forkSync();
-    await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
-    await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
+    await deployAndSetCode([
+          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
+          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner }
+        ]);
   });
 
   it("should match native implementation when there is no surplus", async function () {

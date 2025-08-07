@@ -5,9 +5,13 @@ import { ArbOwner__factory } from "../../typechain-types";
 
 describe("ArbOwner.removeChainOwner", function () {
   beforeEach(async function() {  
-    await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
-    await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
-    await deployAndSetCode("contracts/ArbOwnerPublic.sol:ArbOwnerPublic", PRECOMPILE_ADDRESSES.ArbOwnerPublic);
+    await deployAndSetCode([
+          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
+          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner }
+        ]);
+    await deployAndSetCode([
+          { contractName: "contracts/ArbOwnerPublic.sol:ArbOwnerPublic", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwnerPublic }
+        ]);
   });
 
   it("should remove an existing chain owner when called by existing owner", async function () {

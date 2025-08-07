@@ -98,8 +98,10 @@ export async function mineBlocks(n: number, provider: Provider) {
 export async function testL2ToL1Tx(functionName: "sendTxToL1" | "withdrawEth", args: any[], value: bigint) {
   await forkSync();
 
-  await deployAndSetCode("ArbosStorage", ARBOS_STORAGE_ADDRESS);
-  await deployAndSetCode("contracts/ArbSys.sol:ArbSys", PRECOMPILE_ADDRESSES.ArbSys);
+  await deployAndSetCode([
+        { contractName: "ArbosStorage", precompileAddress: ARBOS_STORAGE_ADDRESS },
+        { contractName: "contracts/ArbSys.sol:ArbSys", precompileAddress: PRECOMPILE_ADDRESSES.ArbSys }
+      ]);
   
   const underlyingProvider = await getUnderlyingProvider();
   await mineBlocks(5, underlyingProvider);

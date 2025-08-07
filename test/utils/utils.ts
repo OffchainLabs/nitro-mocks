@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { ethers, JsonRpcProvider, Provider } from "ethers";
 import "mocha";
+import { deployNitroMocks, ArbPrecompile } from "../../deployer/hardhat";
 
 declare const hre: HardhatRuntimeEnvironment;
 
@@ -48,6 +49,8 @@ export const PRECOMPILE_ADDRESSES = {
 } as const;
 
 let isForkSynced = false;
+let precompilesToDeploy = new Set<ArbPrecompile>();
+let hasDeployedArbosStorage = false;
 
 export async function forkSync(): Promise<void> {
   const underlyingBlock = await getUnderlyingProvider().getBlockNumber();
@@ -57,6 +60,8 @@ export async function forkSync(): Promise<void> {
       blockNumber: underlyingBlock
     }
   }]);
+  precompilesToDeploy.clear();
+  hasDeployedArbosStorage = false;
 }
 
 export async function ensureForkSync(): Promise<void> {
@@ -66,22 +71,45 @@ export async function ensureForkSync(): Promise<void> {
   isForkSynced = true;
 }
 
+function mapContractNameToPrecompile(contractName: string): ArbPrecompile | null {
+  const baseName = contractName.split(':').pop() || contractName;
+  
+  switch (baseName) {
+    case "ArbSys":
+      return ArbPrecompile.ArbSys;
+    case "ArbGasInfo":
+      return ArbPrecompile.ArbGasInfo;
+    case "ArbOwner":
+      return ArbPrecompile.ArbOwner;
+    case "ArbOwnerPublic":
+      return ArbPrecompile.ArbOwnerPublic;
+    case "ArbosStorage":
+      return null;
+    default:
+      throw new Error(`Unknown contract name: ${contractName}`);
+  }
+}
+
 export async function deployAndSetCode(
-  contractName: string, 
-  precompileAddress: string
+  contracts: Array<{ contractName: string, precompileAddress: string }>
 ): Promise<void> {
-  // For some reason hardhat doesnt automatically fork from the latest block
-  // so we force it up to date here
   await ensureForkSync();
   
-  const Contract = await hre.ethers.getContractFactory(contractName);
-  const contract = await Contract.deploy();
-  await contract.waitForDeployment();
+  let foundArbosStorage = false;
+  const precompiles: ArbPrecompile[] = [];
   
-  await hre.network.provider.send("hardhat_setCode", [
-    precompileAddress,
-    await hre.network.provider.send("eth_getCode", [await contract.getAddress()])
-  ]);
+  for (const { contractName } of contracts) {
+    const precompile = mapContractNameToPrecompile(contractName);
+    if (!precompile) {
+      foundArbosStorage = true;
+    } else {
+      precompiles.push(precompile);
+    }
+  }
+  
+  if (foundArbosStorage || precompiles.length > 0) {
+    await deployNitroMocks(precompiles, undefined, hre.ethers, hre.network);
+  }
 }
 
 

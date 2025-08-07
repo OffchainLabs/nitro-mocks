@@ -14,18 +14,11 @@ describe("ArbOwner.setL1PricingRewardRecipient", function () {
   let originalRecipient: string;
 
   beforeEach(async function () {
-    await deployAndSetCode(
-      "ArbosStorage",
-      "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf"
-    );
-    await deployAndSetCode(
-      "contracts/ArbOwner.sol:ArbOwner",
-      PRECOMPILE_ADDRESSES.ArbOwner
-    );
-    await deployAndSetCode(
-      "contracts/ArbGasInfo.sol:ArbGasInfo",
-      PRECOMPILE_ADDRESSES.ArbGasInfo
-    );
+    await deployAndSetCode([
+          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
+          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner },
+          { contractName: "contracts/ArbGasInfo.sol:ArbGasInfo", precompileAddress: PRECOMPILE_ADDRESSES.ArbGasInfo }
+        ]);
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,

@@ -4,8 +4,10 @@ import { ArbSys__factory } from "../../typechain-types/factories/contracts/ArbSy
 
 describe("ArbSys.arbChainID", function () {
   beforeEach(async function() {
-    await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
-    await deployAndSetCode("contracts/ArbSys.sol:ArbSys", PRECOMPILE_ADDRESSES.ArbSys);
+    await deployAndSetCode([
+          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
+          { contractName: "contracts/ArbSys.sol:ArbSys", precompileAddress: PRECOMPILE_ADDRESSES.ArbSys }
+        ]);
   });
 
   it("should behave equivalently from all standard addresses", async function () {

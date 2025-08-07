@@ -7,8 +7,10 @@ describe("ArbOwner.setL2BaseFee", function () {
   let originalL2BaseFee: bigint;
 
   beforeEach(async function() {  
-    await deployAndSetCode("ArbosStorage", "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf");
-    await deployAndSetCode("contracts/ArbOwner.sol:ArbOwner", PRECOMPILE_ADDRESSES.ArbOwner);
+    await deployAndSetCode([
+          { contractName: "ArbosStorage", precompileAddress: "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf" },
+          { contractName: "contracts/ArbOwner.sol:ArbOwner", precompileAddress: PRECOMPILE_ADDRESSES.ArbOwner }
+        ]);
 
     const underlyingProvider = getUnderlyingProvider();
     const feeData = await underlyingProvider.getFeeData();
