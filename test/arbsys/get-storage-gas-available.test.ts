@@ -4,9 +4,7 @@ import { expectEquivalentCallFromMultipleAddresses } from "../utils/expect-equiv
 
 describe("ArbSys.getStorageGasAvailable", function () {
   beforeEach(async function () {
-    await deployAndSetCode([
-          ArbPrecompile.ArbSys
-        ]);
+    await deployAndSetCode([ArbPrecompile.ArbSys]);
   });
 
   it("should match native implementation", async function () {

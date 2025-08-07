@@ -6,10 +6,8 @@ import { ArbSys__factory } from "../../typechain-types/factories/contracts/ArbSy
 const VERSION_SLOT = "0x15fed0451499512d95f3ec5a41c878b9de55f21878b5b4e190d4667ec709b400";
 
 describe("ArbSys.arbOSVersion", function () {
-  beforeEach(async function() {
-    await deployAndSetCode([
-          ArbPrecompile.ArbSys
-        ]);
+  beforeEach(async function () {
+    await deployAndSetCode([ArbPrecompile.ArbSys]);
   });
 
   it("should behave equivalently from all standard addresses", async function () {
@@ -22,14 +20,8 @@ describe("ArbSys.arbOSVersion", function () {
       createStorageAccessComparer()(mockFiltered, underlyingFiltered);
     };
 
-    await expectEquivalentCallFromMultipleAddresses(
-      ArbSys__factory,
-      PRECOMPILE_ADDRESSES.ArbSys,
-      "arbOSVersion",
-      [],
-      {
-        storageAccess: storageAccessComparerFilteringVersionSlot
-      }
-    );
+    await expectEquivalentCallFromMultipleAddresses(ArbSys__factory, PRECOMPILE_ADDRESSES.ArbSys, "arbOSVersion", [], {
+      storageAccess: storageAccessComparerFilteringVersionSlot
+    });
   });
 });

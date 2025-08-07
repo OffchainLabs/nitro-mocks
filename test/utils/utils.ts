@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { ethers, JsonRpcProvider, Provider } from "ethers";
+import { JsonRpcProvider, Provider } from "ethers";
 import "mocha";
 import { deployNitroMocks, ArbPrecompile } from "../../deployer/hardhat";
 export { ArbPrecompile };
@@ -50,34 +50,30 @@ export const PRECOMPILE_ADDRESSES = {
 } as const;
 
 let isForkSynced = false;
-let precompilesToDeploy = new Set<ArbPrecompile>();
-let hasDeployedArbosStorage = false;
+const precompilesToDeploy = new Set<ArbPrecompile>();
 
 export async function forkSync(): Promise<void> {
   const underlyingBlock = await getUnderlyingProvider().getBlockNumber();
-  await hre.network.provider.send("hardhat_reset", [{
-    forking: {
-      jsonRpcUrl: getTestNodeRpcUrl(),
-      blockNumber: underlyingBlock
+  await hre.network.provider.send("hardhat_reset", [
+    {
+      forking: {
+        jsonRpcUrl: getTestNodeRpcUrl(),
+        blockNumber: underlyingBlock
+      }
     }
-  }]);
+  ]);
   precompilesToDeploy.clear();
-  hasDeployedArbosStorage = false;
 }
 
 export async function ensureForkSync(): Promise<void> {
   if (isForkSynced) return;
-  
+
   await forkSync();
   isForkSynced = true;
 }
 
-export async function deployAndSetCode(
-  contracts: Array<ArbPrecompile>
-): Promise<void> {
+export async function deployAndSetCode(contracts: Array<ArbPrecompile>): Promise<void> {
   await ensureForkSync();
-  
+
   await deployNitroMocks(contracts, undefined, hre.ethers, hre.network);
 }
-
-

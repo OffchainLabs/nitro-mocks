@@ -1,5 +1,5 @@
 import { Signer, ContractFactory, BaseContract } from "ethers";
-import { 
+import {
   ArbosStorage__factory,
   ArbSys__factory,
   ArbGasInfo__factory,
@@ -52,11 +52,7 @@ const IMPLEMENTED_PRECOMPILES = [
   ArbPrecompile.ArbOwnerPublic
 ];
 
-async function deployContractAt(
-  factory: ContractFactory,
-  address: string,
-  network: any
-): Promise<void> {
+async function deployContractAt(factory: ContractFactory, address: string, network: any): Promise<void> {
   const contract = await factory.deploy();
   await contract.waitForDeployment();
   await network.provider.send("hardhat_setCode", [
@@ -66,7 +62,7 @@ async function deployContractAt(
 }
 
 export async function deployNitroMocks(
-  precompiles?: ArbPrecompile[], 
+  precompiles?: ArbPrecompile[],
   signer?: Signer,
   ethers?: any,
   network?: any
@@ -74,18 +70,18 @@ export async function deployNitroMocks(
   if (!ethers || !network) {
     throw new Error("ethers and network must be provided");
   }
-  
+
   if (!signer) {
     const signers = await ethers.getSigners();
     signer = signers[0];
   }
 
   const toDeploy = precompiles || IMPLEMENTED_PRECOMPILES;
-  
+
   const arbosStorageFactory = new ArbosStorage__factory(signer);
   await deployContractAt(arbosStorageFactory, ARBOS_STORAGE_ADDRESS, network);
   const arbosStorage = arbosStorageFactory.attach(ARBOS_STORAGE_ADDRESS) as ArbosStorage;
-  
+
   const deployed: DeployedContracts = { arbosStorage };
 
   for (const precompileAddress of toDeploy) {

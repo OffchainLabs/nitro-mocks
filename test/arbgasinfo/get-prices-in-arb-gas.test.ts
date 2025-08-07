@@ -1,12 +1,13 @@
 import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
-import { expectEquivalentCallFromMultipleAddresses, storageAccessComparerExcludingVersionAndBaseFee } from "../utils/expect-equivalent";
+import {
+  expectEquivalentCallFromMultipleAddresses,
+  storageAccessComparerExcludingVersionAndBaseFee
+} from "../utils/expect-equivalent";
 import { ArbGasInfo__factory } from "../../typechain-types";
 
 describe("ArbGasInfo.getPricesInArbGas", function () {
-  beforeEach(async function() {  
-    await deployAndSetCode([
-          ArbPrecompile.ArbGasInfo
-        ]);
+  beforeEach(async function () {
+    await deployAndSetCode([ArbPrecompile.ArbGasInfo]);
   });
 
   it("should match native implementation", async function () {

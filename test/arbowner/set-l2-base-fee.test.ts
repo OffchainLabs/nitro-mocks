@@ -1,22 +1,23 @@
-import { ethers } from "hardhat";
 import { deployAndSetCode, PRECOMPILE_ADDRESSES, getUnderlyingProvider, ArbPrecompile } from "../utils/utils";
-import { expectEquivalentTxFromMultipleAddresses, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
+import {
+  expectEquivalentTxFromChainOwner,
+  storageAccessComparerExcludingVersion,
+  storageValueComparerExcludingVersion
+} from "../utils/expect-equivalent";
 import { ArbOwner__factory } from "../../typechain-types";
 
 describe("ArbOwner.setL2BaseFee", function () {
   let originalL2BaseFee: bigint;
 
-  beforeEach(async function() {  
-    await deployAndSetCode([
-          ArbPrecompile.ArbOwner
-        ]);
+  beforeEach(async function () {
+    await deployAndSetCode([ArbPrecompile.ArbOwner]);
 
     const underlyingProvider = getUnderlyingProvider();
     const feeData = await underlyingProvider.getFeeData();
     originalL2BaseFee = feeData.gasPrice || 0n;
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,
@@ -44,7 +45,7 @@ describe("ArbOwner.setL2BaseFee", function () {
     // setting the l2 base fee actually sets the base fee in the mined block
     // ethers tries to be clever and caches this value - it then uses double this when sending unspecified gas price transactions
     // if we set less than half then future transactions will fail since double that will still not be greater than the original base fee which we set back in the after each
-    const newBaseFee = (originalL2BaseFee / 2n) + 1n;
+    const newBaseFee = originalL2BaseFee / 2n + 1n;
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,

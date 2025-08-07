@@ -1,13 +1,18 @@
 import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
-import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
+import {
+  expectEquivalentTxFromMultipleAddresses,
+  expectEquivalentCallFromChainOwner,
+  expectEquivalentTxFromChainOwner,
+  storageAccessComparerExcludingVersion,
+  storageValueComparerExcludingVersion
+} from "../utils/expect-equivalent";
 import { ArbOwner__factory, ArbGasInfo__factory } from "../../typechain-types";
 
 describe("ArbOwner.setMaxTxGasLimit", function () {
   let originalMaxTxGasLimit: bigint;
 
-  beforeEach(async function() {  
-    await deployAndSetCode([
-          ArbPrecompile.ArbOwner, ArbPrecompile.ArbGasInfo]);
+  beforeEach(async function () {
+    await deployAndSetCode([ArbPrecompile.ArbOwner, ArbPrecompile.ArbGasInfo]);
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,
@@ -16,14 +21,14 @@ describe("ArbOwner.setMaxTxGasLimit", function () {
       [],
       {
         storageAccess: storageAccessComparerExcludingVersion,
-        result: (mock, underlying) => {
+        result: (mock, _underlying) => {
           originalMaxTxGasLimit = mock[1];
         }
       }
     );
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,
@@ -38,7 +43,7 @@ describe("ArbOwner.setMaxTxGasLimit", function () {
 
   it("should match native implementation", async function () {
     const newMaxTxGasLimit = 32000137;
-    
+
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,

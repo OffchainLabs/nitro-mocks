@@ -1,13 +1,18 @@
 import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
-import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
+import {
+  expectEquivalentTxFromMultipleAddresses,
+  expectEquivalentCallFromChainOwner,
+  expectEquivalentTxFromChainOwner,
+  storageAccessComparerExcludingVersion,
+  storageValueComparerExcludingVersion
+} from "../utils/expect-equivalent";
 import { ArbOwner__factory, ArbOwnerPublic__factory } from "../../typechain-types";
 
 describe("ArbOwner.setBrotliCompressionLevel", function () {
   let originalLevel: bigint;
 
-  beforeEach(async function() {  
-    await deployAndSetCode([
-          ArbPrecompile.ArbOwner, ArbPrecompile.ArbOwnerPublic]);
+  beforeEach(async function () {
+    await deployAndSetCode([ArbPrecompile.ArbOwner, ArbPrecompile.ArbOwnerPublic]);
 
     await expectEquivalentCallFromChainOwner(
       ArbOwnerPublic__factory,
@@ -16,14 +21,14 @@ describe("ArbOwner.setBrotliCompressionLevel", function () {
       [],
       {
         storageAccess: storageAccessComparerExcludingVersion,
-        result: (mock, underlying) => {
+        result: (mock, _underlying) => {
           originalLevel = mock;
         }
       }
     );
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,

@@ -1,8 +1,8 @@
 import { PRECOMPILE_ADDRESSES } from "./utils";
 
 export enum StorageAccessType {
-  Read = 'read',
-  Write = 'write'
+  Read = "read",
+  Write = "write"
 }
 
 export interface StorageAccess {
@@ -17,9 +17,7 @@ const ARBOS_STORAGE_ADDRESS = "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf";
 
 function isPrecompileAddress(address: string): boolean {
   const normalizedAddress = address.toLowerCase();
-  return Object.values(PRECOMPILE_ADDRESSES).some(
-    precompile => precompile.toLowerCase() === normalizedAddress
-  );
+  return Object.values(PRECOMPILE_ADDRESSES).some(precompile => precompile.toLowerCase() === normalizedAddress);
 }
 
 function parseStorageAccessesFromTrace(trace: any, initialAddress: string): StorageAccess[] {
@@ -32,7 +30,7 @@ function parseStorageAccessesFromTrace(trace: any, initialAddress: string): Stor
 
   for (let i = 0; i < trace.structLogs.length; i++) {
     const log = trace.structLogs[i];
-    
+
     if (log.depth && i > 0 && trace.structLogs[i - 1].depth !== log.depth) {
       if (log.op === "CALL" || log.op === "DELEGATECALL" || log.op === "STATICCALL" || log.op === "CALLCODE") {
         const stackLength = trace.structLogs[i - 1].stack?.length || 0;
@@ -44,10 +42,10 @@ function parseStorageAccessesFromTrace(trace: any, initialAddress: string): Stor
 
     if (log.op === "SLOAD" && log.stack && log.stack.length >= 1) {
       const slotRaw = log.stack[log.stack.length - 1];
-      const slot = slotRaw.startsWith("0x") 
-        ? "0x" + slotRaw.slice(2).padStart(64, '0') 
-        : "0x" + slotRaw.padStart(64, '0');
-      
+      const slot = slotRaw.startsWith("0x")
+        ? "0x" + slotRaw.slice(2).padStart(64, "0")
+        : "0x" + slotRaw.padStart(64, "0");
+
       accesses.push({
         address: currentAddress,
         slot,
@@ -57,10 +55,10 @@ function parseStorageAccessesFromTrace(trace: any, initialAddress: string): Stor
       });
     } else if (log.op === "SSTORE" && log.stack && log.stack.length >= 2) {
       const slotRaw = log.stack[log.stack.length - 1];
-      const slot = slotRaw.startsWith("0x") 
-        ? "0x" + slotRaw.slice(2).padStart(64, '0') 
-        : "0x" + slotRaw.padStart(64, '0');
-        
+      const slot = slotRaw.startsWith("0x")
+        ? "0x" + slotRaw.slice(2).padStart(64, "0")
+        : "0x" + slotRaw.padStart(64, "0");
+
       accesses.push({
         address: currentAddress,
         slot,

@@ -1,16 +1,19 @@
 import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
-import { expectEquivalentTxFromMultipleAddresses, expectEquivalentCallFromChainOwner, expectEquivalentTxFromChainOwner, storageAccessComparerExcludingVersion, storageValueComparerExcludingVersion } from "../utils/expect-equivalent";
+import {
+  expectEquivalentTxFromMultipleAddresses,
+  expectEquivalentCallFromChainOwner,
+  expectEquivalentTxFromChainOwner,
+  storageAccessComparerExcludingVersion,
+  storageValueComparerExcludingVersion
+} from "../utils/expect-equivalent";
 import { ArbOwner__factory } from "../../typechain-types/factories/contracts/ArbOwner__factory";
 import { ArbOwnerPublic__factory } from "../../typechain-types";
 
 describe("ArbOwner.setInfraFeeAccount", function () {
   let originalAccount: string;
 
-  beforeEach(async function() {  
-    await deployAndSetCode([
-      ArbPrecompile.ArbOwner,
-      ArbPrecompile.ArbOwnerPublic
-    ]);
+  beforeEach(async function () {
+    await deployAndSetCode([ArbPrecompile.ArbOwner, ArbPrecompile.ArbOwnerPublic]);
 
     await expectEquivalentCallFromChainOwner(
       ArbOwnerPublic__factory,
@@ -19,14 +22,14 @@ describe("ArbOwner.setInfraFeeAccount", function () {
       [],
       {
         storageAccess: storageAccessComparerExcludingVersion,
-        result: (mock, underlying) => {
+        result: (mock, _underlying) => {
           originalAccount = mock as string;
         }
       }
     );
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,
@@ -41,7 +44,7 @@ describe("ArbOwner.setInfraFeeAccount", function () {
 
   it("should match native implementation", async function () {
     const newInfraFeeAccount = "0x1234567890123456789012345678901234567890";
-    
+
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,

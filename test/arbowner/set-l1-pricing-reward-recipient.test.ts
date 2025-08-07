@@ -6,7 +6,7 @@ import {
   expectEquivalentCallFromChainOwner,
   expectEquivalentTxFromChainOwner,
   storageAccessComparerExcludingVersion,
-  storageValueComparerExcludingVersion,
+  storageValueComparerExcludingVersion
 } from "../utils/expect-equivalent";
 import { ArbOwner__factory, ArbGasInfo__factory } from "../../typechain-types";
 
@@ -14,10 +14,7 @@ describe("ArbOwner.setL1PricingRewardRecipient", function () {
   let originalRecipient: string;
 
   beforeEach(async function () {
-    await deployAndSetCode([
-          ArbPrecompile.ArbOwner,
-          ArbPrecompile.ArbGasInfo
-        ]);
+    await deployAndSetCode([ArbPrecompile.ArbOwner, ArbPrecompile.ArbGasInfo]);
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,
@@ -26,14 +23,14 @@ describe("ArbOwner.setL1PricingRewardRecipient", function () {
       [],
       {
         storageAccess: storageAccessComparerExcludingVersion,
-        result: (mock, underlying) => {
+        result: (mock, _underlying) => {
           originalRecipient = mock;
         }
       }
     );
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
       PRECOMPILE_ADDRESSES.ArbOwner,
@@ -47,7 +44,7 @@ describe("ArbOwner.setL1PricingRewardRecipient", function () {
   });
 
   it("should match native implementation", async function () {
-    const [,,rewardRecipient] = await ethers.getSigners();
+    const [, , rewardRecipient] = await ethers.getSigners();
 
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
@@ -56,7 +53,7 @@ describe("ArbOwner.setL1PricingRewardRecipient", function () {
       [rewardRecipient.address],
       {
         storageAccess: storageAccessComparerExcludingVersion,
-        storageValues: storageValueComparerExcludingVersion,
+        storageValues: storageValueComparerExcludingVersion
       }
     );
   });
