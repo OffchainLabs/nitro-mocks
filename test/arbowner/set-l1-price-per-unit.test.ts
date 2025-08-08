@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -17,7 +17,7 @@ describe("ArbOwner.setL1PricePerUnit", function () {
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
+      ArbPrecompile.ArbGasInfo,
       "getL1BaseFeeEstimate",
       [],
       {
@@ -32,7 +32,7 @@ describe("ArbOwner.setL1PricePerUnit", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL1PricePerUnit",
       [originalValue],
       {
@@ -45,7 +45,7 @@ describe("ArbOwner.setL1PricePerUnit", function () {
   it("should match native implementation", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL1PricePerUnit",
       [ethers.parseEther("0.000139")],
       {

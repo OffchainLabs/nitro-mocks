@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, forkSync, getUnderlyingProvider, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, forkSync, getUnderlyingProvider, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentCallFromMultipleAddresses,
   storageAccessComparerExcludingVersion
@@ -25,7 +25,7 @@ describe("ArbSys.arbBlockHash", function () {
 
     await expectEquivalentCallFromMultipleAddresses(
       ArbSys__factory,
-      PRECOMPILE_ADDRESSES.ArbSys,
+      ArbPrecompile.ArbSys,
       "arbBlockHash",
       [recentBlockNum],
       {
@@ -40,7 +40,7 @@ describe("ArbSys.arbBlockHash", function () {
 
     await expectEquivalentCallFromMultipleAddresses(
       ArbSys__factory,
-      PRECOMPILE_ADDRESSES.ArbSys,
+      ArbPrecompile.ArbSys,
       "arbBlockHash",
       [currentBlock],
       {
@@ -56,7 +56,7 @@ describe("ArbSys.arbBlockHash", function () {
 
     await expectEquivalentCallFromMultipleAddresses(
       ArbSys__factory,
-      PRECOMPILE_ADDRESSES.ArbSys,
+      ArbPrecompile.ArbSys,
       "arbBlockHash",
       [futureBlockNum],
       {
@@ -72,7 +72,7 @@ describe("ArbSys.arbBlockHash", function () {
 
     await expectEquivalentCallFromMultipleAddresses(
       ArbSys__factory,
-      PRECOMPILE_ADDRESSES.ArbSys,
+      ArbPrecompile.ArbSys,
       "arbBlockHash",
       [oldBlockNum],
       {

@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -16,7 +16,7 @@ describe("ArbOwner.setBrotliCompressionLevel", function () {
 
     await expectEquivalentCallFromChainOwner(
       ArbOwnerPublic__factory,
-      PRECOMPILE_ADDRESSES.ArbOwnerPublic,
+      ArbPrecompile.ArbOwnerPublic,
       "getBrotliCompressionLevel",
       [],
       {
@@ -31,7 +31,7 @@ describe("ArbOwner.setBrotliCompressionLevel", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setBrotliCompressionLevel",
       [originalLevel],
       {
@@ -44,7 +44,7 @@ describe("ArbOwner.setBrotliCompressionLevel", function () {
   it("should match native implementation when setting compression level to 0", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setBrotliCompressionLevel",
       [0],
       {
@@ -57,7 +57,7 @@ describe("ArbOwner.setBrotliCompressionLevel", function () {
   it("should match native implementation when setting compression level to 1", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setBrotliCompressionLevel",
       [1],
       {
@@ -70,7 +70,7 @@ describe("ArbOwner.setBrotliCompressionLevel", function () {
   it("should match native implementation when setting compression level to 11", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setBrotliCompressionLevel",
       [11],
       {

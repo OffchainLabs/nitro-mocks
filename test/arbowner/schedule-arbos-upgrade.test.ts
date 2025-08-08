@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -20,7 +20,7 @@ describe("ArbOwner.scheduleArbOSUpgrade", function () {
     await deployAndSetCode([ArbPrecompile.ArbOwner]);
     await deployAndSetCode([ArbPrecompile.ArbOwnerPublic, ArbPrecompile.ArbSys]);
 
-    await expectEquivalentCallFromChainOwner(ArbSys__factory, PRECOMPILE_ADDRESSES.ArbSys, "arbOSVersion", [], {
+    await expectEquivalentCallFromChainOwner(ArbSys__factory, ArbPrecompile.ArbSys, "arbOSVersion", [], {
       storageAccess: storageAccessComparerExact,
       result: (mock, _underlying) => {
         currentVersion = BigInt(mock);
@@ -29,7 +29,7 @@ describe("ArbOwner.scheduleArbOSUpgrade", function () {
 
     await expectEquivalentCallFromChainOwner(
       ArbOwnerPublic__factory,
-      PRECOMPILE_ADDRESSES.ArbOwnerPublic,
+      ArbPrecompile.ArbOwnerPublic,
       "getScheduledUpgrade",
       [],
       {
@@ -46,7 +46,7 @@ describe("ArbOwner.scheduleArbOSUpgrade", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "scheduleArbOSUpgrade",
       [originalVersion, originalTimestamp],
       {
@@ -62,7 +62,7 @@ describe("ArbOwner.scheduleArbOSUpgrade", function () {
 
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "scheduleArbOSUpgrade",
       [currentVersion, timestamp],
       {

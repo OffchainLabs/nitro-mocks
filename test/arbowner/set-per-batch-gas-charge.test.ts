@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -16,7 +16,7 @@ describe("ArbOwner.setPerBatchGasCharge", function () {
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
+      ArbPrecompile.ArbGasInfo,
       "getPerBatchGasCharge",
       [],
       {
@@ -31,7 +31,7 @@ describe("ArbOwner.setPerBatchGasCharge", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setPerBatchGasCharge",
       [originalValue],
       {
@@ -47,7 +47,7 @@ describe("ArbOwner.setPerBatchGasCharge", function () {
     for (const cost of testCosts) {
       await expectEquivalentTxFromMultipleAddresses(
         ArbOwner__factory,
-        PRECOMPILE_ADDRESSES.ArbOwner,
+        ArbPrecompile.ArbOwner,
         "setPerBatchGasCharge",
         [cost],
         {

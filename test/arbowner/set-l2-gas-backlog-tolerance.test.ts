@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromChainOwner,
   storageAccessComparerExcludingVersion,
@@ -13,14 +13,14 @@ describe("ArbOwner.setL2GasBacklogTolerance", function () {
   beforeEach(async function () {
     await deployAndSetCode([ArbPrecompile.ArbOwner, ArbPrecompile.ArbGasInfo]);
 
-    const arbGasInfo = ArbGasInfo__factory.connect(PRECOMPILE_ADDRESSES.ArbGasInfo, ethers.provider);
+    const arbGasInfo = ArbGasInfo__factory.connect(ArbPrecompile.ArbGasInfo, ethers.provider);
     originalBacklogTolerance = await arbGasInfo.getGasBacklogTolerance();
   });
 
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL2GasBacklogTolerance",
       [originalBacklogTolerance],
       {
@@ -35,7 +35,7 @@ describe("ArbOwner.setL2GasBacklogTolerance", function () {
 
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL2GasBacklogTolerance",
       [newBacklogTolerance],
       {

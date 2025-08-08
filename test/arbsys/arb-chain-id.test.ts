@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentCallFromMultipleAddresses,
   storageAccessComparerExcludingVersion
@@ -11,7 +11,7 @@ describe("ArbSys.arbChainID", function () {
   });
 
   it("should behave equivalently from all standard addresses", async function () {
-    await expectEquivalentCallFromMultipleAddresses(ArbSys__factory, PRECOMPILE_ADDRESSES.ArbSys, "arbChainID", [], {
+    await expectEquivalentCallFromMultipleAddresses(ArbSys__factory, ArbPrecompile.ArbSys, "arbChainID", [], {
       storageAccess: storageAccessComparerExcludingVersion
     });
   });

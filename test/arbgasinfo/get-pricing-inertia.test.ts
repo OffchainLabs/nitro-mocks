@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentCallFromMultipleAddresses,
   storageAccessComparerExcludingVersion
@@ -13,7 +13,7 @@ describe("ArbGasInfo.getPricingInertia", function () {
   it("should match native implementation", async function () {
     await expectEquivalentCallFromMultipleAddresses(
       ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
+      ArbPrecompile.ArbGasInfo,
       "getPricingInertia",
       [],
       {

@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentCallFromMultipleAddresses,
   storageAccessComparerExcludingVersion
@@ -11,14 +11,8 @@ describe("ArbSys.sendMerkleTreeState", function () {
   });
 
   it("should match native implementation", async function () {
-    await expectEquivalentCallFromMultipleAddresses(
-      ArbSys__factory,
-      PRECOMPILE_ADDRESSES.ArbSys,
-      "sendMerkleTreeState",
-      [],
-      {
-        storageAccess: storageAccessComparerExcludingVersion
-      }
-    );
+    await expectEquivalentCallFromMultipleAddresses(ArbSys__factory, ArbPrecompile.ArbSys, "sendMerkleTreeState", [], {
+      storageAccess: storageAccessComparerExcludingVersion
+    });
   });
 });

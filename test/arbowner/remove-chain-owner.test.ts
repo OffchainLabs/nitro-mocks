@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   storageAccessComparerExcludingVersion,
@@ -17,7 +17,7 @@ describe("ArbOwner.removeChainOwner", function () {
 
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "addChainOwner",
       [newChainOwner],
       {
@@ -28,7 +28,7 @@ describe("ArbOwner.removeChainOwner", function () {
 
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "removeChainOwner",
       [newChainOwner],
       {

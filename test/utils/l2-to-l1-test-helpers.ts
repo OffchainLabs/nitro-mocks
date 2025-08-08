@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { type TransactionReceipt, type Provider, parseEther } from "ethers";
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, getUnderlyingProvider, forkSync, ArbPrecompile } from "./utils";
+import { deployAndSetCode, getUnderlyingProvider, forkSync, ArbPrecompile } from "./utils";
 import { ArbSys__factory } from "../../typechain-types";
 import {
   executeTx,
@@ -111,7 +111,7 @@ export async function testL2ToL1Tx(functionName: "sendTxToL1" | "withdrawEth", a
 
   const underlyingResult = await executeTx(
     ArbSys__factory,
-    PRECOMPILE_ADDRESSES.ArbSys,
+    ArbPrecompile.ArbSys,
     functionName,
     args,
     chainOwner.address,
@@ -160,7 +160,7 @@ export async function testL2ToL1Tx(functionName: "sendTxToL1" | "withdrawEth", a
 
   const mockResult = await executeTx(
     ArbSys__factory,
-    PRECOMPILE_ADDRESSES.ArbSys,
+    ArbPrecompile.ArbSys,
     functionName,
     args,
     chainOwner.address,
@@ -168,7 +168,7 @@ export async function testL2ToL1Tx(functionName: "sendTxToL1" | "withdrawEth", a
     { value }
   );
 
-  compareTxResults(mockResult, underlyingResult, ArbSys__factory, PRECOMPILE_ADDRESSES.ArbSys, functionName, args, {
+  compareTxResults(mockResult, underlyingResult, ArbSys__factory, ArbPrecompile.ArbSys, functionName, args, {
     from: chainOwner.address,
     storageAccess: storageAccessComparerExcludingVersion,
     storageValues: storageValueComparerExcludingVersion

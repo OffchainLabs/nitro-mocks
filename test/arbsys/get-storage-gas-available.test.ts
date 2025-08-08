@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import { ArbSys__factory } from "../../typechain-types";
 import { expectEquivalentCallFromMultipleAddresses } from "../utils/expect-equivalent";
 
@@ -10,7 +10,7 @@ describe("ArbSys.getStorageGasAvailable", function () {
   it("should match native implementation", async function () {
     await expectEquivalentCallFromMultipleAddresses(
       ArbSys__factory,
-      PRECOMPILE_ADDRESSES.ArbSys,
+      ArbPrecompile.ArbSys,
       "getStorageGasAvailable",
       []
     );

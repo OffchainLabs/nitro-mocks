@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES } from "./utils";
+import { ArbPrecompile } from "./utils";
 
 export enum StorageAccessType {
   Read = "read",
@@ -17,7 +17,7 @@ const ARBOS_STORAGE_ADDRESS = "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf";
 
 function isPrecompileAddress(address: string): boolean {
   const normalizedAddress = address.toLowerCase();
-  return Object.values(PRECOMPILE_ADDRESSES).some(precompile => precompile.toLowerCase() === normalizedAddress);
+  return Object.values(ArbPrecompile).some(precompile => precompile.toLowerCase() === normalizedAddress);
 }
 
 function parseStorageAccessesFromTrace(trace: any, initialAddress: string): StorageAccess[] {

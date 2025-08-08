@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -17,7 +17,7 @@ describe("ArbOwner.setNetworkFeeAccount", function () {
 
     await expectEquivalentCallFromChainOwner(
       ArbOwnerPublic__factory,
-      PRECOMPILE_ADDRESSES.ArbOwnerPublic,
+      ArbPrecompile.ArbOwnerPublic,
       "getNetworkFeeAccount",
       [],
       {
@@ -32,7 +32,7 @@ describe("ArbOwner.setNetworkFeeAccount", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setNetworkFeeAccount",
       [originalAccount],
       {
@@ -47,7 +47,7 @@ describe("ArbOwner.setNetworkFeeAccount", function () {
 
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setNetworkFeeAccount",
       [newNetworkFeeAccount],
       {

@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, getUnderlyingProvider, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, getUnderlyingProvider, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromChainOwner,
   storageAccessComparerExcludingVersion,
@@ -20,7 +20,7 @@ describe("ArbOwner.setL2BaseFee", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL2BaseFee",
       [originalL2BaseFee],
       {
@@ -31,7 +31,7 @@ describe("ArbOwner.setL2BaseFee", function () {
     // for some reason we need to do this twice - i think it may have to do with caching on the underlying provider but i'm not sure
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL2BaseFee",
       [originalL2BaseFee],
       {
@@ -46,15 +46,9 @@ describe("ArbOwner.setL2BaseFee", function () {
     // ethers tries to be clever and caches this value - it then uses double this when sending unspecified gas price transactions
     // if we set less than half then future transactions will fail since double that will still not be greater than the original base fee which we set back in the after each
     const newBaseFee = originalL2BaseFee / 2n + 1n;
-    await expectEquivalentTxFromChainOwner(
-      ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
-      "setL2BaseFee",
-      [newBaseFee],
-      {
-        storageAccess: storageAccessComparerExcludingVersion,
-        storageValues: storageValueComparerExcludingVersion
-      }
-    );
+    await expectEquivalentTxFromChainOwner(ArbOwner__factory, ArbPrecompile.ArbOwner, "setL2BaseFee", [newBaseFee], {
+      storageAccess: storageAccessComparerExcludingVersion,
+      storageValues: storageValueComparerExcludingVersion
+    });
   });
 });

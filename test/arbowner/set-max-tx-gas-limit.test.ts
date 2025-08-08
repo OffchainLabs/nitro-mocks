@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -16,7 +16,7 @@ describe("ArbOwner.setMaxTxGasLimit", function () {
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
+      ArbPrecompile.ArbGasInfo,
       "getGasAccountingParams",
       [],
       {
@@ -31,7 +31,7 @@ describe("ArbOwner.setMaxTxGasLimit", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setMaxTxGasLimit",
       [originalMaxTxGasLimit],
       {
@@ -46,7 +46,7 @@ describe("ArbOwner.setMaxTxGasLimit", function () {
 
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setMaxTxGasLimit",
       [newMaxTxGasLimit],
       {

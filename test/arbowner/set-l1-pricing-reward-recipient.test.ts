@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { describe, it, beforeEach, afterEach } from "mocha";
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -18,7 +18,7 @@ describe("ArbOwner.setL1PricingRewardRecipient", function () {
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
+      ArbPrecompile.ArbGasInfo,
       "getL1RewardRecipient",
       [],
       {
@@ -33,7 +33,7 @@ describe("ArbOwner.setL1PricingRewardRecipient", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL1PricingRewardRecipient",
       [originalRecipient],
       {
@@ -48,7 +48,7 @@ describe("ArbOwner.setL1PricingRewardRecipient", function () {
 
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL1PricingRewardRecipient",
       [rewardRecipient.address],
       {

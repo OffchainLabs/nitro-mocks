@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -16,7 +16,7 @@ describe("ArbOwner.setL1PricingInertia", function () {
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
+      ArbPrecompile.ArbGasInfo,
       "getL1BaseFeeEstimateInertia",
       [],
       {
@@ -31,7 +31,7 @@ describe("ArbOwner.setL1PricingInertia", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL1PricingInertia",
       [originalValue],
       {
@@ -44,7 +44,7 @@ describe("ArbOwner.setL1PricingInertia", function () {
   it("should match native implementation", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL1PricingInertia",
       [100n],
       {

@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentCallFromMultipleAddresses,
   storageAccessComparerExcludingVersion
@@ -13,7 +13,7 @@ describe("ArbOwner.getAllChainOwners", function () {
   it("should behave equivalently from all standard addresses", async function () {
     await expectEquivalentCallFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "getAllChainOwners",
       [],
       {

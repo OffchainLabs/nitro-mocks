@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentCallFromMultipleAddresses,
   storageAccessComparerExcludingVersion
@@ -16,7 +16,7 @@ describe("ArbSys.mapL1SenderContractAddressToL2Alias", function () {
 
     await expectEquivalentCallFromMultipleAddresses(
       ArbSys__factory,
-      PRECOMPILE_ADDRESSES.ArbSys,
+      ArbPrecompile.ArbSys,
       "mapL1SenderContractAddressToL2Alias",
       [testAddress, unusedAddress],
       {

@@ -16,15 +16,21 @@ export enum ArbPrecompile {
   ArbSys = "0x0000000000000000000000000000000000000064",
   ArbInfo = "0x0000000000000000000000000000000000000065",
   ArbAddressTable = "0x0000000000000000000000000000000000000066",
-  ArbAggregator = "0x0000000000000000000000000000000000000067",
-  ArbRetryableTx = "0x0000000000000000000000000000000000000068",
-  ArbGasInfo = "0x000000000000000000000000000000000000006c",
-  ArbStatistics = "0x000000000000000000000000000000000000006a",
-  ArbFunctionTable = "0x000000000000000000000000000000000000006d",
-  ArbOwner = "0x0000000000000000000000000000000000000070",
+  ArbBLS = "0x0000000000000000000000000000000000000067",
+  ArbFunctionTable = "0x0000000000000000000000000000000000000068",
+  ArbosTest = "0x0000000000000000000000000000000000000069",
+  ArbosActs = "0x000000000000000000000000000000000000006a",
   ArbOwnerPublic = "0x000000000000000000000000000000000000006b",
+  ArbGasInfo = "0x000000000000000000000000000000000000006c",
+  ArbAggregator = "0x00000000000000000000000000000000000000d3",
+  ArbRetryableTx = "0x000000000000000000000000000000000000006e",
+  ArbStatistics = "0x000000000000000000000000000000000000006f",
+  ArbOwner = "0x0000000000000000000000000000000000000070",
   ArbWasm = "0x0000000000000000000000000000000000000071",
-  ArbWasmCache = "0x0000000000000000000000000000000000000072"
+  ArbWasmCache = "0x0000000000000000000000000000000000000072",
+  NodeInterface = "0x00000000000000000000000000000000000000c8",
+  ArbNativeTokenManager = "0x00000000000000000000000000000000000000ce",
+  ArbDebug = "0x00000000000000000000000000000000000000ff"
 }
 
 export interface DeployedContracts {
@@ -112,12 +118,18 @@ export async function deployNitroMocks(
       }
       case ArbPrecompile.ArbInfo:
       case ArbPrecompile.ArbAddressTable:
+      case ArbPrecompile.ArbBLS:
+      case ArbPrecompile.ArbFunctionTable:
+      case ArbPrecompile.ArbosTest:
+      case ArbPrecompile.ArbosActs:
       case ArbPrecompile.ArbAggregator:
       case ArbPrecompile.ArbRetryableTx:
       case ArbPrecompile.ArbStatistics:
-      case ArbPrecompile.ArbFunctionTable:
       case ArbPrecompile.ArbWasm:
       case ArbPrecompile.ArbWasmCache:
+      case ArbPrecompile.NodeInterface:
+      case ArbPrecompile.ArbNativeTokenManager:
+      case ArbPrecompile.ArbDebug:
         throw new Error(`Precompile ${precompileAddress} is not yet implemented`);
       default:
         throw new Error(`Unknown precompile address: ${precompileAddress}`);

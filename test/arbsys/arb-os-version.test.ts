@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import { expectEquivalentCallFromMultipleAddresses, createStorageAccessComparer } from "../utils/expect-equivalent";
 import { StorageAccess } from "../utils/storage";
 import { ArbSys__factory } from "../../typechain-types/factories/contracts/ArbSys__factory";
@@ -20,7 +20,7 @@ describe("ArbSys.arbOSVersion", function () {
       createStorageAccessComparer()(mockFiltered, underlyingFiltered);
     };
 
-    await expectEquivalentCallFromMultipleAddresses(ArbSys__factory, PRECOMPILE_ADDRESSES.ArbSys, "arbOSVersion", [], {
+    await expectEquivalentCallFromMultipleAddresses(ArbSys__factory, ArbPrecompile.ArbSys, "arbOSVersion", [], {
       storageAccess: storageAccessComparerFilteringVersionSlot
     });
   });

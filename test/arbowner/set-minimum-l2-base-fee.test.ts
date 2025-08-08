@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { deployAndSetCode, getUnderlyingProvider, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, getUnderlyingProvider, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -16,24 +16,18 @@ describe("ArbOwner.setMinimumL2BaseFee", function () {
   beforeEach(async function () {
     await deployAndSetCode([ArbPrecompile.ArbOwner, ArbPrecompile.ArbGasInfo]);
 
-    await expectEquivalentCallFromChainOwner(
-      ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
-      "getMinimumGasPrice",
-      [],
-      {
-        storageAccess: storageAccessComparerExcludingVersion,
-        result: (mock, _underlying) => {
-          originalValue = mock;
-        }
+    await expectEquivalentCallFromChainOwner(ArbGasInfo__factory, ArbPrecompile.ArbGasInfo, "getMinimumGasPrice", [], {
+      storageAccess: storageAccessComparerExcludingVersion,
+      result: (mock, _underlying) => {
+        originalValue = mock;
       }
-    );
+    });
   });
 
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setMinimumL2BaseFee",
       [originalValue],
       {
@@ -61,7 +55,7 @@ describe("ArbOwner.setMinimumL2BaseFee", function () {
 
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setMinimumL2BaseFee",
       [newMinBaseFee],
       {

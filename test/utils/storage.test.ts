@@ -1,10 +1,6 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import {
-  getAllStorageAccessesFromTx,
-  getAllStorageAccessesFromCall,
-  StorageAccessType
-} from "./storage";
+import { getAllStorageAccessesFromTx, getAllStorageAccessesFromCall, StorageAccessType } from "./storage";
 import { solidityPackedKeccak256 } from "ethers";
 
 describe("getAllStorageAccessesFromTx", function () {

@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentCallFromMultipleAddresses,
   storageAccessComparerExcludingVersionAndBaseFee
@@ -16,7 +16,7 @@ describe("ArbGasInfo.getPricesInWeiWithAggregator", function () {
 
     await expectEquivalentCallFromMultipleAddresses(
       ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
+      ArbPrecompile.ArbGasInfo,
       "getPricesInWeiWithAggregator",
       [aggregator],
       {

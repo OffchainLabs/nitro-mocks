@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentCallFromMultipleAddresses,
   storageAccessComparerExcludingVersion
@@ -13,7 +13,7 @@ describe("ArbOwnerPublic.getScheduledUpgrade", function () {
   it("should behave equivalently from all standard addresses", async function () {
     await expectEquivalentCallFromMultipleAddresses(
       ArbOwnerPublic__factory,
-      PRECOMPILE_ADDRESSES.ArbOwnerPublic,
+      ArbPrecompile.ArbOwnerPublic,
       "getScheduledUpgrade",
       [],
       {

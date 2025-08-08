@@ -1,4 +1,4 @@
-import { PRECOMPILE_ADDRESSES, deployAndSetCode, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentCallFromMultipleAddresses,
   storageAccessComparerExcludingVersion
@@ -13,13 +13,13 @@ describe("ArbOwner.isChainOwner", function () {
   });
 
   it("should behave equivalently for existing chain owners", async function () {
-    const arbOwnerPublic = ArbOwnerPublic__factory.connect(PRECOMPILE_ADDRESSES.ArbOwnerPublic, ethers.provider);
+    const arbOwnerPublic = ArbOwnerPublic__factory.connect(ArbPrecompile.ArbOwnerPublic, ethers.provider);
     const chainOwners = await arbOwnerPublic.getAllChainOwners();
 
     if (chainOwners.length > 0) {
       await expectEquivalentCallFromMultipleAddresses(
         ArbOwner__factory,
-        PRECOMPILE_ADDRESSES.ArbOwner,
+        ArbPrecompile.ArbOwner,
         "isChainOwner",
         [chainOwners[0]],
         {
@@ -34,7 +34,7 @@ describe("ArbOwner.isChainOwner", function () {
 
     await expectEquivalentCallFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "isChainOwner",
       [testAddress],
       {
@@ -46,7 +46,7 @@ describe("ArbOwner.isChainOwner", function () {
   it("should behave equivalently for zero address", async function () {
     await expectEquivalentCallFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "isChainOwner",
       [ethers.ZeroAddress],
       {

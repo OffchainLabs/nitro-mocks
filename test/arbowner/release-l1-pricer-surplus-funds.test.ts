@@ -1,4 +1,4 @@
-import { deployAndSetCode, forkSync, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, forkSync, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   storageAccessComparerExcludingVersion,
@@ -16,7 +16,7 @@ describe("ArbOwner.releaseL1PricerSurplusFunds", function () {
   it("should match native implementation when there is no surplus", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "releaseL1PricerSurplusFunds",
       [parseEther("1")],
       {

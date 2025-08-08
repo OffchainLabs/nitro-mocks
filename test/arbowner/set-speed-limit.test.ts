@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -16,7 +16,7 @@ describe("ArbOwner.setSpeedLimit", function () {
 
     await expectEquivalentCallFromChainOwner(
       ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
+      ArbPrecompile.ArbGasInfo,
       "getGasAccountingParams",
       [],
       {
@@ -31,7 +31,7 @@ describe("ArbOwner.setSpeedLimit", function () {
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setSpeedLimit",
       [originalSpeedLimit],
       {
@@ -46,7 +46,7 @@ describe("ArbOwner.setSpeedLimit", function () {
 
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setSpeedLimit",
       [newSpeedLimit],
       {
@@ -57,15 +57,9 @@ describe("ArbOwner.setSpeedLimit", function () {
   });
 
   it("should revert when speed limit is zero", async function () {
-    await expectEquivalentTxFromMultipleAddresses(
-      ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
-      "setSpeedLimit",
-      [0n],
-      {
-        storageAccess: storageAccessComparerExcludingVersion,
-        storageValues: storageValueComparerExcludingVersion
-      }
-    );
+    await expectEquivalentTxFromMultipleAddresses(ArbOwner__factory, ArbPrecompile.ArbOwner, "setSpeedLimit", [0n], {
+      storageAccess: storageAccessComparerExcludingVersion,
+      storageValues: storageValueComparerExcludingVersion
+    });
   });
 });

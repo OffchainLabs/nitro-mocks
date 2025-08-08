@@ -1,4 +1,4 @@
-import { deployAndSetCode, PRECOMPILE_ADDRESSES, ArbPrecompile } from "../utils/utils";
+import { deployAndSetCode, ArbPrecompile } from "../utils/utils";
 import {
   expectEquivalentTxFromMultipleAddresses,
   expectEquivalentCallFromChainOwner,
@@ -14,24 +14,18 @@ describe("ArbOwner.setL1PricingRewardRate", function () {
   beforeEach(async function () {
     await deployAndSetCode([ArbPrecompile.ArbOwner, ArbPrecompile.ArbGasInfo]);
 
-    await expectEquivalentCallFromChainOwner(
-      ArbGasInfo__factory,
-      PRECOMPILE_ADDRESSES.ArbGasInfo,
-      "getL1RewardRate",
-      [],
-      {
-        storageAccess: storageAccessComparerExcludingVersion,
-        result: (mock, _underlying) => {
-          originalValue = mock;
-        }
+    await expectEquivalentCallFromChainOwner(ArbGasInfo__factory, ArbPrecompile.ArbGasInfo, "getL1RewardRate", [], {
+      storageAccess: storageAccessComparerExcludingVersion,
+      result: (mock, _underlying) => {
+        originalValue = mock;
       }
-    );
+    });
   });
 
   afterEach(async function () {
     await expectEquivalentTxFromChainOwner(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL1PricingRewardRate",
       [originalValue],
       {
@@ -44,7 +38,7 @@ describe("ArbOwner.setL1PricingRewardRate", function () {
   it("should match native implementation", async function () {
     await expectEquivalentTxFromMultipleAddresses(
       ArbOwner__factory,
-      PRECOMPILE_ADDRESSES.ArbOwner,
+      ArbPrecompile.ArbOwner,
       "setL1PricingRewardRate",
       [137n],
       {
