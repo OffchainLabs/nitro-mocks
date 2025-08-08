@@ -54,5 +54,5 @@ export async function ensureForkSync(): Promise<void> {
 export async function deployAndSetCode(contracts: Array<ArbPrecompile>): Promise<void> {
   await ensureForkSync();
 
-  await deployNitroMocks(contracts, undefined, hre.ethers, hre.network);
+  await deployNitroMocks(contracts);
 }

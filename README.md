@@ -150,3 +150,65 @@ The test framework then compares:
 The current test suite does not measure coverage of the Go implementations that define the actual precompile behavior. While differential testing verifies that tested code paths match, there may be edge cases or error conditions in the native precompiles that aren't covered by the test suite. 
 
 Until Go code coverage is implemented, the mocks may not handle all edge cases identically to native precompiles. Users should be aware that while the mocks work for common use cases, they should not be relied upon for perfect behavioral parity in all scenarios.
+
+## Usage
+
+### Deploy to Standalone Hardhat Node
+
+Deploy mock Arbitrum precompiles to a standalone Hardhat node.
+
+#### 1. Start a Hardhat Node
+
+```bash
+npx hardhat node
+```
+
+#### 2. Deploy Precompiles
+
+In another terminal:
+
+```bash
+# Deploy all implemented precompiles
+npx hardhat deploy-precompiles --network localhost
+
+# Deploy specific precompiles (can be run multiple times)
+npx hardhat deploy-precompiles --network localhost --precompiles ArbSys
+npx hardhat deploy-precompiles --network localhost --precompiles ArbGasInfo
+
+# Deploy multiple at once
+npx hardhat deploy-precompiles --network localhost --precompiles ArbSys,ArbGasInfo
+```
+
+### Use in Hardhat Tests
+
+Deploy Arbitrum precompile mocks directly in your test suite.
+
+```typescript
+import { deployNitroMocks, ArbPrecompile } from "@arbitrum/nitro-mocks/deployer/hardhat";
+
+describe("MyContract", function () {
+  beforeEach(async function () {
+    await deployNitroMocks();
+  });
+
+  it("should interact with ArbSys", async function () {
+    const arbSys = await ethers.getContractAt("IArbSys", ArbPrecompile.ArbSys);
+    const blockNumber = await arbSys.arbBlockNumber();
+    // Test continues...
+  });
+});
+```
+
+#### Deploy Specific Precompiles
+
+```typescript
+// Deploy only ArbSys and ArbGasInfo
+await deployNitroMocks([ArbPrecompile.ArbSys, ArbPrecompile.ArbGasInfo]);
+```
+
+#### Get Contract Instances
+
+```typescript
+const deployed = await deployNitroMocks();
+// Access deployed.arbSys, deployed.arbGasInfo, etc.
+```

@@ -22,7 +22,7 @@ describe("ArbOwner.setBrotliCompressionLevel", function () {
       {
         storageAccess: storageAccessComparerExcludingVersion,
         result: (mock, _underlying) => {
-          originalLevel = mock;
+          originalLevel = mock as bigint;
         }
       }
     );

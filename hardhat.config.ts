@@ -3,6 +3,7 @@ import "@nomicfoundation/hardhat-ethers";
 import "@typechain/hardhat";
 import "hardhat-preprocessor";
 import { getTestNodeRpcUrl } from "./test/utils/utils";
+import "./deployer/hardhat/tasks";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -31,6 +32,9 @@ const config: HardhatUserConfig = {
       },
       chainId: 412346,
       allowBlocksWithSameTimestamp: true
+    },
+    localhost: {
+      url: "http://127.0.0.1:8770"
     }
   },
   typechain: {
