@@ -46,10 +46,10 @@ library DeployMocks {
         if (precompile == ArbPrecompile.ArbosTest) return 0x0000000000000000000000000000000000000069;
         if (precompile == ArbPrecompile.ArbosActs) return 0x000000000000000000000000000000000000006a;
         if (precompile == ArbPrecompile.ArbOwnerPublic) return 0x000000000000000000000000000000000000006b;
-        if (precompile == ArbPrecompile.ArbGasInfo) return 0x000000000000000000000000000000000000006C;
-        if (precompile == ArbPrecompile.ArbAggregator) return 0x00000000000000000000000000000000000000D3;
-        if (precompile == ArbPrecompile.ArbRetryableTx) return 0x000000000000000000000000000000000000006E;
-        if (precompile == ArbPrecompile.ArbStatistics) return 0x000000000000000000000000000000000000006F;
+        if (precompile == ArbPrecompile.ArbGasInfo) return 0x000000000000000000000000000000000000006c;
+        if (precompile == ArbPrecompile.ArbAggregator) return 0x000000000000000000000000000000000000006d;
+        if (precompile == ArbPrecompile.ArbRetryableTx) return 0x000000000000000000000000000000000000006e;
+        if (precompile == ArbPrecompile.ArbStatistics) return 0x000000000000000000000000000000000000006f;
         if (precompile == ArbPrecompile.ArbOwner) return 0x0000000000000000000000000000000000000070;
         if (precompile == ArbPrecompile.ArbWasm) return 0x0000000000000000000000000000000000000071;
         if (precompile == ArbPrecompile.ArbWasmCache) return 0x0000000000000000000000000000000000000072;
