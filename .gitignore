@@ -48,6 +48,7 @@ hardhat-node.log
 # Misc
 .cache/
 *.tsbuildinfo
+TODO.md
 
 # Hardhat/Foundry temporary files
 deployments/

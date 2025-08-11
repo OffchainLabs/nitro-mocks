@@ -3,7 +3,7 @@ import "@nomicfoundation/hardhat-ethers";
 import "@typechain/hardhat";
 import "hardhat-preprocessor";
 import { getTestNodeRpcUrl } from "./test/utils/utils";
-import "./deployer/hardhat/tasks";
+import "./deployer/hardhat-tasks";
 
 const config: HardhatUserConfig = {
   solidity: {

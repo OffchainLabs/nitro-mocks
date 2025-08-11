@@ -153,62 +153,97 @@ Until Go code coverage is implemented, the mocks may not handle all edge cases i
 
 ## Usage
 
-### Deploy to Standalone Hardhat Node
-
-Deploy mock Arbitrum precompiles to a standalone Hardhat node.
-
-#### 1. Start a Hardhat Node
-
-```bash
-npx hardhat node
-```
-
-#### 2. Deploy Precompiles
-
-In another terminal:
-
-```bash
-# Deploy all implemented precompiles
-npx hardhat deploy-precompiles --network localhost
-
-# Deploy specific precompiles (can be run multiple times)
-npx hardhat deploy-precompiles --network localhost --precompiles ArbSys
-npx hardhat deploy-precompiles --network localhost --precompiles ArbGasInfo
-
-# Deploy multiple at once
-npx hardhat deploy-precompiles --network localhost --precompiles ArbSys,ArbGasInfo
-```
-
-### Use in Hardhat Tests
+### 1. Hardhat Tests
 
 Deploy Arbitrum precompile mocks directly in your test suite.
 
 ```typescript
-import { deployNitroMocks, ArbPrecompile } from "@arbitrum/nitro-mocks/deployer/hardhat";
+import { deployNitroMocksHardhat, ArbPrecompile } from "@arbitrum/nitro-mocks/deployer";
 
 describe("MyContract", function () {
   beforeEach(async function () {
-    await deployNitroMocks();
+    // Deploy all implemented precompiles
+    await deployNitroMocksHardhat();
+    
+    // Or deploy specific precompiles
+    await deployNitroMocksHardhat([ArbPrecompile.ArbSys, ArbPrecompile.ArbGasInfo]);
   });
 
   it("should interact with ArbSys", async function () {
     const arbSys = await ethers.getContractAt("IArbSys", ArbPrecompile.ArbSys);
     const blockNumber = await arbSys.arbBlockNumber();
-    // Test continues...
   });
 });
 ```
 
-#### Deploy Specific Precompiles
+### 2. Hardhat Task
 
-```typescript
-// Deploy only ArbSys and ArbGasInfo
-await deployNitroMocks([ArbPrecompile.ArbSys, ArbPrecompile.ArbGasInfo]);
+Deploy to a standalone Hardhat node using the built-in task.
+
+```bash
+# Start Hardhat node
+npx hardhat node
+
+# In another terminal, deploy all precompiles
+npx hardhat deploy-precompiles --network localhost
+
+# Deploy specific precompiles
+npx hardhat deploy-precompiles --network localhost --precompiles ArbSys,ArbGasInfo
 ```
 
-#### Get Contract Instances
+### 3. Hardhat via CLI
 
-```typescript
-const deployed = await deployNitroMocks();
-// Access deployed.arbSys, deployed.arbGasInfo, etc.
+Deploy to any Hardhat node using the standalone CLI.
+
+```bash
+# Install globally
+npm install -g @arbitrum/nitro-mocks
+
+# Deploy to Hardhat node (auto-detects Hardhat)
+nitro-mocks-deploy --rpc-url http://localhost:8545
+
+# Deploy specific precompiles
+nitro-mocks-deploy --rpc-url http://localhost:8545 --precompiles ArbSys,ArbGasInfo
+```
+
+### 4. Foundry Tests
+
+Deploy in Foundry test environment.
+
+```solidity
+import "forge-std/Test.sol";
+import "@arbitrum/nitro-mocks/deployer/DeployMocks.sol";
+
+contract MyTest is Test {
+    function setUp() public {
+        // Deploy all implemented precompiles
+        DeployMocks.deployNitroMocks();
+        
+        // Or deploy specific precompiles
+        DeployMocks.ArbPrecompile[] memory precompiles = new DeployMocks.ArbPrecompile[](2);
+        precompiles[0] = DeployMocks.ArbPrecompile.ArbSys;
+        precompiles[1] = DeployMocks.ArbPrecompile.ArbGasInfo;
+        DeployMocks.deployNitroMocks(precompiles);
+    }
+
+    function testArbSys() public {
+        address arbSysAddr = DeployMocks.getPrecompileAddress(DeployMocks.ArbPrecompile.ArbSys);
+        // Interact with precompile...
+    }
+}
+```
+
+### 5. Anvil via CLI
+
+Deploy to Anvil nodes using the standalone CLI.
+
+```bash
+# Start Anvil
+anvil
+
+# In another terminal, deploy all precompiles
+nitro-mocks-deploy --rpc-url http://localhost:8545
+
+# Deploy specific precompiles
+nitro-mocks-deploy --rpc-url http://localhost:8545 --precompiles ArbSys,ArbGasInfo
 ```

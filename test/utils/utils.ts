@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { JsonRpcProvider, Provider } from "ethers";
 import "mocha";
-import { deployNitroMocks, ArbPrecompile } from "../../deployer/hardhat";
+import { deployNitroMocksHardhat, ArbPrecompile } from "../../deployer";
 export { ArbPrecompile };
 
 declare const hre: HardhatRuntimeEnvironment;
@@ -54,5 +54,5 @@ export async function ensureForkSync(): Promise<void> {
 export async function deployAndSetCode(contracts: Array<ArbPrecompile>): Promise<void> {
   await ensureForkSync();
 
-  await deployNitroMocks(contracts);
+  await deployNitroMocksHardhat(contracts);
 }

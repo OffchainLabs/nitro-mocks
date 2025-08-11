@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../../contracts/ArbosStorage.sol";
-import "../../contracts/ArbSys.sol";
-import "../../contracts/ArbGasInfo.sol";
-import "../../contracts/ArbOwner.sol";
-import "../../contracts/ArbOwnerPublic.sol";
+import "../contracts/ArbosStorage.sol";
+import "../contracts/ArbSys.sol";
+import "../contracts/ArbGasInfo.sol";
+import "../contracts/ArbOwner.sol";
+import "../contracts/ArbOwnerPublic.sol";
 
 interface IVm {
     function etch(address target, bytes calldata bytecode) external;
@@ -37,7 +37,7 @@ library DeployMocks {
         ArbDebug
     }
     
-    function getPrecompileAddress(ArbPrecompile precompile) internal pure returns (address) {
+    function getPrecompileAddress(ArbPrecompile precompile) public pure returns (address) {
         if (precompile == ArbPrecompile.ArbSys) return 0x0000000000000000000000000000000000000064;
         if (precompile == ArbPrecompile.ArbInfo) return 0x0000000000000000000000000000000000000065;
         if (precompile == ArbPrecompile.ArbAddressTable) return 0x0000000000000000000000000000000000000066;
@@ -74,11 +74,9 @@ library DeployMocks {
     }
     
     function deployNitroMocks(ArbPrecompile[] memory precompiles) internal {
-        // Deploy ArbosStorage
         ArbosStorage arbosStorage = new ArbosStorage();
         deployContractAt(address(arbosStorage).code, ARBOS_STORAGE_ADDRESS);
         
-        // Deploy each requested precompile
         for (uint256 i = 0; i < precompiles.length; i++) {
             ArbPrecompile precompile = precompiles[i];
             address precompileAddress = getPrecompileAddress(precompile);
@@ -99,16 +97,5 @@ library DeployMocks {
                 revert("Precompile not yet implemented");
             }
         }
-    }
-}
-
-// Contract wrapper for script usage
-contract DeployMocksScript {
-    function run() external {
-        DeployMocks.deployNitroMocks();
-    }
-    
-    function runWithPrecompiles(DeployMocks.ArbPrecompile[] memory precompiles) external {
-        DeployMocks.deployNitroMocks(precompiles);
     }
 }

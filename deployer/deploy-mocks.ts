@@ -1,4 +1,4 @@
-import { ContractFactory, BaseContract } from "ethers";
+import { ContractFactory, BaseContract, JsonRpcProvider, Signer } from "ethers";
 import {
   ArbosStorage__factory,
   ArbSys__factory,
@@ -10,14 +10,13 @@ import {
   ArbGasInfo,
   ArbOwner,
   ArbOwnerPublic
-} from "../../typechain-types";
+} from "../typechain-types";
 
-// Try to import hre - will work in Hardhat context
 let hre: any;
 try {
   hre = require("hardhat");
 } catch {
-  // Not in Hardhat context - will be handled in deployNitroMocks
+  // hre might be available as global at runtime
 }
 
 export enum ArbPrecompile {
@@ -66,29 +65,31 @@ const IMPLEMENTED_PRECOMPILES = [
   ArbPrecompile.ArbOwnerPublic
 ];
 
-async function deployContractAt(factory: ContractFactory, address: string): Promise<void> {
+async function deployContractAt(
+  factory: ContractFactory, 
+  address: string,
+  provider: JsonRpcProvider,
+  setCodeMethod: 'hardhat' | 'anvil'
+): Promise<void> {
   const contract = await factory.deploy();
   await contract.waitForDeployment();
-  await hre.network.provider.send("hardhat_setCode", [
-    address,
-    await hre.network.provider.send("eth_getCode", [await contract.getAddress()])
-  ]);
+  const bytecode = await provider.send("eth_getCode", [await contract.getAddress(), "latest"]);
+  
+  const method = setCodeMethod === 'anvil' ? 'anvil_setCode' : 'hardhat_setCode';
+  await provider.send(method, [address, bytecode]);
 }
 
-export async function deployNitroMocks(
+async function deployNitroMocksBase(
+  provider: JsonRpcProvider,
+  signer: Signer,
+  setCodeMethod: 'hardhat' | 'anvil',
   precompiles?: ArbPrecompile[]
 ): Promise<DeployedContracts> {
-  if (!hre) {
-    throw new Error("deployNitroMocks must be run in a Hardhat environment");
-  }
-
-  const signers = await hre.ethers.getSigners();
-  const signer = signers[0];
-
+  
   const toDeploy = precompiles || IMPLEMENTED_PRECOMPILES;
 
   const arbosStorageFactory = new ArbosStorage__factory(signer);
-  await deployContractAt(arbosStorageFactory, ARBOS_STORAGE_ADDRESS);
+  await deployContractAt(arbosStorageFactory, ARBOS_STORAGE_ADDRESS, provider, setCodeMethod);
   const arbosStorage = arbosStorageFactory.attach(ARBOS_STORAGE_ADDRESS) as ArbosStorage;
 
   const deployed: DeployedContracts = { arbosStorage };
@@ -97,25 +98,25 @@ export async function deployNitroMocks(
     switch (precompileAddress) {
       case ArbPrecompile.ArbSys: {
         const factory = new ArbSys__factory(signer);
-        await deployContractAt(factory, precompileAddress);
+        await deployContractAt(factory, precompileAddress, provider, setCodeMethod);
         deployed.arbSys = factory.attach(precompileAddress) as ArbSys;
         break;
       }
       case ArbPrecompile.ArbGasInfo: {
         const factory = new ArbGasInfo__factory(signer);
-        await deployContractAt(factory, precompileAddress);
+        await deployContractAt(factory, precompileAddress, provider, setCodeMethod);
         deployed.arbGasInfo = factory.attach(precompileAddress) as ArbGasInfo;
         break;
       }
       case ArbPrecompile.ArbOwner: {
         const factory = new ArbOwner__factory(signer);
-        await deployContractAt(factory, precompileAddress);
+        await deployContractAt(factory, precompileAddress, provider, setCodeMethod);
         deployed.arbOwner = factory.attach(precompileAddress) as ArbOwner;
         break;
       }
       case ArbPrecompile.ArbOwnerPublic: {
         const factory = new ArbOwnerPublic__factory(signer);
-        await deployContractAt(factory, precompileAddress);
+        await deployContractAt(factory, precompileAddress, provider, setCodeMethod);
         deployed.arbOwnerPublic = factory.attach(precompileAddress) as ArbOwnerPublic;
         break;
       }
@@ -140,4 +141,41 @@ export async function deployNitroMocks(
   }
 
   return deployed;
+}
+
+export async function deployNitroMocksHardhat(
+  precompiles?: ArbPrecompile[],
+  rpcUrl?: string
+): Promise<DeployedContracts> {
+  let provider: JsonRpcProvider;
+  let signer: Signer;
+  
+  if (rpcUrl) {
+    provider = new JsonRpcProvider(rpcUrl);
+    signer = await provider.getSigner();
+  } else {
+    // Check again at runtime in case hre wasn't available at module load time
+    if (!hre && typeof global !== 'undefined' && (global as any).hre) {
+      hre = (global as any).hre;
+    }
+    
+    if (!hre) {
+      throw new Error("deployNitroMocksHardhat requires either an rpcUrl or Hardhat environment");
+    }
+    const signers = await hre.ethers.getSigners();
+    signer = signers[0];
+    provider = signer.provider as JsonRpcProvider;
+  }
+  
+  return deployNitroMocksBase(provider, signer, 'hardhat', precompiles);
+}
+
+export async function deployNitroMocksAnvil(
+  precompiles?: ArbPrecompile[],
+  rpcUrl: string = "http://localhost:8545"
+): Promise<DeployedContracts> {
+  const provider = new JsonRpcProvider(rpcUrl);
+  const signer = await provider.getSigner();
+  
+  return deployNitroMocksBase(provider, signer, 'anvil', precompiles);
 }
