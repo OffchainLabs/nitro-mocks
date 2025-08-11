@@ -1,5 +1,5 @@
 {
-  "name": "@arbitrum/nitro-mocks",
+  "name": "@yahgwai/nitro-mocks",
   "version": "0.1.0",
   "description": "Solidity implementations of Arbitrum's precompiled contracts for local testing",
   "main": "dist/deployer/index.js",
@@ -38,15 +38,15 @@
     "mocks",
     "precompiles"
   ],
-  "author": "Arbitrum",
+  "author": "Offchain Labs",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arbitrum/nitro-mocks.git"
+    "url": "git+https://github.com/OffchainLabs/nitro-mocks.git"
   },
   "bugs": {
-    "url": "https://github.com/arbitrum/nitro-mocks/issues"
+    "url": "https://github.com/OffchainLabs/nitro-mocks/issues"
   },
-  "homepage": "https://github.com/arbitrum/nitro-mocks#readme",
+  "homepage": "https://github.com/OffchainLabs/nitro-mocks#readme",
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.0",
     "@typechain/ethers-v6": "^0.5.0",
