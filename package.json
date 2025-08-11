@@ -4,7 +4,7 @@
   "description": "Solidity implementations of Arbitrum's precompiled contracts for local testing",
   "main": "dist/deployer/index.js",
   "bin": {
-    "nitro-mocks-deploy": "./dist/deployer/cli.js"
+    "nitro-mocks-deploy": "dist/deployer/cli.js"
   },
   "scripts": {
     "build": "hardhat compile && hardhat typechain",
@@ -41,7 +41,7 @@
   "author": "Arbitrum",
   "repository": {
     "type": "git",
-    "url": "https://github.com/arbitrum/nitro-mocks.git"
+    "url": "git+https://github.com/arbitrum/nitro-mocks.git"
   },
   "bugs": {
     "url": "https://github.com/arbitrum/nitro-mocks/issues"
