@@ -2,8 +2,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-ethers";
 import "@typechain/hardhat";
 import "hardhat-preprocessor";
-import { getTestNodeRpcUrl } from "./test/utils/utils";
-import "./deployer/hardhat-tasks";
+import { getTestNodeRpcUrl } from "./test/config";
 
 const config: HardhatUserConfig = {
   solidity: {
