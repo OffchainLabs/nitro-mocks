@@ -1,5 +1,5 @@
 {
-  "name": "@yahgwai/nitro-mocks",
+  "name": "@arbitrum/nitro-mocks",
   "version": "0.1.0",
   "description": "Solidity implementations of Arbitrum's precompiled contracts for local testing",
   "main": "dist/deployer/index.js",
