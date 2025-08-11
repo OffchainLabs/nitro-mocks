@@ -5,7 +5,8 @@
     "rootDir": "./"
   },
   "include": [
-    "deployer/**/*.ts"
+    "deployer/**/*.ts",
+    "typechain-types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

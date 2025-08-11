@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "hardhat compile && hardhat typechain",
-    "build:cli": "tsc -p tsconfig.cli.json",
+    "build:cli": "tsc -p tsconfig.cli.json && rm -rf dist/typechain-types dist/test",
     "clean": "hardhat clean && rm -rf artifacts typechain-types cache dist",
     "format": "npm run format:sol && npm run format:ts",
     "format:check": "npm run format:sol:check && npm run format:ts:check",
@@ -27,12 +27,8 @@
     "prepublishOnly": "npm run build && npm run build:cli"
   },
   "files": [
-    "contracts/",
-    "deployer/",
-    "dist/",
-    "artifacts/",
-    "typechain-types/",
-    "submodules/nitro-precompile-interfaces/"
+    "dist/deployer/",
+    "typechain-types/"
   ],
   "keywords": [
     "arbitrum",
