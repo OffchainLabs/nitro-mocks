@@ -1,8 +1,8 @@
 {
-  "name": "nitro-mocks",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "@arbitrum/nitro-mocks",
+  "version": "0.1.0",
+  "description": "Solidity implementations of Arbitrum's precompiled contracts for local testing",
+  "main": "dist/deployer/index.js",
   "bin": {
     "nitro-mocks-deploy": "./dist/deployer/cli.js"
   },
@@ -23,11 +23,34 @@
     "lint:ts": "eslint . --ext .ts,.tsx",
     "lint:ts:fix": "eslint . --ext .ts,.tsx --fix",
     "test": "hardhat test",
-    "setup:dev": "./setup-dev.sh"
+    "setup:dev": "./setup-dev.sh",
+    "prepublishOnly": "npm run build && npm run build:cli"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "files": [
+    "contracts/",
+    "deployer/",
+    "dist/",
+    "artifacts/",
+    "typechain-types/",
+    "submodules/nitro-precompile-interfaces/"
+  ],
+  "keywords": [
+    "arbitrum",
+    "ethereum",
+    "blockchain",
+    "testing",
+    "mocks",
+    "precompiles"
+  ],
+  "author": "Arbitrum",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arbitrum/nitro-mocks.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arbitrum/nitro-mocks/issues"
+  },
+  "homepage": "https://github.com/arbitrum/nitro-mocks#readme",
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.0",
     "@typechain/ethers-v6": "^0.5.0",
@@ -46,7 +69,8 @@
     "solhint": "^6.0.0",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "glob": "^11.0.3"
   },
   "dependencies": {
     "commander": "^14.0.0"
