@@ -129,6 +129,10 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 - ArbWasm (`0x71`) ❌
 - ArbWasmCache (`0x72`) ❌
 
+## Development
+
+After cloning this repository, run `npm run setup:dev` to clone the Nitro source code needed for development.
+
 ## Testing & Verification
 
 This project uses differential testing to ensure the mocks behave identically to Arbitrum's native precompiles. 

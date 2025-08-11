@@ -1,6 +1,3 @@
 [submodule "lib/nitro-precompile-interfaces"]
 	path = submodules/nitro-precompile-interfaces
 	url = https://github.com/OffchainLabs/nitro-precompile-interfaces.git
-[submodule "nitro"]
-	path = submodules/nitro
-	url = https://github.com/OffchainLabs/nitro

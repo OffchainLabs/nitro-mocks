@@ -22,7 +22,8 @@
     "lint:sol:fix": "solhint 'contracts/**/*.sol' --fix",
     "lint:ts": "eslint . --ext .ts,.tsx",
     "lint:ts:fix": "eslint . --ext .ts,.tsx --fix",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "setup:dev": "./setup-dev.sh"
   },
   "keywords": [],
   "author": "",

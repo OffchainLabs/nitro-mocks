@@ -50,6 +50,9 @@ hardhat-node.log
 *.tsbuildinfo
 TODO.md
 
+# Development dependencies
+nitro/
+
 # Hardhat/Foundry temporary files
 deployments/
 tenderly.yaml
