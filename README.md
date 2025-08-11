@@ -158,7 +158,10 @@ Until Go code coverage is implemented, the mocks may not handle all edge cases i
 Deploy Arbitrum precompile mocks directly in your test suite.
 
 ```typescript
-import { deployNitroMocksHardhat, ArbPrecompile } from "@arbitrum/nitro-mocks/deployer";
+import { deployNitroMocksHardhat } from "@arbitrum/nitro-mocks/deployer";
+
+const ARB_SYS = "0x0000000000000000000000000000000000000064";
+const ARB_GAS_INFO = "0x000000000000000000000000000000000000006C";
 
 describe("MyContract", function () {
   beforeEach(async function () {
@@ -166,11 +169,11 @@ describe("MyContract", function () {
     await deployNitroMocksHardhat();
     
     // Or deploy specific precompiles
-    await deployNitroMocksHardhat([ArbPrecompile.ArbSys, ArbPrecompile.ArbGasInfo]);
+    await deployNitroMocksHardhat([ARB_SYS, ARB_GAS_INFO]);
   });
 
   it("should interact with ArbSys", async function () {
-    const arbSys = await ethers.getContractAt("IArbSys", ArbPrecompile.ArbSys);
+    const arbSys = await ethers.getContractAt("IArbSys", ARB_SYS);
     const blockNumber = await arbSys.arbBlockNumber();
   });
 });
@@ -220,14 +223,14 @@ contract MyTest is Test {
         DeployMocks.deployNitroMocks();
         
         // Or deploy specific precompiles
-        DeployMocks.ArbPrecompile[] memory precompiles = new DeployMocks.ArbPrecompile[](2);
-        precompiles[0] = DeployMocks.ArbPrecompile.ArbSys;
-        precompiles[1] = DeployMocks.ArbPrecompile.ArbGasInfo;
+        address[] memory precompiles = new address[](2);
+        precompiles[0] = DeployMocks.ARB_SYS;
+        precompiles[1] = DeployMocks.ARB_GAS_INFO;
         DeployMocks.deployNitroMocks(precompiles);
     }
 
     function testArbSys() public {
-        address arbSysAddr = DeployMocks.getPrecompileAddress(DeployMocks.ArbPrecompile.ArbSys);
+        address arbSysAddr = DeployMocks.ARB_SYS;
         // Interact with precompile...
     }
 }
