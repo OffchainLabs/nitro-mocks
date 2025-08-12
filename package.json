@@ -1,6 +1,6 @@
 {
   "name": "@arbitrum/nitro-mocks",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Solidity implementations of Arbitrum's precompiled contracts for local testing",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,8 @@
   },
   "scripts": {
     "build": "hardhat compile && hardhat typechain",
-    "build:cli": "tsc -p tsconfig.cli.json && mv dist/deployer/* dist/ && rm -rf dist/deployer dist/typechain-types dist/test",
+    "build:typechain": "tsc -p build-config/tsconfig.typechain.json",
+    "build:cli": "tsc -p build-config/tsconfig.cli.json && mv dist/deployer/* dist/ && rm -rf dist/deployer dist/typechain-types dist/test",
     "clean": "hardhat clean && rm -rf artifacts typechain-types cache dist",
     "format": "npm run format:sol && npm run format:ts",
     "format:check": "npm run format:sol:check && npm run format:ts:check",
@@ -25,7 +26,7 @@
     "lint:ts:fix": "eslint . --ext .ts,.tsx --fix",
     "test": "hardhat test",
     "setup:dev": "./setup-dev.sh",
-    "prepublishOnly": "npm run build && npm run build:cli"
+    "prepublishOnly": "npm run build && npm run build:typechain && npm run build:cli"
   },
   "files": [
     "dist/",

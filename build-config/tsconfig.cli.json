@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../dist",
+    "rootDir": "../",
+    "declaration": true
+  },
+  "include": [
+    "../deployer/**/*.ts"
+  ],
+  "exclude": [
+    "../node_modules",
+    "../dist",
+    "../test/**/*",
+    "../hardhat.config.ts",
+    "../deployer/hardhat-tasks.ts"
+  ]
+}
