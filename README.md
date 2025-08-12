@@ -162,7 +162,7 @@ Until Go code coverage is implemented, the mocks may not handle all edge cases i
 Deploy Arbitrum precompile mocks directly in your test suite.
 
 ```typescript
-import { deployNitroMocksHardhat } from "@arbitrum/nitro-mocks/deployer";
+import { deployNitroMocksHardhat } from "@arbitrum/nitro-mocks";
 
 const ARB_SYS = "0x0000000000000000000000000000000000000064";
 const ARB_GAS_INFO = "0x000000000000000000000000000000000000006C";

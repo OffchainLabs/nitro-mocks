@@ -2,11 +2,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./"
+    "rootDir": "./",
+    "declaration": true
   },
   "include": [
-    "deployer/**/*.ts",
-    "typechain-types/**/*.ts"
+    "deployer/**/*.ts"
   ],
   "exclude": [
     "node_modules",

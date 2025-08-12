@@ -1,14 +1,15 @@
 {
   "name": "@arbitrum/nitro-mocks",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Solidity implementations of Arbitrum's precompiled contracts for local testing",
-  "main": "dist/deployer/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
-    "nitro-mocks-deploy": "dist/deployer/cli.js"
+    "nitro-mocks-deploy": "dist/cli.js"
   },
   "scripts": {
     "build": "hardhat compile && hardhat typechain",
-    "build:cli": "tsc -p tsconfig.cli.json && rm -rf dist/typechain-types dist/test",
+    "build:cli": "tsc -p tsconfig.cli.json && mv dist/deployer/* dist/ && rm -rf dist/deployer dist/typechain-types dist/test",
     "clean": "hardhat clean && rm -rf artifacts typechain-types cache dist",
     "format": "npm run format:sol && npm run format:ts",
     "format:check": "npm run format:sol:check && npm run format:ts:check",
@@ -27,7 +28,7 @@
     "prepublishOnly": "npm run build && npm run build:cli"
   },
   "files": [
-    "dist/deployer/",
+    "dist/",
     "typechain-types/"
   ],
   "keywords": [
@@ -59,7 +60,6 @@
     "chai": "^4.3.8",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
-    "ethers": "^6.13.0",
     "hardhat": "^2.25.0",
     "hardhat-preprocessor": "^0.1.5",
     "solhint": "^6.0.0",
@@ -69,6 +69,7 @@
     "glob": "^11.0.3"
   },
   "dependencies": {
-    "commander": "^14.0.0"
+    "commander": "^14.0.0",
+    "ethers": "^6.13.0"
   }
 }
