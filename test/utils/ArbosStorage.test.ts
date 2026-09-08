@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { ArbosStorage } from "../../typechain-types";
 import { ZeroHash, zeroPadValue, toBeHex, toNumber } from "ethers";
+import { REQUIRED_ARBOS_VERSION } from "../config";
 
 describe("ArbosStorage", function () {
   const ARBOS_ADDRESS = "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf";
@@ -15,7 +16,7 @@ describe("ArbosStorage", function () {
 
       const version = parseInt(storedValue, 16);
 
-      expect(version).to.equal(32);
+      expect(version).to.equal(REQUIRED_ARBOS_VERSION);
     });
   });
 
