@@ -35,8 +35,9 @@ export enum ArbPrecompile {
   ArbOwner = "0x0000000000000000000000000000000000000070",
   ArbWasm = "0x0000000000000000000000000000000000000071",
   ArbWasmCache = "0x0000000000000000000000000000000000000072",
+  ArbNativeTokenManager = "0x0000000000000000000000000000000000000073",
+  ArbFilteredTransactionsManager = "0x0000000000000000000000000000000000000074",
   NodeInterface = "0x00000000000000000000000000000000000000c8",
-  ArbNativeTokenManager = "0x00000000000000000000000000000000000000ce",
   ArbDebug = "0x00000000000000000000000000000000000000ff"
 }
 
@@ -131,8 +132,9 @@ async function deployNitroMocksBase(
       case ArbPrecompile.ArbStatistics:
       case ArbPrecompile.ArbWasm:
       case ArbPrecompile.ArbWasmCache:
-      case ArbPrecompile.NodeInterface:
       case ArbPrecompile.ArbNativeTokenManager:
+      case ArbPrecompile.ArbFilteredTransactionsManager:
+      case ArbPrecompile.NodeInterface:
       case ArbPrecompile.ArbDebug:
         throw new Error(`Precompile ${precompileAddress} is not yet implemented`);
       default:
