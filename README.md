@@ -122,10 +122,10 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 #### Not Implemented
 - ArbInfo (`0x65`) ❌
 - ArbAddressTable (`0x66`) ❌
-- ArbAggregator (`0x67`) ❌
-- ArbRetryableTx (`0x68`) ❌
-- ArbStatistics (`0x6a`) ❌
-- ArbFunctionTable (`0x6d`) ❌
+- ArbFunctionTable (`0x68`) ❌
+- ArbAggregator (`0x6d`) ❌
+- ArbRetryableTx (`0x6e`) ❌
+- ArbStatistics (`0x6f`) ❌
 - ArbWasm (`0x71`) ❌
 - ArbWasmCache (`0x72`) ❌
 
