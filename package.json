@@ -30,7 +30,8 @@
   },
   "files": [
     "dist/",
-    "typechain-types/"
+    "typechain-types/",
+    "artifacts/contracts/"
   ],
   "keywords": [
     "arbitrum",
