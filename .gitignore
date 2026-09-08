@@ -52,6 +52,7 @@ TODO.md
 
 # Development dependencies
 nitro/
+nitro-testnode/
 
 # Hardhat/Foundry temporary files
 deployments/
