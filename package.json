@@ -11,7 +11,7 @@
     "build": "hardhat compile && hardhat typechain",
     "build:typechain": "tsc -p build-config/tsconfig.typechain.json",
     "build:cli": "tsc -p build-config/tsconfig.cli.json && mv dist/deployer/* dist/ && rm -rf dist/deployer dist/typechain-types dist/test",
-    "check:no-constructors": "hardhat compile && ts-node scripts/check-no-constructors.ts",
+    "check:no-constructors": "npm run clean && hardhat compile && ts-node scripts/check-no-constructors.ts",
     "clean": "hardhat clean && rm -rf artifacts typechain-types cache dist",
     "format": "npm run format:sol && npm run format:ts",
     "format:check": "npm run format:sol:check && npm run format:ts:check",
