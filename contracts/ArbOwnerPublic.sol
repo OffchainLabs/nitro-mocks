@@ -35,4 +35,48 @@ contract ArbOwnerPublic is IArbOwnerPublic {
     function getScheduledUpgrade() external view override returns (uint64, uint64) {
         return ArbosState.getScheduledUpgrade();
     }
+
+    function getNativeTokenManagementFrom() external view override returns (uint64) {
+        revert("Not implemented");
+    }
+
+    function isNativeTokenOwner(address) external view override returns (bool) {
+        revert("Not implemented");
+    }
+
+    function getAllNativeTokenOwners() external view override returns (address[] memory) {
+        revert("Not implemented");
+    }
+
+    function getTransactionFilteringFrom() external view override returns (uint64) {
+        revert("Not implemented");
+    }
+
+    function isTransactionFilterer(address) external view override returns (bool) {
+        revert("Not implemented");
+    }
+
+    function getAllTransactionFilterers() external view override returns (address[] memory) {
+        revert("Not implemented");
+    }
+
+    function getFilteredFundsRecipient() external view override returns (address) {
+        revert("Not implemented");
+    }
+
+    function getParentGasFloorPerToken() external view override returns (uint64) {
+        revert("Not implemented");
+    }
+
+    function isCalldataPriceIncreaseEnabled() external view override returns (bool) {
+        revert("Not implemented");
+    }
+
+    function getCollectTips() external view override returns (bool) {
+        revert("Not implemented");
+    }
+
+    function getMaxStylusContractFragments() external view override returns (uint8) {
+        revert("Not implemented");
+    }
 }

@@ -64,6 +64,11 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | getL1PricingFundsDueForRewards | ✅ |
 | getL1PricingUnitsSinceUpdate | ✅ |
 | getLastL1PricingSurplus | ✅ |
+| getMaxTxGasLimit | ❌ |
+| getMaxBlockGasLimit | ❌ |
+| getGasPricingConstraints | ❌ |
+| getMultiGasPricingConstraints | ❌ |
+| getMultiGasBaseFee | ❌ |
 
 #### ArbOwner (`0x70`)
 | Function | Implemented |
@@ -107,6 +112,27 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | setWasmBlockCacheSize | ❌ |
 | addWasmCacheManager | ❌ |
 | removeWasmCacheManager | ❌ |
+| setNativeTokenManagementFrom | ❌ |
+| addNativeTokenOwner | ❌ |
+| removeNativeTokenOwner | ❌ |
+| isNativeTokenOwner | ❌ |
+| getAllNativeTokenOwners | ❌ |
+| setTransactionFilteringFrom | ❌ |
+| addTransactionFilterer | ❌ |
+| removeTransactionFilterer | ❌ |
+| isTransactionFilterer | ❌ |
+| getAllTransactionFilterers | ❌ |
+| setFilteredFundsRecipient | ❌ |
+| getFilteredFundsRecipient | ❌ |
+| setMaxBlockGasLimit | ❌ |
+| setParentGasFloorPerToken | ❌ |
+| setCalldataPriceIncrease | ❌ |
+| setGasBacklog | ❌ |
+| setGasPricingConstraints | ❌ |
+| setMultiGasPricingConstraints | ❌ |
+| setCollectTips | ❌ |
+| setMaxStylusContractFragments | ❌ |
+| setWasmActivationGas | ❌ |
 
 #### ArbOwnerPublic (`0x6b`)
 | Function | Implemented |
@@ -118,6 +144,17 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | getBrotliCompressionLevel | ✅ |
 | getScheduledUpgrade | ✅ |
 | rectifyChainOwner | ❌ |
+| getNativeTokenManagementFrom | ❌ |
+| isNativeTokenOwner | ❌ |
+| getAllNativeTokenOwners | ❌ |
+| getTransactionFilteringFrom | ❌ |
+| isTransactionFilterer | ❌ |
+| getAllTransactionFilterers | ❌ |
+| getFilteredFundsRecipient | ❌ |
+| getParentGasFloorPerToken | ❌ |
+| isCalldataPriceIncreaseEnabled | ❌ |
+| getCollectTips | ❌ |
+| getMaxStylusContractFragments | ❌ |
 
 #### Not Implemented
 - ArbInfo (`0x65`) ❌
@@ -128,6 +165,8 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 - ArbStatistics (`0x6f`) ❌
 - ArbWasm (`0x71`) ❌
 - ArbWasmCache (`0x72`) ❌
+- ArbNativeTokenManager (`0x73`) ❌
+- ArbFilteredTransactionsManager (`0x74`) ❌
 
 ## Development
 
@@ -156,6 +195,8 @@ The current test suite does not measure coverage of the Go implementations that 
 Until Go code coverage is implemented, the mocks may not handle all edge cases identically to native precompiles. Users should be aware that while the mocks work for common use cases, they should not be relied upon for perfect behavioral parity in all scenarios.
 
 ## Usage
+
+ArbOwner exceeds the EIP-170 code size limit. Hardhat needs `allowUnlimitedContractSize: true` on the `hardhat` network in `hardhat.config`; Anvil needs `--disable-code-size-limit`.
 
 ### 1. Hardhat Tests
 
@@ -246,7 +287,7 @@ Deploy to Anvil nodes using the standalone CLI.
 
 ```bash
 # Start Anvil
-anvil
+anvil --disable-code-size-limit
 
 # In another terminal, deploy all precompiles
 nitro-mocks-deploy --rpc-url http://localhost:8545

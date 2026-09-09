@@ -30,7 +30,8 @@ const config: HardhatUserConfig = {
         url: getTestNodeRpcUrl()
       },
       chainId: 412346,
-      allowBlocksWithSameTimestamp: true
+      allowBlocksWithSameTimestamp: true,
+      allowUnlimitedContractSize: true
     },
     localhost: {
       url: "http://127.0.0.1:8770"
