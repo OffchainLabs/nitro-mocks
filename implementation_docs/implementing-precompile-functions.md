@@ -31,6 +31,7 @@ This creates a challenge for developers:
    - Start in `nitro/precompiles/Arb[Contract].go`
    - Follow function calls to understand the complete flow
    - Pay attention to error messages - they must be matched exactly
+   - Check the method's ArbOS version gate in `nitro/precompiles/precompile.go` (`methodsByName[...].arbosVersion`). The testnode from `npm run testnode` runs ArbOS 60.
 
 2. **Trace storage patterns**
    - Identify which storage subsystems are used
