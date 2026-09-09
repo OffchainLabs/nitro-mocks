@@ -224,6 +224,17 @@ describe("MyContract", function () {
 });
 ```
 
+Deployment sets the mock bytecode directly and mines no blocks. If you fork a chain Hardhat does not know (e.g. a local testnode), give it a hardfork history so calls at the fork block work:
+
+```typescript
+networks: {
+  hardhat: {
+    forking: { url: "http://localhost:8547" },
+    chains: { 412346: { hardforkHistory: { shanghai: 0 } } }
+  }
+}
+```
+
 ### 2. Hardhat Task
 
 Deploy to a standalone Hardhat node using the built-in task.

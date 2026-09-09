@@ -9,8 +9,6 @@ import {L1PricingState, L1PricingStorage} from "./libraries/L1PricingState.sol";
 import {L2PricingState, L2PricingStorage} from "./libraries/L2PricingState.sol";
 
 contract ArbOwner is IArbOwner {
-    error NotImplemented();
-
     using L1PricingState for L1PricingStorage;
     using L2PricingState for L2PricingStorage;
     using AddressSet for AddressSetStorage;
@@ -148,7 +146,7 @@ contract ArbOwner is IArbOwner {
     }
 
     function setChainConfig(string calldata) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function getNetworkFeeAccount() external view override onlyChainOwner returns (address) {
@@ -165,138 +163,138 @@ contract ArbOwner is IArbOwner {
     }
 
     function setInkPrice(uint32) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmMaxStackDepth(uint32) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmFreePages(uint16) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmPageGas(uint16) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmPageLimit(uint16) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmMaxSize(uint32) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmMinInitGas(uint8, uint16) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmInitCostScalar(uint64) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmExpiryDays(uint16) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmKeepaliveDays(uint16) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmBlockCacheSize(uint16) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function addWasmCacheManager(address) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function removeWasmCacheManager(address) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setNativeTokenManagementFrom(uint64) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setTransactionFilteringFrom(uint64) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function addNativeTokenOwner(address) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function removeNativeTokenOwner(address) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function isNativeTokenOwner(address) external view override returns (bool) {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function getAllNativeTokenOwners() external view override returns (address[] memory) {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function addTransactionFilterer(address) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function removeTransactionFilterer(address) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function isTransactionFilterer(address) external view override returns (bool) {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function getAllTransactionFilterers() external view override returns (address[] memory) {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setFilteredFundsRecipient(address) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function getFilteredFundsRecipient() external view override returns (address) {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setMaxBlockGasLimit(uint64) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setParentGasFloorPerToken(uint64) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setCalldataPriceIncrease(bool) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setGasBacklog(uint64) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setGasPricingConstraints(uint64[3][] calldata) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setMultiGasPricingConstraints(ArbMultiGasConstraintsTypes.ResourceConstraint[] calldata) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setCollectTips(bool) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setMaxStylusContractFragments(uint8) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 
     function setWasmActivationGas(uint64) external override {
-        revert NotImplemented();
+        revert("Not implemented");
     }
 }
