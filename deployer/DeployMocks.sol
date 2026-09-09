@@ -9,7 +9,6 @@ import "../contracts/ArbOwnerPublic.sol";
 
 interface IVm {
     function etch(address target, bytes calldata bytecode) external;
-    function getDeployedCode(string calldata artifactPath) external view returns (bytes memory);
 }
 
 library DeployMocks {
@@ -48,21 +47,25 @@ library DeployMocks {
         deployNitroMocks(precompiles);
     }
     
-    // ArbOwner exceeds the EIP-170 size limit and cannot be deployed, so runtime bytecode comes from the artifacts.
     function deployNitroMocks(address[] memory precompiles) internal {
-        vm.etch(ARBOS_STORAGE_ADDRESS, vm.getDeployedCode("contracts/ArbosStorage.sol:ArbosStorage"));
-
+        ArbosStorage arbosStorage = new ArbosStorage();
+        vm.etch(ARBOS_STORAGE_ADDRESS, address(arbosStorage).code);
+        
         for (uint256 i = 0; i < precompiles.length; i++) {
             address precompileAddress = precompiles[i];
-
+            
             if (precompileAddress == ARB_SYS) {
-                vm.etch(precompileAddress, vm.getDeployedCode("contracts/ArbSys.sol:ArbSys"));
+                ArbSys arbSys = new ArbSys();
+                vm.etch(precompileAddress, address(arbSys).code);
             } else if (precompileAddress == ARB_GAS_INFO) {
-                vm.etch(precompileAddress, vm.getDeployedCode("contracts/ArbGasInfo.sol:ArbGasInfo"));
+                ArbGasInfo arbGasInfo = new ArbGasInfo();
+                vm.etch(precompileAddress, address(arbGasInfo).code);
             } else if (precompileAddress == ARB_OWNER) {
-                vm.etch(precompileAddress, vm.getDeployedCode("contracts/ArbOwner.sol:ArbOwner"));
+                ArbOwner arbOwner = new ArbOwner();
+                vm.etch(precompileAddress, address(arbOwner).code);
             } else if (precompileAddress == ARB_OWNER_PUBLIC) {
-                vm.etch(precompileAddress, vm.getDeployedCode("contracts/ArbOwnerPublic.sol:ArbOwnerPublic"));
+                ArbOwnerPublic arbOwnerPublic = new ArbOwnerPublic();
+                vm.etch(precompileAddress, address(arbOwnerPublic).code);
             } else {
                 revert("Precompile not yet implemented");
             }
