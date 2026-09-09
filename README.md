@@ -172,8 +172,6 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 
 After cloning this repository, run `npm run setup:dev` to clone the Nitro source code needed for development.
 
-Mock bytecode is installed with `setCode`, so constructors never run and immutables are never set. `npm run check:no-constructors` fails if any contract declares either; CI runs it on every PR.
-
 ## Testing & Verification
 
 This project uses differential testing to ensure the mocks behave identically to Arbitrum's native precompiles. 
@@ -222,17 +220,6 @@ describe("MyContract", function () {
     const blockNumber = await arbSys.arbBlockNumber();
   });
 });
-```
-
-Deployment sets the mock bytecode directly and mines no blocks. If you fork a chain Hardhat does not know (e.g. a local testnode), give it a hardfork history so calls at the fork block work:
-
-```typescript
-networks: {
-  hardhat: {
-    forking: { url: "http://localhost:8547" },
-    chains: { 412346: { hardforkHistory: { shanghai: 0 } } }
-  }
-}
 ```
 
 ### 2. Hardhat Task

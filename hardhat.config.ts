@@ -30,11 +30,6 @@ const config: HardhatUserConfig = {
         url: getTestNodeRpcUrl()
       },
       chainId: 412346,
-      // Hardhat needs a hardfork history to run calls at the fork block on unknown chains.
-      // Pre-cancun, like Hardhat's built-in Arbitrum entries, since Arbitrum headers have no blob gas fields.
-      chains: {
-        412346: { hardforkHistory: { shanghai: 0 } }
-      },
       allowBlocksWithSameTimestamp: true
     },
     localhost: {
