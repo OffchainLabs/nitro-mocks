@@ -1,6 +1,4 @@
-import { readFileSync } from "fs";
-import { join } from "path";
-import { BaseContract, JsonRpcProvider, Signer } from "ethers";
+import { ContractFactory, BaseContract, JsonRpcProvider, Signer } from "ethers";
 import {
   ArbosStorage__factory,
   ArbSys__factory,
@@ -68,20 +66,18 @@ const IMPLEMENTED_PRECOMPILES = [
   ArbPrecompile.ArbOwnerPublic
 ];
 
-// ArbOwner exceeds the EIP-170 size limit and cannot be deployed, so runtime bytecode comes from the artifacts.
-function readDeployedBytecode(contractName: string): string {
-  const artifactPath = join(__dirname, "..", "artifacts", "contracts", `${contractName}.sol`, `${contractName}.json`);
-  return JSON.parse(readFileSync(artifactPath, "utf8")).deployedBytecode;
-}
-
-async function setCodeAt(
-  provider: JsonRpcProvider,
+async function deployContractAt(
+  factory: ContractFactory, 
   address: string,
-  contractName: string,
+  provider: JsonRpcProvider,
   setCodeMethod: 'hardhat' | 'anvil'
 ): Promise<void> {
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+  const bytecode = await provider.send("eth_getCode", [await contract.getAddress(), "latest"]);
+  
   const method = setCodeMethod === 'anvil' ? 'anvil_setCode' : 'hardhat_setCode';
-  await provider.send(method, [address, readDeployedBytecode(contractName)]);
+  await provider.send(method, [address, bytecode]);
 }
 
 async function deployNitroMocksBase(
@@ -93,29 +89,38 @@ async function deployNitroMocksBase(
   
   const toDeploy = precompiles || IMPLEMENTED_PRECOMPILES;
 
-  await setCodeAt(provider, ARBOS_STORAGE_ADDRESS, "ArbosStorage", setCodeMethod);
-  const arbosStorage = ArbosStorage__factory.connect(ARBOS_STORAGE_ADDRESS, signer);
+  const arbosStorageFactory = new ArbosStorage__factory(signer);
+  await deployContractAt(arbosStorageFactory, ARBOS_STORAGE_ADDRESS, provider, setCodeMethod);
+  const arbosStorage = arbosStorageFactory.attach(ARBOS_STORAGE_ADDRESS) as ArbosStorage;
 
   const deployed: DeployedContracts = { arbosStorage };
 
   for (const precompileAddress of toDeploy) {
     switch (precompileAddress) {
-      case ArbPrecompile.ArbSys:
-        await setCodeAt(provider, precompileAddress, "ArbSys", setCodeMethod);
-        deployed.arbSys = ArbSys__factory.connect(precompileAddress, signer);
+      case ArbPrecompile.ArbSys: {
+        const factory = new ArbSys__factory(signer);
+        await deployContractAt(factory, precompileAddress, provider, setCodeMethod);
+        deployed.arbSys = factory.attach(precompileAddress) as ArbSys;
         break;
-      case ArbPrecompile.ArbGasInfo:
-        await setCodeAt(provider, precompileAddress, "ArbGasInfo", setCodeMethod);
-        deployed.arbGasInfo = ArbGasInfo__factory.connect(precompileAddress, signer);
+      }
+      case ArbPrecompile.ArbGasInfo: {
+        const factory = new ArbGasInfo__factory(signer);
+        await deployContractAt(factory, precompileAddress, provider, setCodeMethod);
+        deployed.arbGasInfo = factory.attach(precompileAddress) as ArbGasInfo;
         break;
-      case ArbPrecompile.ArbOwner:
-        await setCodeAt(provider, precompileAddress, "ArbOwner", setCodeMethod);
-        deployed.arbOwner = ArbOwner__factory.connect(precompileAddress, signer);
+      }
+      case ArbPrecompile.ArbOwner: {
+        const factory = new ArbOwner__factory(signer);
+        await deployContractAt(factory, precompileAddress, provider, setCodeMethod);
+        deployed.arbOwner = factory.attach(precompileAddress) as ArbOwner;
         break;
-      case ArbPrecompile.ArbOwnerPublic:
-        await setCodeAt(provider, precompileAddress, "ArbOwnerPublic", setCodeMethod);
-        deployed.arbOwnerPublic = ArbOwnerPublic__factory.connect(precompileAddress, signer);
+      }
+      case ArbPrecompile.ArbOwnerPublic: {
+        const factory = new ArbOwnerPublic__factory(signer);
+        await deployContractAt(factory, precompileAddress, provider, setCodeMethod);
+        deployed.arbOwnerPublic = factory.attach(precompileAddress) as ArbOwnerPublic;
         break;
+      }
       case ArbPrecompile.ArbInfo:
       case ArbPrecompile.ArbAddressTable:
       case ArbPrecompile.ArbBLS:

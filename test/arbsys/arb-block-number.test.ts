@@ -13,7 +13,23 @@ describe("ArbSys.arbBlockNumber", function () {
 
   it("should behave equivalently from all standard addresses", async function () {
     await expectEquivalentCallFromMultipleAddresses(ArbSys__factory, ArbPrecompile.ArbSys, "arbBlockNumber", [], {
-      storageAccess: storageAccessComparerExcludingVersion
+      storageAccess: storageAccessComparerExcludingVersion,
+      result: (mockResult: any, underlyingResult: any) => {
+        // The fork starts at the same block as the underlying provider,
+        // but each deployAndSetCode call mines a new block on the fork.
+        // Since we called deployAndSetCode twice in beforeEach (for ArbosStorage and ArbSys),
+        // the mock should be exactly 2 blocks ahead of the underlying.
+        if (typeof mockResult !== "bigint" || typeof underlyingResult !== "bigint") {
+          throw new Error(
+            `Expected bigint results, got mock=${typeof mockResult}, underlying=${typeof underlyingResult}`
+          );
+        }
+        if (mockResult !== underlyingResult + 2n) {
+          throw new Error(
+            `Expected mock block to be underlying + 2, got mock=${mockResult}, underlying=${underlyingResult}`
+          );
+        }
+      }
     });
   });
 });
