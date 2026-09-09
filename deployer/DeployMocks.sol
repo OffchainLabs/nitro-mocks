@@ -9,6 +9,7 @@ import "../contracts/ArbOwnerPublic.sol";
 
 interface IVm {
     function etch(address target, bytes calldata bytecode) external;
+    function getDeployedCode(string calldata artifactPath) external view returns (bytes memory);
 }
 
 library DeployMocks {
@@ -47,25 +48,21 @@ library DeployMocks {
         deployNitroMocks(precompiles);
     }
     
+    // ArbOwner exceeds the EIP-170 size limit and cannot be deployed, so runtime bytecode comes from the artifacts.
     function deployNitroMocks(address[] memory precompiles) internal {
-        ArbosStorage arbosStorage = new ArbosStorage();
-        vm.etch(ARBOS_STORAGE_ADDRESS, address(arbosStorage).code);
-        
+        vm.etch(ARBOS_STORAGE_ADDRESS, vm.getDeployedCode("contracts/ArbosStorage.sol:ArbosStorage"));
+
         for (uint256 i = 0; i < precompiles.length; i++) {
             address precompileAddress = precompiles[i];
-            
+
             if (precompileAddress == ARB_SYS) {
-                ArbSys arbSys = new ArbSys();
-                vm.etch(precompileAddress, address(arbSys).code);
+                vm.etch(precompileAddress, vm.getDeployedCode("contracts/ArbSys.sol:ArbSys"));
             } else if (precompileAddress == ARB_GAS_INFO) {
-                ArbGasInfo arbGasInfo = new ArbGasInfo();
-                vm.etch(precompileAddress, address(arbGasInfo).code);
+                vm.etch(precompileAddress, vm.getDeployedCode("contracts/ArbGasInfo.sol:ArbGasInfo"));
             } else if (precompileAddress == ARB_OWNER) {
-                ArbOwner arbOwner = new ArbOwner();
-                vm.etch(precompileAddress, address(arbOwner).code);
+                vm.etch(precompileAddress, vm.getDeployedCode("contracts/ArbOwner.sol:ArbOwner"));
             } else if (precompileAddress == ARB_OWNER_PUBLIC) {
-                ArbOwnerPublic arbOwnerPublic = new ArbOwnerPublic();
-                vm.etch(precompileAddress, address(arbOwnerPublic).code);
+                vm.etch(precompileAddress, vm.getDeployedCode("contracts/ArbOwnerPublic.sol:ArbOwnerPublic"));
             } else {
                 revert("Precompile not yet implemented");
             }
