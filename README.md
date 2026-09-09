@@ -198,6 +198,8 @@ Until Go code coverage is implemented, the mocks may not handle all edge cases i
 
 ## Usage
 
+ArbOwner exceeds the EIP-170 code size limit. Hardhat needs `allowUnlimitedContractSize: true` on the `hardhat` network in `hardhat.config`; Anvil needs `--disable-code-size-limit`.
+
 ### 1. Hardhat Tests
 
 Deploy Arbitrum precompile mocks directly in your test suite.
@@ -287,7 +289,7 @@ Deploy to Anvil nodes using the standalone CLI.
 
 ```bash
 # Start Anvil
-anvil
+anvil --disable-code-size-limit
 
 # In another terminal, deploy all precompiles
 nitro-mocks-deploy --rpc-url http://localhost:8545
