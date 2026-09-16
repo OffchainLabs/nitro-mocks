@@ -32,7 +32,7 @@ while true; do
   fi
   echo "testnode running ArbOS $version, scheduling upgrade to $REQUIRED_ARBOS_VERSION"
   cast send --rpc-url $RPC --private-key $OWNER_KEY $ARB_OWNER \
-    "scheduleArbOSUpgrade(uint64,uint64)" $REQUIRED_ARBOS_VERSION 0 >/dev/null 2>&1; then
+    "scheduleArbOSUpgrade(uint64,uint64)" $REQUIRED_ARBOS_VERSION 0 >/dev/null 2>&1
   # The upgrade applies on the next block; a transfer forces one.
   cast send --rpc-url $RPC --private-key $OWNER_KEY 0x0000000000000000000000000000000000000000 >/dev/null 2>&1 || true
 done
