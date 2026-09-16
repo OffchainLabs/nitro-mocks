@@ -21,6 +21,11 @@ library AddressSet {
         return value != bytes32(0);
     }
 
+    function size(Storage memory store) internal view returns (uint64) {
+        ArbosStorage arbosStorage = ArbosStorage(store.addr);
+        return arbosStorage.getUint64(store.key, 0);
+    }
+
     function allMembers(Storage memory store, uint64 maxMembers) internal view returns (address[] memory) {
         ArbosStorage arbosStorage = ArbosStorage(store.addr);
 
@@ -92,6 +97,10 @@ library AddressSet {
     // Wrapper functions for AddressSetStorage
     function isMember(AddressSetStorage memory self, address addr) internal view returns (bool) {
         return isMember(self.store, addr);
+    }
+
+    function size(AddressSetStorage memory self) internal view returns (uint64) {
+        return size(self.store);
     }
 
     function allMembers(AddressSetStorage memory self, uint64 maxMembers) internal view returns (address[] memory) {

@@ -36,3 +36,7 @@ while true; do
   # The upgrade applies on the next block; a transfer forces one.
   cast send --rpc-url $RPC --private-key $OWNER_KEY 0x0000000000000000000000000000000000000000 >/dev/null 2>&1 || true
 done
+
+# Clear the now-applied scheduled upgrade so getScheduledUpgrade reads (0, 0).
+cast send --rpc-url $RPC --private-key $OWNER_KEY $ARB_OWNER \
+  "scheduleArbOSUpgrade(uint64,uint64)" 0 0 >/dev/null 2>&1
