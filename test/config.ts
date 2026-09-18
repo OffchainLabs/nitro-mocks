@@ -6,3 +6,5 @@
 export function getTestNodeRpcUrl(): string {
   return process.env.IS_DOCKER ? "http://host.docker.internal:8547" : "http://localhost:8547";
 }
+
+export const REQUIRED_ARBOS_VERSION = 60;
