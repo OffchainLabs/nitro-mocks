@@ -124,13 +124,13 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | getAllTransactionFilterers | ✅ |
 | setFilteredFundsRecipient | ✅ |
 | getFilteredFundsRecipient | ✅ |
-| setMaxBlockGasLimit | ❌ |
-| setParentGasFloorPerToken | ❌ |
-| setCalldataPriceIncrease | ❌ |
-| setGasBacklog | ❌ |
-| setGasPricingConstraints | ❌ |
-| setMultiGasPricingConstraints | ❌ |
-| setCollectTips | ❌ |
+| setMaxBlockGasLimit | ✅ |
+| setParentGasFloorPerToken | ✅ |
+| setCalldataPriceIncrease | ✅ |
+| setGasBacklog | ✅ |
+| setGasPricingConstraints | ✅ |
+| setMultiGasPricingConstraints | ✅ |
+| setCollectTips | ✅ |
 | setMaxStylusContractFragments | ❌ |
 | setWasmActivationGas | ❌ |
 

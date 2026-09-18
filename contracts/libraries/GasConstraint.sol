@@ -24,4 +24,15 @@ library GasConstraint {
     function backlog(GasConstraintStorage memory self) internal view returns (uint64) {
         return ArbosStorage(self.store.addr).getUint64(self.store.key, BACKLOG_OFFSET);
     }
+
+    function set(GasConstraintStorage memory self, uint64 target_, uint64 adjustmentWindow_, uint64 backlog_) internal {
+        ArbosStorage arbosStorage = ArbosStorage(self.store.addr);
+        arbosStorage.setUint64(self.store.key, TARGET_OFFSET, target_);
+        arbosStorage.setUint64(self.store.key, ADJUSTMENT_WINDOW_OFFSET, adjustmentWindow_);
+        arbosStorage.setUint64(self.store.key, BACKLOG_OFFSET, backlog_);
+    }
+
+    function clear(GasConstraintStorage memory self) internal {
+        set(self, 0, 0, 0);
+    }
 }

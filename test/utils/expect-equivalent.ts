@@ -458,6 +458,16 @@ export function compareEvents(
   }
 }
 
+/**
+ * gasLimit is needed where ArbOS discards a storage error rather than propagating it: the
+ * precompile still succeeds, so eth_estimateGas settles on a limit too small for ArbOS to do
+ * the discarded work, and the native side then skips storage accesses the mock cannot skip.
+ */
+export interface TxOverrides {
+  value?: bigint;
+  gasLimit?: bigint;
+}
+
 export interface TxExecutionResult {
   staticResult?: unknown;
   staticReverted: boolean;
@@ -484,7 +494,7 @@ export async function executeTx<TContract extends BaseContract>(
   args: unknown[] = [],
   from: string,
   provider: Provider,
-  overrides?: { value?: bigint }
+  overrides?: TxOverrides
 ): Promise<TxExecutionResult> {
   const walletIndex = getWalletIndexFromAddress(from);
   if (walletIndex === -1) {
@@ -492,6 +502,7 @@ export async function executeTx<TContract extends BaseContract>(
   }
   const signer = getWalletFromMnemonic(walletIndex, provider);
   const contract = ContractFactory.connect(address, signer);
+  const callArgs = overrides ? [...args, overrides] : args;
 
   let staticResult: unknown;
   let staticReverted = false;
@@ -499,11 +510,7 @@ export async function executeTx<TContract extends BaseContract>(
 
   try {
     const fn = contract.getFunction(method as string);
-    if (overrides?.value) {
-      staticResult = await fn.staticCall(...args, { value: overrides.value });
-    } else {
-      staticResult = await fn.staticCall(...args);
-    }
+    staticResult = await fn.staticCall(...callArgs);
   } catch (error) {
     staticReverted = true;
     staticError = error instanceof Error ? error : new Error(String(error));
@@ -516,11 +523,7 @@ export async function executeTx<TContract extends BaseContract>(
 
   try {
     const fn = contract.getFunction(method as string);
-    if (overrides?.value) {
-      tx = await fn.send(...args, { value: overrides.value });
-    } else {
-      tx = await fn.send(...args);
-    }
+    tx = await fn.send(...callArgs);
     const txReceipt = await tx!.wait();
     receipt = txReceipt || undefined;
   } catch (error) {
@@ -701,7 +704,7 @@ export async function expectEquivalentTx<TContract extends BaseContract>(
   address: string,
   method: ContractFunctionNames<TContract>,
   args: unknown[] = [],
-  options?: EquivalenceOptions & { value?: bigint }
+  options?: EquivalenceOptions & TxOverrides
 ): Promise<void> {
   if (!options?.from) {
     throw new Error("From address is required for transactions");
@@ -710,11 +713,14 @@ export async function expectEquivalentTx<TContract extends BaseContract>(
   const forkProvider = ethers.provider;
   const underlyingProvider = getUnderlyingProvider();
 
-  const overrides = options?.value ? { value: options.value } : undefined;
+  const overrides: TxOverrides = {};
+  if (options.value !== undefined) overrides.value = options.value;
+  if (options.gasLimit !== undefined) overrides.gasLimit = options.gasLimit;
+  const txOverrides = Object.keys(overrides).length > 0 ? overrides : undefined;
 
   const [mockResult, underlyingResult] = await Promise.all([
-    executeTx(ContractFactory, address, method, args, options.from, forkProvider, overrides),
-    executeTx(ContractFactory, address, method, args, options.from, underlyingProvider, overrides)
+    executeTx(ContractFactory, address, method, args, options.from, forkProvider, txOverrides),
+    executeTx(ContractFactory, address, method, args, options.from, underlyingProvider, txOverrides)
   ]);
 
   compareTxResults(mockResult, underlyingResult, ContractFactory, address, method, args, options);
@@ -750,7 +756,7 @@ export async function expectEquivalentTxFromMultipleAddresses<TContract extends 
   address: string,
   method: ContractFunctionNames<TContract>,
   args: unknown[] = [],
-  options?: EquivalenceOptions & { value?: bigint }
+  options?: EquivalenceOptions & TxOverrides
 ): Promise<void> {
   const testAddresses = getFromAddresses();
 
@@ -787,7 +793,7 @@ export async function expectEquivalentTxFromChainOwner<TContract extends BaseCon
   address: string,
   method: ContractFunctionNames<TContract>,
   args: unknown[] = [],
-  options?: EquivalenceOptions
+  options?: EquivalenceOptions & TxOverrides
 ): Promise<void> {
   const chainOwner = getChainOwner();
   await expectEquivalentTx(ContractFactory, address, method, args, {

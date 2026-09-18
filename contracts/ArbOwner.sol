@@ -5,10 +5,13 @@ import {ArbOwner as IArbOwner} from "../submodules/nitro-precompile-interfaces/A
 import {AddressSet, AddressSetStorage} from "./libraries/AddressSet.sol";
 import {ArbMultiGasConstraintsTypes} from "../submodules/nitro-precompile-interfaces/ArbMultiGasConstraintsTypes.sol";
 import {ArbosState} from "./libraries/ArbosState.sol";
+import {Features, FeaturesStorage} from "./libraries/Features.sol";
 import {L1PricingState, L1PricingStorage} from "./libraries/L1PricingState.sol";
 import {L2PricingState, L2PricingStorage} from "./libraries/L2PricingState.sol";
+import {NUM_RESOURCE_KIND} from "./libraries/MultiGasConstraint.sol";
 
 contract ArbOwner is IArbOwner {
+    using Features for FeaturesStorage;
     using L1PricingState for L1PricingStorage;
     using L2PricingState for L2PricingStorage;
     using AddressSet for AddressSetStorage;
@@ -310,32 +313,82 @@ contract ArbOwner is IArbOwner {
         return ArbosState.filteredFundsRecipient();
     }
 
-    function setMaxBlockGasLimit(uint64) external override {
-        revert("Not implemented");
+    function setMaxBlockGasLimit(uint64 limit) external override onlyChainOwner {
+        ArbosState.l2PricingState().setMaxPerBlockGasLimit(limit);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setParentGasFloorPerToken(uint64) external override {
-        revert("Not implemented");
+    function setParentGasFloorPerToken(uint64 gasFloorPerToken) external override onlyChainOwner {
+        ArbosState.l1PricingState().setParentGasFloorPerToken(gasFloorPerToken);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setCalldataPriceIncrease(bool) external override {
-        revert("Not implemented");
+    function setCalldataPriceIncrease(bool enable) external override onlyChainOwner {
+        ArbosState.features().setCalldataPriceIncrease(enable);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setGasBacklog(uint64) external override {
-        revert("Not implemented");
+    function setGasBacklog(uint64 backlog) external override onlyChainOwner {
+        ArbosState.l2PricingState().setGasBacklog(backlog);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setGasPricingConstraints(uint64[3][] calldata) external override {
-        revert("Not implemented");
+    function setGasPricingConstraints(uint64[3][] calldata constraints) external override onlyChainOwner {
+        L2PricingStorage memory l2PricingState = ArbosState.l2PricingState();
+        l2PricingState.clearGasConstraints();
+
+        for (uint256 i = 0; i < constraints.length; i++) {
+            require(constraints[i][0] != 0 && constraints[i][1] != 0, "invalid constraint");
+            l2PricingState.addGasConstraint(constraints[i][0], constraints[i][1], constraints[i][2]);
+        }
+
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setMultiGasPricingConstraints(ArbMultiGasConstraintsTypes.ResourceConstraint[] calldata) external override {
-        revert("Not implemented");
+    function setMultiGasPricingConstraints(ArbMultiGasConstraintsTypes.ResourceConstraint[] calldata constraints)
+        external
+        override
+        onlyChainOwner
+    {
+        L2PricingStorage memory l2PricingState = ArbosState.l2PricingState();
+        l2PricingState.clearMultiGasConstraints();
+
+        for (uint256 i = 0; i < constraints.length; i++) {
+            require(constraints[i].targetPerSec != 0 && constraints[i].adjustmentWindowSecs != 0, "invalid constraint");
+            l2PricingState.addMultiGasConstraint(
+                constraints[i].targetPerSec,
+                constraints[i].adjustmentWindowSecs,
+                constraints[i].backlog,
+                resourceWeights(constraints[i].resources)
+            );
+        }
+
+        uint64[NUM_RESOURCE_KIND] memory exponents = l2PricingState.calcMultiGasConstraintsExponents();
+        for (uint256 kind = 0; kind < NUM_RESOURCE_KIND; kind++) {
+            require(
+                exponents[kind] <= L2PricingState.MAX_PRICING_EXPONENT_BIPS,
+                "calculated exponent exceeds maximum allowed"
+            );
+        }
+
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setCollectTips(bool) external override {
-        revert("Not implemented");
+    function setCollectTips(bool collectTips) external override onlyChainOwner {
+        ArbosState.setCollectTips(collectTips);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
+    }
+
+    function resourceWeights(ArbMultiGasConstraintsTypes.WeightedResource[] calldata resources)
+        private
+        pure
+        returns (uint64[NUM_RESOURCE_KIND] memory weights)
+    {
+        for (uint256 i = 0; i < resources.length; i++) {
+            uint256 kind = uint256(resources[i].resource);
+            require(kind != uint256(ArbMultiGasConstraintsTypes.ResourceKind.Unknown), "invalid resource id");
+            weights[kind] = resources[i].weight;
+        }
     }
 
     function setMaxStylusContractFragments(uint8) external override {

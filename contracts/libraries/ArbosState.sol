@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {ArbosStorage} from "../ArbosStorage.sol";
+import {FeaturesStorage} from "./Features.sol";
 import {L1PricingStorage} from "./L1PricingState.sol";
 import {L2PricingStorage} from "./L2PricingState.sol";
 import {MerkleAccumulatorStorage, MerkleAccumulator} from "./MerkleAccumulator.sol";
@@ -33,6 +34,7 @@ library ArbosState {
     uint256 internal constant NATIVE_TOKEN_ENABLED_TIME_OFFSET = 8;
     uint256 internal constant TRANSACTION_FILTERING_ENABLED_TIME_OFFSET = 9;
     uint256 internal constant FILTERED_FUNDS_RECIPIENT_OFFSET = 10;
+    uint256 internal constant COLLECT_TIPS_OFFSET = 11;
 
     function version() internal view returns (uint64) {
         return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, VERSION_OFFSET);
@@ -78,6 +80,10 @@ library ArbosState {
 
     function setFilteredFundsRecipient(address recipient) internal {
         ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(ROOT_STORAGE_KEY, FILTERED_FUNDS_RECIPIENT_OFFSET, recipient);
+    }
+
+    function setCollectTips(bool collect) internal {
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(ROOT_STORAGE_KEY, COLLECT_TIPS_OFFSET, collect ? 1 : 0);
     }
 
     function brotliCompressionLevel() internal view returns (uint64) {
@@ -126,6 +132,11 @@ library ArbosState {
         bytes memory key =
             ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, TRANSACTION_FILTERER_SUBSTORAGE);
         return AddressSetStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
+    }
+
+    function features() internal pure returns (FeaturesStorage memory) {
+        bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, FEATURES_SUBSTORAGE);
+        return FeaturesStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
 
     function l2PricingState() internal pure returns (L2PricingStorage memory) {
