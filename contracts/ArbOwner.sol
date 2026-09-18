@@ -53,12 +53,13 @@ contract ArbOwner is IArbOwner {
     }
 
     function setMaxTxGasLimit(uint64 limit) external override onlyChainOwner {
-        ArbosState.l2PricingState().setMaxPerBlockGasLimit(limit);
+        ArbosState.l2PricingState().setMaxPerTxGasLimit(limit);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function addChainOwner(address newOwner) external override onlyChainOwner {
         ArbosState.chainOwners().add(newOwner);
+        emit ChainOwnerAdded(newOwner);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
@@ -66,6 +67,7 @@ contract ArbOwner is IArbOwner {
         require(ArbosState.chainOwners().isMember(ownerToRemove), "tried to remove non-owner");
 
         ArbosState.chainOwners().remove(ownerToRemove);
+        emit ChainOwnerRemoved(ownerToRemove);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 

@@ -18,6 +18,7 @@ library L2PricingState {
     uint256 internal constant GAS_BACKLOG_OFFSET = 4;
     uint256 internal constant PRICING_INERTIA_OFFSET = 5;
     uint256 internal constant BACKLOG_TOLERANCE_OFFSET = 6;
+    uint256 internal constant PER_TX_GAS_LIMIT_OFFSET = 7;
 
     function setBaseFeeWei(L2PricingStorage memory self, uint256 priceInWei) internal {
         ArbosStorage(self.store.addr).setUint256(self.store.key, BASE_FEE_WEI_OFFSET, priceInWei);
@@ -33,6 +34,10 @@ library L2PricingState {
 
     function setMaxPerBlockGasLimit(L2PricingStorage memory self, uint64 limit) internal {
         ArbosStorage(self.store.addr).setUint64(self.store.key, PER_BLOCK_GAS_LIMIT_OFFSET, limit);
+    }
+
+    function setMaxPerTxGasLimit(L2PricingStorage memory self, uint64 limit) internal {
+        ArbosStorage(self.store.addr).setUint64(self.store.key, PER_TX_GAS_LIMIT_OFFSET, limit);
     }
 
     function minBaseFeeWei(L2PricingStorage memory self) internal view returns (uint256) {
