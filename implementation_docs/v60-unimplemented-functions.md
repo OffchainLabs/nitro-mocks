@@ -85,6 +85,17 @@ Timestamp plus AddressSet, identical pattern to chainOwners.
 
 The two multi-gas constraint functions are the most work (struct arrays in ArbOS storage, clear-then-write semantics, version gates); everything else is boilerplate get/set.
 
+### Branches the testnode cannot reach
+
+`setFeatureFromTime` only accepts a new enable time at least 7 days out, and the ErrBackward branch then forbids pulling it in. Disabling (timestamp 0) is ungated, so a feature can be scheduled and cleared but never becomes active within a testnode's lifetime.
+
+On the current testnode `transactionFilteringFrom` is 1 and `nativeTokenManagementFrom` is 0, so:
+
+- Transaction filtering: add/remove/set happy paths are tested. ErrDelay, ErrBackward and the not-enabled gate are not.
+- Native token management: only the rejection paths are tested, since `addNativeTokenOwner` requires an enable time that has already passed. The successful add/remove, their events, and the non-zero `setNativeTokenManagementFrom` write are implemented but unverified.
+
+Covering these needs a testnode started with both features enabled at genesis.
+
 ## Not new
 
 The README diff also touched `ArbFunctionTable`, `ArbAggregator`, `ArbRetryableTx`, and `ArbStatistics` rows, but those were address fixes only — they were already unimplemented pre-bump.
