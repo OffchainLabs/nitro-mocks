@@ -8,7 +8,21 @@ fi
 cd nitro-testnode
 git checkout 6ae31d1b5be5fc44abbf6295997fb140bb3dbdd1
 git submodule update --init --recursive
-git checkout -- scripts/config.ts
+git checkout -- scripts/config.ts docker-compose.yaml
+# The sequencer keeps state for the last 128 blocks, but hardhat forks unknown chains at
+# latest-128, so the fork block is pruned as soon as the chain passes 128 blocks.
+git apply <<'EOF'
+--- a/docker-compose.yaml
++++ b/docker-compose.yaml
+@@ -171,6 +171,7 @@ services:
+       - --conf.file=/config/sequencer_config.json
+       - --node.feed.output.enable
+       - --node.feed.output.port=9642
++      - --execution.caching.archive
+       - --http.api=net,web3,eth,txpool,debug,timeboost,auctioneer
+       - --node.seq-coordinator.my-url=http://sequencer:8547
+       - --graphql.enable
+EOF
 # nitro-testnode puts "enable" under address-filter, a key no nitro release accepts.
 git apply <<'EOF'
 --- a/scripts/config.ts
