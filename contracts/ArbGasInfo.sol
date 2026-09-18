@@ -4,12 +4,16 @@ pragma solidity ^0.8.0;
 import {ArbGasInfo as IArbGasInfo} from "../submodules/nitro-precompile-interfaces/ArbGasInfo.sol";
 import {ArbMultiGasConstraintsTypes} from "../submodules/nitro-precompile-interfaces/ArbMultiGasConstraintsTypes.sol";
 import {ArbosState} from "./libraries/ArbosState.sol";
+import {GasConstraint, GasConstraintStorage} from "./libraries/GasConstraint.sol";
 import {L1PricingState, L1PricingStorage} from "./libraries/L1PricingState.sol";
 import {L2PricingState, L2PricingStorage} from "./libraries/L2PricingState.sol";
+import {MultiGasConstraint, MultiGasConstraintStorage, NUM_RESOURCE_KIND} from "./libraries/MultiGasConstraint.sol";
 
 contract ArbGasInfo is IArbGasInfo {
+    using GasConstraint for GasConstraintStorage;
     using L1PricingState for L1PricingStorage;
     using L2PricingState for L2PricingStorage;
+    using MultiGasConstraint for MultiGasConstraintStorage;
 
     uint256 constant private TX_DATA_NON_ZERO_GAS_EIP2028 = 16;
     uint256 constant private ASSUMED_SIMPLE_TX_SIZE = 140;
@@ -159,22 +163,75 @@ contract ArbGasInfo is IArbGasInfo {
     }
 
     function getMaxTxGasLimit() external view override returns (uint256) {
-        revert("Not implemented");
+        return ArbosState.l2PricingState().perTxGasLimit();
     }
 
     function getMaxBlockGasLimit() external view override returns (uint64) {
-        revert("Not implemented");
+        return ArbosState.l2PricingState().perBlockGasLimit();
     }
 
     function getGasPricingConstraints() external view override returns (uint64[3][] memory) {
-        revert("Not implemented");
+        L2PricingStorage memory l2pricing = ArbosState.l2PricingState();
+        uint64 length = l2pricing.gasConstraintsLength();
+
+        uint64[3][] memory constraints = new uint64[3][](length);
+        for (uint64 i = 0; i < length; i++) {
+            GasConstraintStorage memory constraint = l2pricing.openGasConstraintAt(i);
+            constraints[i][0] = constraint.target();
+            constraints[i][1] = constraint.adjustmentWindow();
+            constraints[i][2] = constraint.backlog();
+        }
+        return constraints;
     }
 
-    function getMultiGasPricingConstraints() external view override returns (ArbMultiGasConstraintsTypes.ResourceConstraint[] memory) {
-        revert("Not implemented");
+    function getMultiGasPricingConstraints()
+        external
+        view
+        override
+        returns (ArbMultiGasConstraintsTypes.ResourceConstraint[] memory)
+    {
+        L2PricingStorage memory l2pricing = ArbosState.l2PricingState();
+        uint64 length = l2pricing.multiGasConstraintsLength();
+
+        ArbMultiGasConstraintsTypes.ResourceConstraint[] memory constraints =
+            new ArbMultiGasConstraintsTypes.ResourceConstraint[](length);
+        for (uint64 i = 0; i < length; i++) {
+            MultiGasConstraintStorage memory constraint = l2pricing.openMultiGasConstraintAt(i);
+            constraints[i].targetPerSec = constraint.target();
+            constraints[i].adjustmentWindowSecs = constraint.adjustmentWindow();
+            constraints[i].backlog = constraint.backlog();
+            constraints[i].resources = weightedResources(constraint.getResourceWeights());
+        }
+        return constraints;
     }
 
     function getMultiGasBaseFee() external view override returns (uint256[] memory) {
-        revert("Not implemented");
+        return ArbosState.l2PricingState().getMultiGasBaseFeePerResource();
+    }
+
+    function weightedResources(uint64[NUM_RESOURCE_KIND] memory weights)
+        private
+        pure
+        returns (ArbMultiGasConstraintsTypes.WeightedResource[] memory)
+    {
+        uint256 used = 0;
+        for (uint256 kind = 0; kind < weights.length; kind++) {
+            if (weights[kind] != 0) {
+                used++;
+            }
+        }
+
+        ArbMultiGasConstraintsTypes.WeightedResource[] memory resources =
+            new ArbMultiGasConstraintsTypes.WeightedResource[](used);
+        uint256 next = 0;
+        for (uint256 kind = 0; kind < weights.length; kind++) {
+            if (weights[kind] != 0) {
+                resources[next] = ArbMultiGasConstraintsTypes.WeightedResource(
+                    ArbMultiGasConstraintsTypes.ResourceKind(kind), weights[kind]
+                );
+                next++;
+            }
+        }
+        return resources;
     }
 }

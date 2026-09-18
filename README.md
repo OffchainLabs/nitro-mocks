@@ -64,11 +64,11 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | getL1PricingFundsDueForRewards | ✅ |
 | getL1PricingUnitsSinceUpdate | ✅ |
 | getLastL1PricingSurplus | ✅ |
-| getMaxTxGasLimit | ❌ |
-| getMaxBlockGasLimit | ❌ |
-| getGasPricingConstraints | ❌ |
-| getMultiGasPricingConstraints | ❌ |
-| getMultiGasBaseFee | ❌ |
+| getMaxTxGasLimit | ✅ |
+| getMaxBlockGasLimit | ✅ |
+| getGasPricingConstraints | ✅ |
+| getMultiGasPricingConstraints | ✅ |
+| getMultiGasBaseFee | ✅ |
 
 #### ArbOwner (`0x70`)
 | Function | Implemented |
