@@ -112,11 +112,11 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | setWasmBlockCacheSize | ❌ |
 | addWasmCacheManager | ❌ |
 | removeWasmCacheManager | ❌ |
-| setNativeTokenManagementFrom | ❌ |
-| addNativeTokenOwner | ❌ |
-| removeNativeTokenOwner | ❌ |
-| isNativeTokenOwner | ❌ |
-| getAllNativeTokenOwners | ❌ |
+| setNativeTokenManagementFrom | ✅ |
+| addNativeTokenOwner | ✅ |
+| removeNativeTokenOwner | ✅ |
+| isNativeTokenOwner | ✅ |
+| getAllNativeTokenOwners | ✅ |
 | setTransactionFilteringFrom | ✅ |
 | addTransactionFilterer | ✅ |
 | removeTransactionFilterer | ✅ |

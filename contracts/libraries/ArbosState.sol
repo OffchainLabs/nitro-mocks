@@ -54,6 +54,14 @@ library ArbosState {
         ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(ROOT_STORAGE_KEY, INFRA_FEE_ACCOUNT_OFFSET, account);
     }
 
+    function nativeTokenManagementFromTime() internal view returns (uint64) {
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, NATIVE_TOKEN_ENABLED_TIME_OFFSET);
+    }
+
+    function setNativeTokenManagementFromTime(uint64 timestamp) internal {
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(ROOT_STORAGE_KEY, NATIVE_TOKEN_ENABLED_TIME_OFFSET, timestamp);
+    }
+
     function transactionFilteringFromTime() internal view returns (uint64) {
         return
             ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, TRANSACTION_FILTERING_ENABLED_TIME_OFFSET);

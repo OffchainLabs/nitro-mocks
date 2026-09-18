@@ -20,6 +20,18 @@ contract ArbOwner is IArbOwner {
         _;
     }
 
+    // Callers read the stored time only when the new time is non-zero, matching the Go
+    // setFeatureFromTime, which returns before reading the field when disabling a feature.
+    function requireValidFeatureFromTime(uint64 stored, uint64 timestamp) private view {
+        uint64 minEnableTime = uint64(block.timestamp) + FEATURE_ENABLE_DELAY;
+        if ((stored == 0 || stored > minEnableTime) && timestamp < minEnableTime) {
+            revert("feature must be enabled at least 7 days in the future");
+        }
+        if (stored > block.timestamp && stored <= minEnableTime && timestamp < stored) {
+            revert("feature cannot be updated to a time earlier than the current scheduled enable time");
+        }
+    }
+
     function getAllChainOwners() external view override onlyChainOwner returns (address[] memory) {
         return ArbosState.chainOwners().allMembers(65536);
     }
@@ -218,40 +230,47 @@ contract ArbOwner is IArbOwner {
         revert("Not implemented");
     }
 
-    function setNativeTokenManagementFrom(uint64) external override {
-        revert("Not implemented");
+    function setNativeTokenManagementFrom(uint64 timestamp) external override onlyChainOwner {
+        if (timestamp != 0) {
+            requireValidFeatureFromTime(ArbosState.nativeTokenManagementFromTime(), timestamp);
+        }
+
+        ArbosState.setNativeTokenManagementFromTime(timestamp);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function setTransactionFilteringFrom(uint64 timestamp) external override onlyChainOwner {
         if (timestamp != 0) {
-            uint64 stored = ArbosState.transactionFilteringFromTime();
-            uint64 minEnableTime = uint64(block.timestamp) + FEATURE_ENABLE_DELAY;
-            if ((stored == 0 || stored > minEnableTime) && timestamp < minEnableTime) {
-                revert("feature must be enabled at least 7 days in the future");
-            }
-            if (stored > block.timestamp && stored <= minEnableTime && timestamp < stored) {
-                revert("feature cannot be updated to a time earlier than the current scheduled enable time");
-            }
+            requireValidFeatureFromTime(ArbosState.transactionFilteringFromTime(), timestamp);
         }
 
         ArbosState.setTransactionFilteringFromTime(timestamp);
         emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function addNativeTokenOwner(address) external override {
-        revert("Not implemented");
+    function addNativeTokenOwner(address newOwner) external override onlyChainOwner {
+        uint64 enabledTime = ArbosState.nativeTokenManagementFromTime();
+        require(enabledTime != 0 && enabledTime <= block.timestamp, "native token feature is not enabled yet");
+
+        ArbosState.nativeTokenOwners().add(newOwner);
+        emit NativeTokenOwnerAdded(newOwner);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function removeNativeTokenOwner(address) external override {
-        revert("Not implemented");
+    function removeNativeTokenOwner(address ownerToRemove) external override onlyChainOwner {
+        require(ArbosState.nativeTokenOwners().isMember(ownerToRemove), "tried to remove non native token owner");
+
+        ArbosState.nativeTokenOwners().remove(ownerToRemove);
+        emit NativeTokenOwnerRemoved(ownerToRemove);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function isNativeTokenOwner(address) external view override returns (bool) {
-        revert("Not implemented");
+    function isNativeTokenOwner(address addr) external view override onlyChainOwner returns (bool) {
+        return ArbosState.nativeTokenOwners().isMember(addr);
     }
 
-    function getAllNativeTokenOwners() external view override returns (address[] memory) {
-        revert("Not implemented");
+    function getAllNativeTokenOwners() external view override onlyChainOwner returns (address[] memory) {
+        return ArbosState.nativeTokenOwners().allMembers(65536);
     }
 
     function addTransactionFilterer(address filterer) external override onlyChainOwner {
