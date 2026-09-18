@@ -31,6 +31,8 @@ library ArbosState {
     uint256 internal constant INFRA_FEE_ACCOUNT_OFFSET = 6;
     uint256 internal constant BROTLI_COMPRESSION_LEVEL_OFFSET = 7;
     uint256 internal constant NATIVE_TOKEN_ENABLED_TIME_OFFSET = 8;
+    uint256 internal constant TRANSACTION_FILTERING_ENABLED_TIME_OFFSET = 9;
+    uint256 internal constant FILTERED_FUNDS_RECIPIENT_OFFSET = 10;
 
     function version() internal view returns (uint64) {
         return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, VERSION_OFFSET);
@@ -50,6 +52,24 @@ library ArbosState {
 
     function setInfraFeeAccount(address account) internal {
         ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(ROOT_STORAGE_KEY, INFRA_FEE_ACCOUNT_OFFSET, account);
+    }
+
+    function transactionFilteringFromTime() internal view returns (uint64) {
+        return
+            ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, TRANSACTION_FILTERING_ENABLED_TIME_OFFSET);
+    }
+
+    function setTransactionFilteringFromTime(uint64 timestamp) internal {
+        ArbosStorage(ARBOS_STORAGE_ADDRESS)
+            .setUint64(ROOT_STORAGE_KEY, TRANSACTION_FILTERING_ENABLED_TIME_OFFSET, timestamp);
+    }
+
+    function filteredFundsRecipient() internal view returns (address) {
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getAddr(ROOT_STORAGE_KEY, FILTERED_FUNDS_RECIPIENT_OFFSET);
+    }
+
+    function setFilteredFundsRecipient(address recipient) internal {
+        ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(ROOT_STORAGE_KEY, FILTERED_FUNDS_RECIPIENT_OFFSET, recipient);
     }
 
     function brotliCompressionLevel() internal view returns (uint64) {
@@ -81,6 +101,7 @@ library ArbosState {
     bytes internal constant PROGRAMS_SUBSTORAGE = hex"08";
     bytes internal constant FEATURES_SUBSTORAGE = hex"09";
     bytes internal constant NATIVE_TOKEN_OWNER_SUBSTORAGE = hex"0a";
+    bytes internal constant TRANSACTION_FILTERER_SUBSTORAGE = hex"0b";
 
     function chainOwners() internal pure returns (AddressSetStorage memory) {
         bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, CHAIN_OWNER_SUBSTORAGE);
@@ -90,6 +111,12 @@ library ArbosState {
     function nativeTokenOwners() internal pure returns (AddressSetStorage memory) {
         bytes memory key =
             ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, NATIVE_TOKEN_OWNER_SUBSTORAGE);
+        return AddressSetStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
+    }
+
+    function transactionFilterers() internal pure returns (AddressSetStorage memory) {
+        bytes memory key =
+            ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, TRANSACTION_FILTERER_SUBSTORAGE);
         return AddressSetStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
 

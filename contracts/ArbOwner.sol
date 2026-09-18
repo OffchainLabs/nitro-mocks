@@ -13,6 +13,8 @@ contract ArbOwner is IArbOwner {
     using L2PricingState for L2PricingStorage;
     using AddressSet for AddressSetStorage;
 
+    uint64 internal constant FEATURE_ENABLE_DELAY = 7 * 24 * 60 * 60;
+
     modifier onlyChainOwner() {
         require(ArbosState.chainOwners().isMember(msg.sender), "unauthorized caller to access-controlled method");
         _;
@@ -220,8 +222,20 @@ contract ArbOwner is IArbOwner {
         revert("Not implemented");
     }
 
-    function setTransactionFilteringFrom(uint64) external override {
-        revert("Not implemented");
+    function setTransactionFilteringFrom(uint64 timestamp) external override onlyChainOwner {
+        if (timestamp != 0) {
+            uint64 stored = ArbosState.transactionFilteringFromTime();
+            uint64 minEnableTime = uint64(block.timestamp) + FEATURE_ENABLE_DELAY;
+            if ((stored == 0 || stored > minEnableTime) && timestamp < minEnableTime) {
+                revert("feature must be enabled at least 7 days in the future");
+            }
+            if (stored > block.timestamp && stored <= minEnableTime && timestamp < stored) {
+                revert("feature cannot be updated to a time earlier than the current scheduled enable time");
+            }
+        }
+
+        ArbosState.setTransactionFilteringFromTime(timestamp);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
     function addNativeTokenOwner(address) external override {
@@ -240,28 +254,41 @@ contract ArbOwner is IArbOwner {
         revert("Not implemented");
     }
 
-    function addTransactionFilterer(address) external override {
-        revert("Not implemented");
+    function addTransactionFilterer(address filterer) external override onlyChainOwner {
+        uint64 enabledTime = ArbosState.transactionFilteringFromTime();
+        require(enabledTime != 0 && enabledTime <= block.timestamp, "transaction filtering feature is not enabled yet");
+
+        ArbosState.transactionFilterers().add(filterer);
+        emit TransactionFiltererAdded(filterer);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function removeTransactionFilterer(address) external override {
-        revert("Not implemented");
+    function removeTransactionFilterer(address filterer) external override onlyChainOwner {
+        require(
+            ArbosState.transactionFilterers().isMember(filterer), "tried to remove non existing transaction filterer"
+        );
+
+        ArbosState.transactionFilterers().remove(filterer);
+        emit TransactionFiltererRemoved(filterer);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function isTransactionFilterer(address) external view override returns (bool) {
-        revert("Not implemented");
+    function isTransactionFilterer(address filterer) external view override onlyChainOwner returns (bool) {
+        return ArbosState.transactionFilterers().isMember(filterer);
     }
 
-    function getAllTransactionFilterers() external view override returns (address[] memory) {
-        revert("Not implemented");
+    function getAllTransactionFilterers() external view override onlyChainOwner returns (address[] memory) {
+        return ArbosState.transactionFilterers().allMembers(65536);
     }
 
-    function setFilteredFundsRecipient(address) external override {
-        revert("Not implemented");
+    function setFilteredFundsRecipient(address newRecipient) external override onlyChainOwner {
+        ArbosState.setFilteredFundsRecipient(newRecipient);
+        emit FilteredFundsRecipientSet(newRecipient);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function getFilteredFundsRecipient() external view override returns (address) {
-        revert("Not implemented");
+    function getFilteredFundsRecipient() external view override onlyChainOwner returns (address) {
+        return ArbosState.filteredFundsRecipient();
     }
 
     function setMaxBlockGasLimit(uint64) external override {
