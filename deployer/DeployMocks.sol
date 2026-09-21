@@ -6,6 +6,7 @@ import "../contracts/ArbSys.sol";
 import "../contracts/ArbGasInfo.sol";
 import "../contracts/ArbOwner.sol";
 import "../contracts/ArbOwnerPublic.sol";
+import "../contracts/ArbFilteredTransactionsManager.sol";
 
 interface IVm {
     function etch(address target, bytes calldata bytecode) external;
@@ -15,6 +16,7 @@ library DeployMocks {
     IVm constant vm = IVm(address(uint160(uint256(keccak256("hevm cheat code")))));
     
     address constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
+    address constant FILTERED_TRANSACTIONS_STORAGE_ADDRESS = 0xA4B0500000000000000000000000000000000001;
     
     address constant ARB_SYS = 0x0000000000000000000000000000000000000064;
     address constant ARB_INFO = 0x0000000000000000000000000000000000000065;
@@ -38,11 +40,12 @@ library DeployMocks {
     
     
     function deployNitroMocks() internal {
-        address[] memory precompiles = new address[](4);
+        address[] memory precompiles = new address[](5);
         precompiles[0] = ARB_SYS;
         precompiles[1] = ARB_GAS_INFO;
         precompiles[2] = ARB_OWNER;
         precompiles[3] = ARB_OWNER_PUBLIC;
+        precompiles[4] = ARB_FILTERED_TRANSACTIONS_MANAGER;
         
         deployNitroMocks(precompiles);
     }
@@ -66,6 +69,11 @@ library DeployMocks {
             } else if (precompileAddress == ARB_OWNER_PUBLIC) {
                 ArbOwnerPublic arbOwnerPublic = new ArbOwnerPublic();
                 vm.etch(precompileAddress, address(arbOwnerPublic).code);
+            } else if (precompileAddress == ARB_FILTERED_TRANSACTIONS_MANAGER) {
+                ArbosStorage filteredTransactionsStorage = new ArbosStorage();
+                vm.etch(FILTERED_TRANSACTIONS_STORAGE_ADDRESS, address(filteredTransactionsStorage).code);
+                ArbFilteredTransactionsManager manager = new ArbFilteredTransactionsManager();
+                vm.etch(precompileAddress, address(manager).code);
             } else {
                 revert("Precompile not yet implemented");
             }

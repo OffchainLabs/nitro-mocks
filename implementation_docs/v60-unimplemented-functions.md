@@ -1,6 +1,6 @@
 # v60 Bump: New Unimplemented Functions
 
-Buckets for the ❌ entries added to the README by the v31 → v60 interface bump, based on the nitro Go implementations. Buckets 1-4 match the reasons the pre-bump ❌s were skipped; bucket 5 is work to do.
+Buckets for the ❌ entries added to the README by the v31 → v60 interface bump, based on the nitro Go implementations. Buckets 1-4 match the reasons the pre-bump ❌s were skipped; bucket 5 is implemented.
 
 ## Bucket 1: Impossible in pure Solidity (needs Go/EVM internals)
 
@@ -22,7 +22,7 @@ None. Unlike `setChainConfig`, every new setter has a getter counterpart (or gat
 
 None.
 
-## Bucket 5: Should implement
+## Bucket 5: Implemented
 
 All plain ArbOS storage reads/writes, same patterns as existing code.
 
@@ -79,7 +79,9 @@ Timestamp plus AddressSet, identical pattern to chainOwners.
 
 ### ArbFilteredTransactionsManager (`0x74`), whole contract
 
-`addFilteredTransaction`/`deleteFilteredTransaction`/`isTransactionFiltered` are a raw KV set in a dedicated account (`FilteredTransactionsStateAddress`) gated by the TransactionFilterers set — mockable; only the sequencer-side enforcement is node-level.
+`addFilteredTransaction`/`deleteFilteredTransaction`/`isTransactionFiltered` are a raw KV set in a dedicated account (`FilteredTransactionsStateAddress`, `0xA4B0500000000000000000000000000000000001`) gated by the TransactionFilterers set — mockable; only the sequencer-side enforcement is node-level. The mock gives that account its own `ArbosStorage` deployment, keyed off the root storage key like the ArbOS account.
+
+`FreeAccessPrecompile` reads the filterer set on every call to decide whether the call's storage is free, so the two writers read it twice — once there, once in `hasAccess` — and the view reads it once. The zero tx hash is the one input left untested, because it maps onto the same slot as the ArbOS version, which the comparer drops from the native trace but not from the mock's.
 
 ### Effort notes
 

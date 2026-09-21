@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {ArbosStorage} from "../ArbosStorage.sol";
 import {FeaturesStorage} from "./Features.sol";
+import {FilteredTransactionsStorage} from "./FilteredTransactions.sol";
 import {L1PricingStorage} from "./L1PricingState.sol";
 import {L2PricingStorage} from "./L2PricingState.sol";
 import {MerkleAccumulatorStorage, MerkleAccumulator} from "./MerkleAccumulator.sol";
@@ -21,6 +22,9 @@ library ArbosState {
     using MerkleAccumulator for MerkleAccumulatorStorage;
 
     address internal constant ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
+    // Filtered transactions are the one subsystem kept outside the ArbOS state account, in a
+    // dedicated account of their own.
+    address internal constant FILTERED_TRANSACTIONS_STORAGE_ADDRESS = 0xA4B0500000000000000000000000000000000001;
     bytes internal constant ROOT_STORAGE_KEY = hex"";
 
     uint256 internal constant VERSION_OFFSET = 0;
@@ -136,6 +140,10 @@ library ArbosState {
         bytes memory key =
             ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, TRANSACTION_FILTERER_SUBSTORAGE);
         return AddressSetStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
+    }
+
+    function filteredTransactions() internal pure returns (FilteredTransactionsStorage memory) {
+        return FilteredTransactionsStorage(Storage(FILTERED_TRANSACTIONS_STORAGE_ADDRESS, ROOT_STORAGE_KEY));
     }
 
     function features() internal pure returns (FeaturesStorage memory) {

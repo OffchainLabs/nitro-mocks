@@ -19,6 +19,8 @@ When you deploy these mocks to your Hardhat fork or local testnet, your code can
 
 All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf`. The `ArbosStorage` contract deployed here manages storage for all precompiles using a hierarchical key system.
 
+Filtered transaction hashes are the exception: they live in a dedicated account at `0xA4B0500000000000000000000000000000000001`, which gets its own `ArbosStorage` deployment.
+
 ### Implementation Status
 
 #### ArbSys (`0x64`)
@@ -156,6 +158,13 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | getCollectTips | ✅ |
 | getMaxStylusContractFragments | ❌ |
 
+#### ArbFilteredTransactionsManager (`0x74`)
+| Function | Implemented |
+|----------|-------------|
+| addFilteredTransaction | ✅ |
+| deleteFilteredTransaction | ✅ |
+| isTransactionFiltered | ✅ |
+
 #### Not Implemented
 - ArbInfo (`0x65`) ❌
 - ArbAddressTable (`0x66`) ❌
@@ -166,7 +175,6 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 - ArbWasm (`0x71`) ❌
 - ArbWasmCache (`0x72`) ❌
 - ArbNativeTokenManager (`0x73`) ❌
-- ArbFilteredTransactionsManager (`0x74`) ❌
 
 ## Development
 
