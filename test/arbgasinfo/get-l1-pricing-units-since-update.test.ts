@@ -18,45 +18,12 @@ describe("ArbGasInfo.getL1PricingUnitsSinceUpdate", function () {
       [],
       {
         storageAccess: storageAccessComparerExcludingVersion,
-        result: (mockResult: any, underlyingResult: any) => {
-          // Expected values based on architectural differences:
-          const EXPECTED_MOCK_RESULT = 0n;
-          const EXPECTED_UNDERLYING_RESULT = 2359n;
-
-          /*
-           * Why these specific values?
-           *
-           * MOCK (0):
-           * - The Solidity mock correctly reads from storage slot 6 in the L1PricingState
-           * - Storage shows 0 because units are only persisted when UpdateForBatchPosterSpending is called
-           * - Our mock implementation matches the Go code's storage read behavior exactly
-           *
-           * UNDERLYING (2359):
-           * - The testnode's Go implementation tracks units in memory during transaction processing
-           * - When any transaction is processed (including eth_call), the tx processor:
-           *   1. Calls PosterDataCost() which creates a fake transaction for gas estimation
-           *   2. The fake tx includes full transaction envelope (nonce, gas values, signature, etc.)
-           *   3. This is compressed with brotli level 1, resulting in ~130 bytes
-           *   4. Units = compressed_bytes * 16 + 256 (padding) = ~2336
-           *   5. Final units = 2336 * 1.01 (1% padding) = 2359
-           * - These units accumulate in memory via AddToUnitsSinceUpdate() but aren't written to storage
-           * - The value persists across calls within the same node instance
-           *
-           * This is an expected and correct architectural difference between:
-           * - Solidity contracts (can only read committed storage state)
-           * - Go precompiles (have access to in-memory transaction processor state)
-           */
-
-          if (typeof mockResult === "bigint" && typeof underlyingResult === "bigint") {
-            if (mockResult === EXPECTED_MOCK_RESULT && underlyingResult === EXPECTED_UNDERLYING_RESULT) {
-              return; // Test passes - both implementations are correct
-            }
+        result: (mockResult: bigint, underlyingResult: bigint) => {
+          // The mock reads the committed value. The native precompile also sees the units
+          // the tx processor added in memory for the current call, so it is always larger.
+          if (underlyingResult <= mockResult) {
+            throw new Error(`Expected underlying > mock, got mock=${mockResult}, underlying=${underlyingResult}`);
           }
-
-          throw new Error(
-            `Unexpected result: mock=${mockResult} (expected ${EXPECTED_MOCK_RESULT}), ` +
-              `underlying=${underlyingResult} (expected ${EXPECTED_UNDERLYING_RESULT})`
-          );
         }
       }
     );

@@ -2,13 +2,15 @@
 pragma solidity ^0.8.19;
 
 import {ArbSys as IArbSys} from "../submodules/nitro-precompile-interfaces/ArbSys.sol";
-import {ArbosState, MerkleAccumulatorStorage, BlockHashesStorage} from "./libraries/ArbosState.sol";
+import {ArbosState, MerkleAccumulatorStorage, BlockHashesStorage, AddressSetStorage} from "./libraries/ArbosState.sol";
 import {MerkleAccumulator} from "./libraries/MerkleAccumulator.sol";
 import {BlockHashes} from "./libraries/BlockHashes.sol";
+import {AddressSet} from "./libraries/AddressSet.sol";
 
 contract ArbSys is IArbSys {
     using MerkleAccumulator for MerkleAccumulatorStorage;
     using BlockHashes for BlockHashesStorage;
+    using AddressSet for AddressSetStorage;
 
     address constant private ARBOS_STORAGE_ADDRESS = 0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf;
     address constant private BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
@@ -53,6 +55,12 @@ contract ArbSys is IArbSys {
 
     function sendTxToL1(address destination, bytes memory data) public payable override returns (uint256) {
         uint256 l1BlockNum = ArbosState.blockHashes().l1BlockNumber();
+
+        if (msg.value > 0) {
+            require(
+                ArbosState.nativeTokenOwners().size() == 0, "not allowed to send value when native token owners exist"
+            );
+        }
 
         bytes32 sendHash = keccak256(
             abi.encodePacked(

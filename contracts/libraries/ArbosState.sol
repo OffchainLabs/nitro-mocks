@@ -87,6 +87,12 @@ library ArbosState {
         return AddressSetStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
     }
 
+    function nativeTokenOwners() internal pure returns (AddressSetStorage memory) {
+        bytes memory key =
+            ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, NATIVE_TOKEN_OWNER_SUBSTORAGE);
+        return AddressSetStorage(Storage(ARBOS_STORAGE_ADDRESS, key));
+    }
+
     function l2PricingState() internal pure returns (L2PricingStorage memory) {
         bytes memory key = ArbosStorage(ARBOS_STORAGE_ADDRESS).openSubStorage(ROOT_STORAGE_KEY, L2_PRICING_SUBSTORAGE);
         return L2PricingStorage(Storage(ARBOS_STORAGE_ADDRESS, key));

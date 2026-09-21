@@ -22,7 +22,19 @@ export function getUnderlyingProvider(): JsonRpcProvider {
 }
 
 let isForkSynced = false;
+let forkBlockNumber: number | undefined;
 const precompilesToDeploy = new Set<ArbPrecompile>();
+
+/**
+ * The block the fork is pinned at. Reads of the underlying chain must use it, or a value that
+ * moves between blocks is read at a different height on each side.
+ */
+export function getForkBlockNumber(): number {
+  if (forkBlockNumber === undefined) {
+    throw new Error("Fork is not synced yet");
+  }
+  return forkBlockNumber;
+}
 
 export async function forkSync(): Promise<void> {
   const underlyingBlock = await getUnderlyingProvider().getBlockNumber();
@@ -34,6 +46,7 @@ export async function forkSync(): Promise<void> {
       }
     }
   ]);
+  forkBlockNumber = underlyingBlock;
   precompilesToDeploy.clear();
 }
 
