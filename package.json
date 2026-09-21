@@ -26,6 +26,7 @@
     "lint:ts:fix": "eslint . --ext .ts,.tsx --fix",
     "test": "hardhat test",
     "setup:dev": "./setup-dev.sh",
+    "testnode": "./setup-testnode.sh",
     "prepublishOnly": "npm run build && npm run build:typechain && npm run build:cli"
   },
   "files": [

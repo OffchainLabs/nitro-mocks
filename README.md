@@ -172,6 +172,8 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 
 After cloning this repository, run `npm run setup:dev` to clone the Nitro source code needed for development.
 
+Tests run against a local [nitro-testnode](https://github.com/OffchainLabs/nitro-testnode) at `http://localhost:8547`. Start it with `npm run testnode`. The testnode must run ArbOS 60 or later; `npm test` refuses to run against an older node.
+
 ## Testing & Verification
 
 This project uses differential testing to ensure the mocks behave identically to Arbitrum's native precompiles. 
