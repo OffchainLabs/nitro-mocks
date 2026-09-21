@@ -10,7 +10,7 @@ import {
   Signer
 } from "ethers";
 import { getAllStorageAccessesFromCall, getAllStorageAccessesFromTx, StorageAccess } from "./storage";
-import { getForkBlockNumber, getUnderlyingProvider } from "./utils";
+import { getUnderlyingProvider, getUnderlyingReadBlock, markUnderlyingTx } from "./utils";
 import { ethers } from "hardhat";
 
 const VERSION_SLOT = "0x15fed0451499512d95f3ec5a41c878b9de55f21878b5b4e190d4667ec709b400";
@@ -348,7 +348,7 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
     mockResult = error;
   }
 
-  const underlyingBlock = getForkBlockNumber();
+  const underlyingBlock = getUnderlyingReadBlock();
 
   try {
     const underlyingFn = underlyingContract.getFunction(method as string);
@@ -379,10 +379,15 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
 
   compareResults(mockResult, underlyingResult, errorContext, options?.result);
 
-  const [mockAccesses, underlyingAccesses] = await Promise.all([
-    getAllStorageAccessesFromCall(forkProvider, address, callData, options?.from),
-    getAllStorageAccessesFromCall(underlyingProvider, address, callData, options?.from, underlyingBlock)
-  ]);
+  // Traced sequentially so only one struct log is held at a time.
+  const mockAccesses = await getAllStorageAccessesFromCall(forkProvider, address, callData, options?.from);
+  const underlyingAccesses = await getAllStorageAccessesFromCall(
+    underlyingProvider,
+    address,
+    callData,
+    options?.from,
+    underlyingBlock
+  );
 
   if (options?.storageAccess) {
     options.storageAccess(mockAccesses, underlyingAccesses);
@@ -722,6 +727,8 @@ export async function expectEquivalentTx<TContract extends BaseContract>(
   if (options.value !== undefined) overrides.value = options.value;
   if (options.gasLimit !== undefined) overrides.gasLimit = options.gasLimit;
   const txOverrides = Object.keys(overrides).length > 0 ? overrides : undefined;
+
+  markUnderlyingTx();
 
   const [mockResult, underlyingResult] = await Promise.all([
     executeTx(ContractFactory, address, method, args, options.from, forkProvider, txOverrides),
