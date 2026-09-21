@@ -28,7 +28,7 @@ This creates a challenge for developers:
 ### Step 1: Research and Understand
 
 1. **Locate the Go implementation**
-   - Start in `submodules/nitro/precompiles/Arb[Contract].go`
+   - Start in `nitro/precompiles/Arb[Contract].go`
    - Follow function calls to understand the complete flow
    - Pay attention to error messages - they must be matched exactly
 
@@ -39,7 +39,7 @@ This creates a challenge for developers:
 
 3. **Understand data structures**
    - Common patterns include AddressSet, simple storage slots, mappings
-   - Check `submodules/nitro/arbos/` for specialized storage implementations
+   - Check `nitro/arbos/` for specialized storage implementations
 
 ### Step 2: Implementation Strategy
 

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {ArbGasInfo as IArbGasInfo} from "../submodules/nitro-precompile-interfaces/ArbGasInfo.sol";
+import {ArbMultiGasConstraintsTypes} from "../submodules/nitro-precompile-interfaces/ArbMultiGasConstraintsTypes.sol";
 import {ArbosState} from "./libraries/ArbosState.sol";
 import {L1PricingState, L1PricingStorage} from "./libraries/L1PricingState.sol";
 import {L2PricingState, L2PricingStorage} from "./libraries/L2PricingState.sol";
@@ -155,5 +156,25 @@ contract ArbGasInfo is IArbGasInfo {
 
     function getLastL1PricingSurplus() external view override returns (int256) {
         return ArbosState.l1PricingState().lastSurplus();
+    }
+
+    function getMaxTxGasLimit() external view override returns (uint256) {
+        revert("Not implemented");
+    }
+
+    function getMaxBlockGasLimit() external view override returns (uint64) {
+        revert("Not implemented");
+    }
+
+    function getGasPricingConstraints() external view override returns (uint64[3][] memory) {
+        revert("Not implemented");
+    }
+
+    function getMultiGasPricingConstraints() external view override returns (ArbMultiGasConstraintsTypes.ResourceConstraint[] memory) {
+        revert("Not implemented");
+    }
+
+    function getMultiGasBaseFee() external view override returns (uint256[] memory) {
+        revert("Not implemented");
     }
 }

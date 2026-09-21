@@ -72,19 +72,14 @@ export async function deployWithChecks(options: DeploymentOptions): Promise<Depl
   let deployed: DeployedContracts | undefined;
   if (shouldDeploy) {
     log("\nDeploying Arbitrum precompile mocks...\n");
-    try {
-      const rpcUrl = (options.provider as any)._getConnection?.().url || 
-                     (options.provider as any).connection?.url || 
-                     "http://localhost:8545";
-      
-      if (options.mode === "hardhat") {
-        deployed = await deployNitroMocksHardhat(toDeployAddresses, rpcUrl);
-      } else {
-        deployed = await deployNitroMocksAnvil(toDeployAddresses, rpcUrl);
-      }
-    } catch (error: any) {
-      console.error("\nDeployment failed:", error.message);
-      throw error;
+    const rpcUrl = (options.provider as any)._getConnection?.().url || 
+                   (options.provider as any).connection?.url || 
+                   "http://localhost:8545";
+    
+    if (options.mode === "hardhat") {
+      deployed = await deployNitroMocksHardhat(toDeployAddresses, rpcUrl);
+    } else {
+      deployed = await deployNitroMocksAnvil(toDeployAddresses, rpcUrl);
     }
   } else {
     log("\nAll requested precompiles are already deployed.");

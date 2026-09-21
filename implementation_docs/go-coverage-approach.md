@@ -81,7 +81,7 @@ Modify existing test structure to:
 ### Implementation Steps
 
 1. **Extract test patterns from existing Go tests**
-   - Analyze `submodules/nitro/precompiles/ArbOwner_test.go`
+   - Analyze `nitro/precompiles/ArbOwner_test.go`
    - Identify all test scenarios and edge cases
    - Convert to JSON format
 

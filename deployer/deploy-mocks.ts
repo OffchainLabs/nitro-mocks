@@ -35,8 +35,9 @@ export enum ArbPrecompile {
   ArbOwner = "0x0000000000000000000000000000000000000070",
   ArbWasm = "0x0000000000000000000000000000000000000071",
   ArbWasmCache = "0x0000000000000000000000000000000000000072",
+  ArbNativeTokenManager = "0x0000000000000000000000000000000000000073",
+  ArbFilteredTransactionsManager = "0x0000000000000000000000000000000000000074",
   NodeInterface = "0x00000000000000000000000000000000000000c8",
-  ArbNativeTokenManager = "0x00000000000000000000000000000000000000ce",
   ArbDebug = "0x00000000000000000000000000000000000000ff"
 }
 
@@ -65,14 +66,28 @@ const IMPLEMENTED_PRECOMPILES = [
   ArbPrecompile.ArbOwnerPublic
 ];
 
+const CODE_SIZE_HINT = {
+  anvil: "start anvil with --disable-code-size-limit",
+  hardhat: "set allowUnlimitedContractSize: true on the hardhat network in hardhat.config"
+};
+
 async function deployContractAt(
   factory: ContractFactory, 
   address: string,
   provider: JsonRpcProvider,
   setCodeMethod: 'hardhat' | 'anvil'
 ): Promise<void> {
-  const contract = await factory.deploy();
-  await contract.waitForDeployment();
+  let contract;
+  try {
+    contract = await factory.deploy();
+    await contract.waitForDeployment();
+  } catch (error: any) {
+    const reason = `${error.info?.error?.message ?? ""} ${error.message ?? ""}`;
+    if (/CreateContractSizeLimit|code is too large/i.test(reason)) {
+      throw new Error(`Mock exceeds the EIP-170 code size limit. To deploy it, ${CODE_SIZE_HINT[setCodeMethod]}.`);
+    }
+    throw error;
+  }
   const bytecode = await provider.send("eth_getCode", [await contract.getAddress(), "latest"]);
   
   const method = setCodeMethod === 'anvil' ? 'anvil_setCode' : 'hardhat_setCode';
@@ -131,8 +146,9 @@ async function deployNitroMocksBase(
       case ArbPrecompile.ArbStatistics:
       case ArbPrecompile.ArbWasm:
       case ArbPrecompile.ArbWasmCache:
-      case ArbPrecompile.NodeInterface:
       case ArbPrecompile.ArbNativeTokenManager:
+      case ArbPrecompile.ArbFilteredTransactionsManager:
+      case ArbPrecompile.NodeInterface:
       case ArbPrecompile.ArbDebug:
         throw new Error(`Precompile ${precompileAddress} is not yet implemented`);
       default:
