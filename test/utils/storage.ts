@@ -94,7 +94,8 @@ export async function getAllStorageAccessesFromTx(
     {
       enableMemory: false,
       enableReturnData: false,
-      disableStorage: false
+      // The parser reads slots off the stack; the per-step storage map is unused and enormous.
+      disableStorage: true
     }
   ]);
 
@@ -127,7 +128,8 @@ export async function getAllStorageAccessesFromCall(
     {
       enableMemory: false,
       enableReturnData: false,
-      disableStorage: false
+      // The parser reads slots off the stack; the per-step storage map is unused and enormous.
+      disableStorage: true
     }
   ]);
 

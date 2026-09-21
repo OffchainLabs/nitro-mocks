@@ -19,6 +19,8 @@ When you deploy these mocks to your Hardhat fork or local testnet, your code can
 
 All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf`. The `ArbosStorage` contract deployed here manages storage for all precompiles using a hierarchical key system.
 
+Filtered transaction hashes are the exception: they live in a dedicated account at `0xA4B0500000000000000000000000000000000001`, which gets its own `ArbosStorage` deployment.
+
 ### Implementation Status
 
 #### ArbSys (`0x64`)
@@ -64,11 +66,11 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | getL1PricingFundsDueForRewards | ✅ |
 | getL1PricingUnitsSinceUpdate | ✅ |
 | getLastL1PricingSurplus | ✅ |
-| getMaxTxGasLimit | ❌ |
-| getMaxBlockGasLimit | ❌ |
-| getGasPricingConstraints | ❌ |
-| getMultiGasPricingConstraints | ❌ |
-| getMultiGasBaseFee | ❌ |
+| getMaxTxGasLimit | ✅ |
+| getMaxBlockGasLimit | ✅ |
+| getGasPricingConstraints | ✅ |
+| getMultiGasPricingConstraints | ✅ |
+| getMultiGasBaseFee | ✅ |
 
 #### ArbOwner (`0x70`)
 | Function | Implemented |
@@ -112,25 +114,25 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | setWasmBlockCacheSize | ❌ |
 | addWasmCacheManager | ❌ |
 | removeWasmCacheManager | ❌ |
-| setNativeTokenManagementFrom | ❌ |
-| addNativeTokenOwner | ❌ |
-| removeNativeTokenOwner | ❌ |
-| isNativeTokenOwner | ❌ |
-| getAllNativeTokenOwners | ❌ |
-| setTransactionFilteringFrom | ❌ |
-| addTransactionFilterer | ❌ |
-| removeTransactionFilterer | ❌ |
-| isTransactionFilterer | ❌ |
-| getAllTransactionFilterers | ❌ |
-| setFilteredFundsRecipient | ❌ |
-| getFilteredFundsRecipient | ❌ |
-| setMaxBlockGasLimit | ❌ |
-| setParentGasFloorPerToken | ❌ |
-| setCalldataPriceIncrease | ❌ |
-| setGasBacklog | ❌ |
-| setGasPricingConstraints | ❌ |
-| setMultiGasPricingConstraints | ❌ |
-| setCollectTips | ❌ |
+| setNativeTokenManagementFrom | ✅ |
+| addNativeTokenOwner | ✅ |
+| removeNativeTokenOwner | ✅ |
+| isNativeTokenOwner | ✅ |
+| getAllNativeTokenOwners | ✅ |
+| setTransactionFilteringFrom | ✅ |
+| addTransactionFilterer | ✅ |
+| removeTransactionFilterer | ✅ |
+| isTransactionFilterer | ✅ |
+| getAllTransactionFilterers | ✅ |
+| setFilteredFundsRecipient | ✅ |
+| getFilteredFundsRecipient | ✅ |
+| setMaxBlockGasLimit | ✅ |
+| setParentGasFloorPerToken | ✅ |
+| setCalldataPriceIncrease | ✅ |
+| setGasBacklog | ✅ |
+| setGasPricingConstraints | ✅ |
+| setMultiGasPricingConstraints | ✅ |
+| setCollectTips | ✅ |
 | setMaxStylusContractFragments | ❌ |
 | setWasmActivationGas | ❌ |
 
@@ -144,17 +146,24 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | getBrotliCompressionLevel | ✅ |
 | getScheduledUpgrade | ✅ |
 | rectifyChainOwner | ❌ |
-| getNativeTokenManagementFrom | ❌ |
-| isNativeTokenOwner | ❌ |
-| getAllNativeTokenOwners | ❌ |
-| getTransactionFilteringFrom | ❌ |
-| isTransactionFilterer | ❌ |
-| getAllTransactionFilterers | ❌ |
-| getFilteredFundsRecipient | ❌ |
-| getParentGasFloorPerToken | ❌ |
-| isCalldataPriceIncreaseEnabled | ❌ |
-| getCollectTips | ❌ |
+| getNativeTokenManagementFrom | ✅ |
+| isNativeTokenOwner | ✅ |
+| getAllNativeTokenOwners | ✅ |
+| getTransactionFilteringFrom | ✅ |
+| isTransactionFilterer | ✅ |
+| getAllTransactionFilterers | ✅ |
+| getFilteredFundsRecipient | ✅ |
+| getParentGasFloorPerToken | ✅ |
+| isCalldataPriceIncreaseEnabled | ✅ |
+| getCollectTips | ✅ |
 | getMaxStylusContractFragments | ❌ |
+
+#### ArbFilteredTransactionsManager (`0x74`)
+| Function | Implemented |
+|----------|-------------|
+| addFilteredTransaction | ✅ |
+| deleteFilteredTransaction | ✅ |
+| isTransactionFiltered | ✅ |
 
 #### Not Implemented
 - ArbInfo (`0x65`) ❌
@@ -166,7 +175,6 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 - ArbWasm (`0x71`) ❌
 - ArbWasmCache (`0x72`) ❌
 - ArbNativeTokenManager (`0x73`) ❌
-- ArbFilteredTransactionsManager (`0x74`) ❌
 
 ## Development
 

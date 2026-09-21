@@ -5,11 +5,13 @@ import {
   ArbGasInfo__factory,
   ArbOwner__factory,
   ArbOwnerPublic__factory,
+  ArbFilteredTransactionsManager__factory,
   ArbosStorage,
   ArbSys,
   ArbGasInfo,
   ArbOwner,
-  ArbOwnerPublic
+  ArbOwnerPublic,
+  ArbFilteredTransactionsManager
 } from "../typechain-types";
 
 let hre: any;
@@ -55,15 +57,19 @@ export interface DeployedContracts {
   arbOwnerPublic?: ArbOwnerPublic;
   arbWasm?: BaseContract;
   arbWasmCache?: BaseContract;
+  arbFilteredTransactionsManager?: ArbFilteredTransactionsManager;
 }
 
 const ARBOS_STORAGE_ADDRESS = "0xA4b05FffffFffFFFFfFFfffFfffFFfffFfFfFFFf";
+// Filtered transactions are stored in their own account rather than the ArbOS state account.
+const FILTERED_TRANSACTIONS_STORAGE_ADDRESS = "0xA4B0500000000000000000000000000000000001";
 
 const IMPLEMENTED_PRECOMPILES = [
   ArbPrecompile.ArbSys,
   ArbPrecompile.ArbGasInfo,
   ArbPrecompile.ArbOwner,
-  ArbPrecompile.ArbOwnerPublic
+  ArbPrecompile.ArbOwnerPublic,
+  ArbPrecompile.ArbFilteredTransactionsManager
 ];
 
 const CODE_SIZE_HINT = {
@@ -135,6 +141,13 @@ async function deployNitroMocksBase(
         deployed.arbOwnerPublic = factory.attach(precompileAddress) as ArbOwnerPublic;
         break;
       }
+      case ArbPrecompile.ArbFilteredTransactionsManager: {
+        await deployContractAt(arbosStorageFactory, FILTERED_TRANSACTIONS_STORAGE_ADDRESS, provider, setCodeMethod);
+        const factory = new ArbFilteredTransactionsManager__factory(signer);
+        await deployContractAt(factory, precompileAddress, provider, setCodeMethod);
+        deployed.arbFilteredTransactionsManager = factory.attach(precompileAddress) as ArbFilteredTransactionsManager;
+        break;
+      }
       case ArbPrecompile.ArbInfo:
       case ArbPrecompile.ArbAddressTable:
       case ArbPrecompile.ArbBLS:
@@ -147,7 +160,6 @@ async function deployNitroMocksBase(
       case ArbPrecompile.ArbWasm:
       case ArbPrecompile.ArbWasmCache:
       case ArbPrecompile.ArbNativeTokenManager:
-      case ArbPrecompile.ArbFilteredTransactionsManager:
       case ArbPrecompile.NodeInterface:
       case ArbPrecompile.ArbDebug:
         throw new Error(`Precompile ${precompileAddress} is not yet implemented`);

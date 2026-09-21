@@ -27,11 +27,20 @@ library L1PricingState {
     uint256 internal constant PER_BATCH_GAS_COST_OFFSET = 9;
     uint256 internal constant AMORTIZED_COST_CAP_BIPS_OFFSET = 10;
     uint256 internal constant L1_FEES_AVAILABLE_OFFSET = 11;
+    uint256 internal constant GAS_FLOOR_PER_TOKEN_OFFSET = 12;
 
     bytes internal constant BATCH_POSTER_TABLE_KEY = hex"00";
 
     function setInertia(L1PricingStorage memory self, uint64 inertia) internal {
         ArbosStorage(self.store.addr).setUint64(self.store.key, INERTIA_OFFSET, inertia);
+    }
+
+    function setParentGasFloorPerToken(L1PricingStorage memory self, uint64 floor) internal {
+        ArbosStorage(self.store.addr).setUint64(self.store.key, GAS_FLOOR_PER_TOKEN_OFFSET, floor);
+    }
+
+    function parentGasFloorPerToken(L1PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, GAS_FLOOR_PER_TOKEN_OFFSET);
     }
 
     function setAmortizedCostCapBips(L1PricingStorage memory self, uint64 cap) internal {

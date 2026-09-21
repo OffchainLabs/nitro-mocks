@@ -23,17 +23,24 @@ export function getUnderlyingProvider(): JsonRpcProvider {
 
 let isForkSynced = false;
 let forkBlockNumber: number | undefined;
+let hasUnderlyingTx = false;
 const precompilesToDeploy = new Set<ArbPrecompile>();
 
 /**
- * The block the fork is pinned at. Reads of the underlying chain must use it, or a value that
- * moves between blocks is read at a different height on each side.
+ * The block underlying reads should use. Pinning to the fork block stops a value that moves
+ * between blocks from being read at a different height on each side. Once a transaction has
+ * been sent to the underlying chain its write sits past that block, while the fork holds it
+ * locally, so from then on only the tip has what the fork has.
  */
-export function getForkBlockNumber(): number {
+export function getUnderlyingReadBlock(): number | "latest" {
   if (forkBlockNumber === undefined) {
     throw new Error("Fork is not synced yet");
   }
-  return forkBlockNumber;
+  return hasUnderlyingTx ? "latest" : forkBlockNumber;
+}
+
+export function markUnderlyingTx(): void {
+  hasUnderlyingTx = true;
 }
 
 export async function forkSync(): Promise<void> {
@@ -47,6 +54,7 @@ export async function forkSync(): Promise<void> {
     }
   ]);
   forkBlockNumber = underlyingBlock;
+  hasUnderlyingTx = false;
   precompilesToDeploy.clear();
 }
 

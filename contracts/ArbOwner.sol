@@ -5,17 +5,34 @@ import {ArbOwner as IArbOwner} from "../submodules/nitro-precompile-interfaces/A
 import {AddressSet, AddressSetStorage} from "./libraries/AddressSet.sol";
 import {ArbMultiGasConstraintsTypes} from "../submodules/nitro-precompile-interfaces/ArbMultiGasConstraintsTypes.sol";
 import {ArbosState} from "./libraries/ArbosState.sol";
+import {Features, FeaturesStorage} from "./libraries/Features.sol";
 import {L1PricingState, L1PricingStorage} from "./libraries/L1PricingState.sol";
 import {L2PricingState, L2PricingStorage} from "./libraries/L2PricingState.sol";
+import {NUM_RESOURCE_KIND} from "./libraries/MultiGasConstraint.sol";
 
 contract ArbOwner is IArbOwner {
+    using Features for FeaturesStorage;
     using L1PricingState for L1PricingStorage;
     using L2PricingState for L2PricingStorage;
     using AddressSet for AddressSetStorage;
 
+    uint64 internal constant FEATURE_ENABLE_DELAY = 7 * 24 * 60 * 60;
+
     modifier onlyChainOwner() {
         require(ArbosState.chainOwners().isMember(msg.sender), "unauthorized caller to access-controlled method");
         _;
+    }
+
+    // Callers read the stored time only when the new time is non-zero, matching the Go
+    // setFeatureFromTime, which returns before reading the field when disabling a feature.
+    function requireValidFeatureFromTime(uint64 stored, uint64 timestamp) private view {
+        uint64 minEnableTime = uint64(block.timestamp) + FEATURE_ENABLE_DELAY;
+        if ((stored == 0 || stored > minEnableTime) && timestamp < minEnableTime) {
+            revert("feature must be enabled at least 7 days in the future");
+        }
+        if (stored > block.timestamp && stored <= minEnableTime && timestamp < stored) {
+            revert("feature cannot be updated to a time earlier than the current scheduled enable time");
+        }
     }
 
     function getAllChainOwners() external view override onlyChainOwner returns (address[] memory) {
@@ -216,80 +233,162 @@ contract ArbOwner is IArbOwner {
         revert("Not implemented");
     }
 
-    function setNativeTokenManagementFrom(uint64) external override {
-        revert("Not implemented");
+    function setNativeTokenManagementFrom(uint64 timestamp) external override onlyChainOwner {
+        if (timestamp != 0) {
+            requireValidFeatureFromTime(ArbosState.nativeTokenManagementFromTime(), timestamp);
+        }
+
+        ArbosState.setNativeTokenManagementFromTime(timestamp);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setTransactionFilteringFrom(uint64) external override {
-        revert("Not implemented");
+    function setTransactionFilteringFrom(uint64 timestamp) external override onlyChainOwner {
+        if (timestamp != 0) {
+            requireValidFeatureFromTime(ArbosState.transactionFilteringFromTime(), timestamp);
+        }
+
+        ArbosState.setTransactionFilteringFromTime(timestamp);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function addNativeTokenOwner(address) external override {
-        revert("Not implemented");
+    function addNativeTokenOwner(address newOwner) external override onlyChainOwner {
+        uint64 enabledTime = ArbosState.nativeTokenManagementFromTime();
+        require(enabledTime != 0 && enabledTime <= block.timestamp, "native token feature is not enabled yet");
+
+        ArbosState.nativeTokenOwners().add(newOwner);
+        emit NativeTokenOwnerAdded(newOwner);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function removeNativeTokenOwner(address) external override {
-        revert("Not implemented");
+    function removeNativeTokenOwner(address ownerToRemove) external override onlyChainOwner {
+        require(ArbosState.nativeTokenOwners().isMember(ownerToRemove), "tried to remove non native token owner");
+
+        ArbosState.nativeTokenOwners().remove(ownerToRemove);
+        emit NativeTokenOwnerRemoved(ownerToRemove);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function isNativeTokenOwner(address) external view override returns (bool) {
-        revert("Not implemented");
+    function isNativeTokenOwner(address addr) external view override onlyChainOwner returns (bool) {
+        return ArbosState.nativeTokenOwners().isMember(addr);
     }
 
-    function getAllNativeTokenOwners() external view override returns (address[] memory) {
-        revert("Not implemented");
+    function getAllNativeTokenOwners() external view override onlyChainOwner returns (address[] memory) {
+        return ArbosState.nativeTokenOwners().allMembers(65536);
     }
 
-    function addTransactionFilterer(address) external override {
-        revert("Not implemented");
+    function addTransactionFilterer(address filterer) external override onlyChainOwner {
+        uint64 enabledTime = ArbosState.transactionFilteringFromTime();
+        require(enabledTime != 0 && enabledTime <= block.timestamp, "transaction filtering feature is not enabled yet");
+
+        ArbosState.transactionFilterers().add(filterer);
+        emit TransactionFiltererAdded(filterer);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function removeTransactionFilterer(address) external override {
-        revert("Not implemented");
+    function removeTransactionFilterer(address filterer) external override onlyChainOwner {
+        require(
+            ArbosState.transactionFilterers().isMember(filterer), "tried to remove non existing transaction filterer"
+        );
+
+        ArbosState.transactionFilterers().remove(filterer);
+        emit TransactionFiltererRemoved(filterer);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function isTransactionFilterer(address) external view override returns (bool) {
-        revert("Not implemented");
+    function isTransactionFilterer(address filterer) external view override onlyChainOwner returns (bool) {
+        return ArbosState.transactionFilterers().isMember(filterer);
     }
 
-    function getAllTransactionFilterers() external view override returns (address[] memory) {
-        revert("Not implemented");
+    function getAllTransactionFilterers() external view override onlyChainOwner returns (address[] memory) {
+        return ArbosState.transactionFilterers().allMembers(65536);
     }
 
-    function setFilteredFundsRecipient(address) external override {
-        revert("Not implemented");
+    function setFilteredFundsRecipient(address newRecipient) external override onlyChainOwner {
+        ArbosState.setFilteredFundsRecipient(newRecipient);
+        emit FilteredFundsRecipientSet(newRecipient);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function getFilteredFundsRecipient() external view override returns (address) {
-        revert("Not implemented");
+    function getFilteredFundsRecipient() external view override onlyChainOwner returns (address) {
+        return ArbosState.filteredFundsRecipient();
     }
 
-    function setMaxBlockGasLimit(uint64) external override {
-        revert("Not implemented");
+    function setMaxBlockGasLimit(uint64 limit) external override onlyChainOwner {
+        ArbosState.l2PricingState().setMaxPerBlockGasLimit(limit);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setParentGasFloorPerToken(uint64) external override {
-        revert("Not implemented");
+    function setParentGasFloorPerToken(uint64 gasFloorPerToken) external override onlyChainOwner {
+        ArbosState.l1PricingState().setParentGasFloorPerToken(gasFloorPerToken);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setCalldataPriceIncrease(bool) external override {
-        revert("Not implemented");
+    function setCalldataPriceIncrease(bool enable) external override onlyChainOwner {
+        ArbosState.features().setCalldataPriceIncrease(enable);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setGasBacklog(uint64) external override {
-        revert("Not implemented");
+    function setGasBacklog(uint64 backlog) external override onlyChainOwner {
+        ArbosState.l2PricingState().setGasBacklog(backlog);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setGasPricingConstraints(uint64[3][] calldata) external override {
-        revert("Not implemented");
+    function setGasPricingConstraints(uint64[3][] calldata constraints) external override onlyChainOwner {
+        L2PricingStorage memory l2PricingState = ArbosState.l2PricingState();
+        l2PricingState.clearGasConstraints();
+
+        for (uint256 i = 0; i < constraints.length; i++) {
+            require(constraints[i][0] != 0 && constraints[i][1] != 0, "invalid constraint");
+            l2PricingState.addGasConstraint(constraints[i][0], constraints[i][1], constraints[i][2]);
+        }
+
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setMultiGasPricingConstraints(ArbMultiGasConstraintsTypes.ResourceConstraint[] calldata) external override {
-        revert("Not implemented");
+    function setMultiGasPricingConstraints(ArbMultiGasConstraintsTypes.ResourceConstraint[] calldata constraints)
+        external
+        override
+        onlyChainOwner
+    {
+        L2PricingStorage memory l2PricingState = ArbosState.l2PricingState();
+        l2PricingState.clearMultiGasConstraints();
+
+        for (uint256 i = 0; i < constraints.length; i++) {
+            require(constraints[i].targetPerSec != 0 && constraints[i].adjustmentWindowSecs != 0, "invalid constraint");
+            l2PricingState.addMultiGasConstraint(
+                constraints[i].targetPerSec,
+                constraints[i].adjustmentWindowSecs,
+                constraints[i].backlog,
+                resourceWeights(constraints[i].resources)
+            );
+        }
+
+        uint64[NUM_RESOURCE_KIND] memory exponents = l2PricingState.calcMultiGasConstraintsExponents();
+        for (uint256 kind = 0; kind < NUM_RESOURCE_KIND; kind++) {
+            require(
+                exponents[kind] <= L2PricingState.MAX_PRICING_EXPONENT_BIPS,
+                "calculated exponent exceeds maximum allowed"
+            );
+        }
+
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
     }
 
-    function setCollectTips(bool) external override {
-        revert("Not implemented");
+    function setCollectTips(bool collectTips) external override onlyChainOwner {
+        ArbosState.setCollectTips(collectTips);
+        emit OwnerActs(msg.sig, msg.sender, msg.data);
+    }
+
+    function resourceWeights(ArbMultiGasConstraintsTypes.WeightedResource[] calldata resources)
+        private
+        pure
+        returns (uint64[NUM_RESOURCE_KIND] memory weights)
+    {
+        for (uint256 i = 0; i < resources.length; i++) {
+            uint256 kind = uint256(resources[i].resource);
+            require(kind != uint256(ArbMultiGasConstraintsTypes.ResourceKind.Unknown), "invalid resource id");
+            weights[kind] = resources[i].weight;
+        }
     }
 
     function setMaxStylusContractFragments(uint8) external override {
