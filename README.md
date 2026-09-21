@@ -144,16 +144,16 @@ All Arbitrum system state lives at a single address: `0xA4b05FffffFffFFFFfFFfffF
 | getBrotliCompressionLevel | ✅ |
 | getScheduledUpgrade | ✅ |
 | rectifyChainOwner | ❌ |
-| getNativeTokenManagementFrom | ❌ |
-| isNativeTokenOwner | ❌ |
-| getAllNativeTokenOwners | ❌ |
-| getTransactionFilteringFrom | ❌ |
-| isTransactionFilterer | ❌ |
-| getAllTransactionFilterers | ❌ |
-| getFilteredFundsRecipient | ❌ |
-| getParentGasFloorPerToken | ❌ |
-| isCalldataPriceIncreaseEnabled | ❌ |
-| getCollectTips | ❌ |
+| getNativeTokenManagementFrom | ✅ |
+| isNativeTokenOwner | ✅ |
+| getAllNativeTokenOwners | ✅ |
+| getTransactionFilteringFrom | ✅ |
+| isTransactionFilterer | ✅ |
+| getAllTransactionFilterers | ✅ |
+| getFilteredFundsRecipient | ✅ |
+| getParentGasFloorPerToken | ✅ |
+| isCalldataPriceIncreaseEnabled | ✅ |
+| getCollectTips | ✅ |
 | getMaxStylusContractFragments | ❌ |
 
 #### Not Implemented

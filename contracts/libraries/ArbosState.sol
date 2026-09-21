@@ -82,6 +82,10 @@ library ArbosState {
         ArbosStorage(ARBOS_STORAGE_ADDRESS).setAddr(ROOT_STORAGE_KEY, FILTERED_FUNDS_RECIPIENT_OFFSET, recipient);
     }
 
+    function collectTips() internal view returns (bool) {
+        return ArbosStorage(ARBOS_STORAGE_ADDRESS).getUint64(ROOT_STORAGE_KEY, COLLECT_TIPS_OFFSET) != 0;
+    }
+
     function setCollectTips(bool collect) internal {
         ArbosStorage(ARBOS_STORAGE_ADDRESS).setUint64(ROOT_STORAGE_KEY, COLLECT_TIPS_OFFSET, collect ? 1 : 0);
     }

@@ -13,7 +13,7 @@ describe("ArbOwner.setParentGasFloorPerToken", function () {
   beforeEach(async function () {
     await deployAndSetCode([ArbPrecompile.ArbOwner]);
 
-    // The ArbOwnerPublic getter is not mocked yet, so the original is read from the testnode.
+    // Only ArbOwner is deployed on the fork, so the original is read from the testnode.
     const arbOwnerPublic = ArbOwnerPublic__factory.connect(ArbPrecompile.ArbOwnerPublic, getUnderlyingProvider());
     originalValue = await arbOwnerPublic.getParentGasFloorPerToken();
   });

@@ -39,6 +39,10 @@ library L1PricingState {
         ArbosStorage(self.store.addr).setUint64(self.store.key, GAS_FLOOR_PER_TOKEN_OFFSET, floor);
     }
 
+    function parentGasFloorPerToken(L1PricingStorage memory self) internal view returns (uint64) {
+        return ArbosStorage(self.store.addr).getUint64(self.store.key, GAS_FLOOR_PER_TOKEN_OFFSET);
+    }
+
     function setAmortizedCostCapBips(L1PricingStorage memory self, uint64 cap) internal {
         ArbosStorage(self.store.addr).setUint64(self.store.key, AMORTIZED_COST_CAP_BIPS_OFFSET, cap);
     }
