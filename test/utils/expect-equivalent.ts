@@ -10,7 +10,7 @@ import {
   Signer
 } from "ethers";
 import { getAllStorageAccessesFromCall, getAllStorageAccessesFromTx, StorageAccess } from "./storage";
-import { getUnderlyingProvider } from "./utils";
+import { getForkBlockNumber, getUnderlyingProvider } from "./utils";
 import { ethers } from "hardhat";
 
 const VERSION_SLOT = "0x15fed0451499512d95f3ec5a41c878b9de55f21878b5b4e190d4667ec709b400";
@@ -348,9 +348,14 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
     mockResult = error;
   }
 
+  const underlyingBlock = getForkBlockNumber();
+
   try {
     const underlyingFn = underlyingContract.getFunction(method as string);
-    underlyingResult = await underlyingFn.staticCall(...args, { from: options?.from });
+    underlyingResult = await underlyingFn.staticCall(...args, {
+      from: options?.from,
+      blockTag: underlyingBlock
+    });
   } catch (error) {
     underlyingReverted = true;
     underlyingResult = error;
@@ -376,7 +381,7 @@ export async function expectEquivalentCall<TContract extends BaseContract>(
 
   const [mockAccesses, underlyingAccesses] = await Promise.all([
     getAllStorageAccessesFromCall(forkProvider, address, callData, options?.from),
-    getAllStorageAccessesFromCall(underlyingProvider, address, callData, options?.from)
+    getAllStorageAccessesFromCall(underlyingProvider, address, callData, options?.from, underlyingBlock)
   ]);
 
   if (options?.storageAccess) {

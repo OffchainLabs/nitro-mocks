@@ -118,9 +118,12 @@ export async function getAllStorageAccessesFromCall(
     from: from || "0x0000000000000000000000000000000000000000"
   };
 
+  // debug_traceCall rejects a block height sent as a JSON number.
+  const block = typeof blockTag === "number" ? `0x${blockTag.toString(16)}` : blockTag || "latest";
+
   const trace = await provider.send("debug_traceCall", [
     callParams,
-    blockTag || "latest",
+    block,
     {
       enableMemory: false,
       enableReturnData: false,
