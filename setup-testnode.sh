@@ -9,4 +9,4 @@ cd nitro-testnode
 git fetch -q origin
 git checkout 55807a8aa18b6c8faa81c380b2c5c270fe98b0e0
 git submodule update --init --recursive
-./test-node.bash --init-force --l2-tx-filtering "$@"
+./test-node.bash --init-force --detach --l2-tx-filtering "$@"
