@@ -10,8 +10,8 @@ git fetch -q origin
 git checkout 55807a8aa18b6c8faa81c380b2c5c270fe98b0e0
 git submodule update --init --recursive
 git checkout -- docker-compose.yaml
-# The sequencer keeps state for the last 128 blocks, but hardhat forks unknown chains at
-# latest-128, so the fork block is pruned as soon as the chain passes 128 blocks.
+# The differential tests read the underlying chain at the block the fork is pinned to, and the
+# sequencer only keeps state for the last 128 blocks.
 git apply <<'EOF'
 --- a/docker-compose.yaml
 +++ b/docker-compose.yaml
@@ -24,4 +24,4 @@ git apply <<'EOF'
        - --node.seq-coordinator.my-url=http://sequencer:8547
        - --graphql.enable
 EOF
-./test-node.bash --init-force --l2-tx-filtering "$@"
+./test-node.bash --init-force --detach --l2-tx-filtering "$@"
